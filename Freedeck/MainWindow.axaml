@@ -8,6 +8,7 @@
         Height="450"
         x:Class="Freedeck.MainWindow"
         Background="#2d2d32"
+        Icon="Assets/FDAP.ico"
         Title="Freedeck Launcher">
     <Window.Styles>
         <StyleInclude Source="/Styles1.axaml" />
