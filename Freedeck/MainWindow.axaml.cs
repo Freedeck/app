@@ -108,8 +108,6 @@ public partial class MainWindow : Window
         }
         else
             _setupLogic.OnLaunch(this);
-
-        FakeConfig.test();
     }
 
     public void SetupAllConfiguration()

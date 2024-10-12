@@ -1,11 +1,14 @@
 ﻿using System;
+using System.IO;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 
 namespace Freedeck.Fakedeck;
 
 public class FakeConfig
 {
-    public static void test()
+    public static void CreateDefaultConfiguration()
     {
         var defaultProfile = new ProfileBuilder()
             .AddEntry("Welcome",
@@ -35,25 +38,48 @@ public class FakeConfig
                     .SetUUID("fdc.4734120.486344044")
                     .Build())
             .Build();
+        var notDefaultProfile = new ProfileBuilder()
+            .AddEntry("Welcome to Freedeck!",
+                new TileBuilder()
+                    .SetType("fd.none")
+                    .SetPosition(0)
+                    .SetUUID("fdc.9539141.899567483")
+                    .Build())
+            .Build();
 
         var cfg = new ConfigBuilder()
             .SetWriteLogs(true)
-            .SetRelease("stable")
             .SetTheme("default")
-            .SetActiveProfile("TestCFG")
+            .SetActiveProfile("Default")
             .SetScreenSaverActivationTime(5)
             .SetSoundOnPress(false)
-            .SetUseAuthentication(false)
             .SetIconCountPerPage(12)
             .SetPort(5754)
-            .AddProfile("TestCFG", defaultProfile)
+            .SetUseAuthentication(false)
+            .SetRelease(SetupLogic.IsChecked(MainWindow.Instance.SaRelease) ? "stable" : "dev")
+            .AddProfile("Default", SetupLogic.IsChecked(MainWindow.Instance.SaWelcome) ? defaultProfile : notDefaultProfile)
             .Build();
+
+        if (!Directory.Exists(MainWindow.InstallPath + "\\freedeck\\src\\configs"))
+            Directory.CreateDirectory(MainWindow.InstallPath + "\\freedeck\\src\\configs");
         
-        Console.WriteLine($"Generated testing configuration. Config release: {cfg.release}, Active profile: {cfg.profile}");
-        Console.WriteLine(FormatForFile(cfg));
+        string hash = "fd.524c0321d302bd63cd4dcb56f0430b16be3cee5119dedc950271e1296944af83586326565db12b0a4caa65d7b83c8c11b738fc11b390a256f22f798fc72f7e1d";
+        if (SetupLogic.IsChecked(MainWindow.Instance.SaAuthentication))
+        {
+            using (SHA512 shaM = SHA512.Create())
+            {
+                hash = "fd." + shaM.ComputeHash("Asd"u8.ToArray());
+            }
+        }
+        
+        string fullCompleteSecrets = "const crypto = require('crypto');\nmodule.exports = {s:{password: '"+hash+"'},hash: (data) => 'fd.' + crypto.createHash('sha512').update(data).digest().toString('hex')};";
+        File.WriteAllText(MainWindow.InstallPath + "\\freedeck\\src\\configs\\secrets.fd.js", fullCompleteSecrets);
+        File.WriteAllText(MainWindow.InstallPath + "\\freedeck\\src\\configs\\config.fd.js", FormatForFile(cfg));
+        
+        Console.WriteLine($"Generated configuration. Config release: {cfg.release}, Active profile: {cfg.profile}");
     }
 
-    public static string FormatForFile(FdConfig configuration)
+    private static string FormatForFile(FdConfig configuration)
     {
         string serialized = JsonSerializer.Serialize(configuration);
         return

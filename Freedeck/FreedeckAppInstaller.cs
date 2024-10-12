@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Threading;
+using Freedeck.Fakedeck;
 
 namespace Freedeck;
 
@@ -110,6 +111,9 @@ public class FreedeckAppInstaller
 
     private void StageFour(Action finish)
     {
+        MainWindow.Instance.InstallProgress.Value = 85;
+        MainWindow.Instance.InstallState.Text = "Making your configuration...";
+        FakeConfig.CreateDefaultConfiguration();
         MainWindow.Instance.InstallProgress.Value = 100;
         MainWindow.Instance.InstallState.Text = "Installation is complete. Relinquishing control to Main.";
         finish();
