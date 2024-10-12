@@ -29,7 +29,7 @@ public static class UriProtocolRegistrar
             if (shellKey == null) throw new Exception("Failed to create the shell\\open\\command key.");
 
             shellKey.SetValue("", $"\"{appPath}\" \"%1\"");  // Command with argument
-            Console.WriteLine($"Successfully registered {protocol} protocol.");
+            Console.WriteLine($"Successfully registered {protocol} protocol for {(userLevel ? "user" : "classes root")}.");
         }
         catch (Exception ex)
         {

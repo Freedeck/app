@@ -106,8 +106,20 @@ public class SetupLogic
                 window.InstallState.Text = "Cleaning up old launcher...";
                 if (File.Exists(MainWindow.InstallPath + "\\launcher.exe"))
                 {
-                    File.Delete(Path.Combine(MainWindow.InstallPath, "\\launcher.exe"));
+
+                    File.Delete(MainWindow.InstallPath+ "\\launcher.exe");
                     window.InstallState.Text = "Deleted old launcher.";
+                }
+                if (File.Exists(MainWindow.InstallPath + "\\handoff.exe"))
+                {
+                    window.InstallState.Text = "Please allow admin, we're removing the old Handoff. We will not need admin after this.";
+                    var exeName = Process.GetCurrentProcess().MainModule.FileName;
+                    ProcessStartInfo startInfo = new ProcessStartInfo(exeName);
+                    startInfo.Verb = "runas";
+                    startInfo.ArgumentList.Add("HandoffAdminReset");
+                    Process.Start(startInfo);
+                    File.Delete(MainWindow.InstallPath+"\\handoff.exe");
+                    window.InstallState.Text = "Deleted old Handoff.";
                 }
                 
                 window.InstallProgress.Value = 30;

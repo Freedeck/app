@@ -1,6 +1,9 @@
 ﻿using Avalonia;
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Security.Principal;
 
 namespace Freedeck;
 
@@ -9,11 +12,20 @@ class Program
     // Initialization code. Don't use any Avalonia, third-party APIs or any
     // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
     // yet and stuff might break.
+    
+    private static bool IsAdministrator()
+    {
+        if (!OperatingSystem.IsWindows()) return false;
+        WindowsIdentity identity = WindowsIdentity.GetCurrent();
+        WindowsPrincipal principal = new WindowsPrincipal(identity);
+        return principal.IsInRole(WindowsBuiltInRole.Administrator);
+    }
+
     [STAThread]
     public static void Main(string[] args) {
         
         string protocol = "freedeck";  // Replace with your protocol name
-        string appPath = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
+        string appPath = Process.GetCurrentProcess().MainModule.FileName;
 
         // Try registering without admin rights (user-level)
         UriProtocolRegistrar.RegisterUriScheme(protocol, appPath, userLevel: true);
@@ -22,7 +34,12 @@ class Program
         if (!isNewInstance)
         {
             // The app is already running. Pass the arguments to the running instance.
-            SendArgsToExistingInstance(args);
+            if(args[0].Contains("freedeck://")) SendArgsToExistingInstance(args);
+            else if(args[0].Contains("HandoffAdminReset") && OperatingSystem.IsWindows())
+            {
+                if (!IsAdministrator()) return;
+                UriProtocolRegistrar.RegisterUriScheme(protocol, appPath, false);                
+            }
             return;
         }
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);

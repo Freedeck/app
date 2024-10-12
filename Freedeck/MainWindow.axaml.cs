@@ -88,8 +88,8 @@ public partial class MainWindow : Window
 
     private bool IsAppInstalled()
     {
-        return File.Exists(InstallPath + "\\freedeck\\package.json") ||
-               File.Exists(LauncherConfig.Configuration.InstallationDirectory + "\\freedeck\\package.json");
+        return File.Exists(InstallPath + "\\Freedeck.exe") ||
+               File.Exists(LauncherConfig.Configuration.InstallationDirectory + "\\Freedeck.exe");
     }
 
     public MainWindow()

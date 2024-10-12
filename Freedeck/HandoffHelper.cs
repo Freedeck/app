@@ -25,6 +25,11 @@ public class HandoffHelper
         {
             case "download":
             case "update":
+                if (args.Length < 5)
+                {
+                    Console.WriteLine("Received malformed command");
+                    return;
+                }
                 string id = args[1];
                 string url = Uri.UnescapeDataString(args[2]);
                 string description = Uri.UnescapeDataString(args[3]);
