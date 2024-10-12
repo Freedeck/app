@@ -71,6 +71,8 @@ public class FreedeckAppInstaller
         proc.StartInfo.ArgumentList.Add("clone");
         proc.StartInfo.ArgumentList.Add("https://github.com/freedeck/freedeck");
         proc.StartInfo.ArgumentList.Add(MainWindow.InstallPath + "\\freedeck");
+        proc.StartInfo.ArgumentList.Add("-b");
+        proc.StartInfo.ArgumentList.Add("v6" + (SetupLogic.IsChecked(MainWindow.Instance.SaRelease) ? "" : "-dev"));
         proc.EnableRaisingEvents = true;
         proc.Exited += ((sender, args) =>
         {

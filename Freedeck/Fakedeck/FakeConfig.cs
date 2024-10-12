@@ -68,7 +68,11 @@ public class FakeConfig
         {
             using (SHA512 shaM = SHA512.Create())
             {
-                hash = "fd." + shaM.ComputeHash("Asd"u8.ToArray());
+                byte[] rawHash = shaM.ComputeHash(Encoding.UTF8.GetBytes(MainWindow.Instance.SaAuthenticationPassword.Text));
+                hash = "fd.";
+                foreach (byte x in rawHash) {
+                    hash += $"{x:x2}";
+                }
             }
         }
         

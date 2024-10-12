@@ -50,7 +50,7 @@
                                     <TextBlock FontSize="8"/>
                                     <TextBlock FontSize="24">App Configuration</TextBlock>
                                     <ToggleSwitch IsChecked="False" Name="SaAuthentication" OffContent="No" OnContent="Yes">Use Authentication</ToggleSwitch>
-                                    <TextBox Name="SaAuthenticationPassword" Watermark="Enter a password (Default: FD123!)" PasswordChar="*"></TextBox>
+                                    <TextBox IsVisible="False" Name="SaAuthenticationPassword" Watermark="Enter a password (Default: FD123!)" PasswordChar="*"></TextBox>
                                     <ToggleSwitch IsChecked="True" Name="SaRelease" OffContent="Developer Beta" OnContent="Stable">Release Channel</ToggleSwitch>
                                     <ToggleSwitch IsChecked="True" Name="SaWelcome" OffContent="No" OnContent="Yes">Show welcome Tiles</ToggleSwitch>
                                     <TextBlock/>
