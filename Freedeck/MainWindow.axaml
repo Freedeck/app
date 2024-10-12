@@ -129,6 +129,18 @@
                             </TextBlock>
                             <TextBlock />
                             <TextBlock FontSize="24">Launcher</TextBlock>
+                            <Button Content="Update Launcher">
+                                <Button.Flyout >
+                                    <Flyout>
+                                        <StackPanel>
+                                            <TextBlock>
+                                                This will copy your running launcher into the installation path.
+                                            </TextBlock>
+                                            <Button Click="CopyToLoc">Confirm</Button>
+                                        </StackPanel>
+                                    </Flyout>
+                                </Button.Flyout>
+                            </Button>
                             <TextBlock />
                             <ToggleSwitch Name="SConfigTab" IsCheckedChanged="ToggleConfigure">Show Configure tab</ToggleSwitch>
                             <ToggleSwitch Name="SMarketTab" IsCheckedChanged="ToggleButton_OnIsCheckedChanged">Show Marketplace tab</ToggleSwitch>

@@ -30,6 +30,18 @@ public class SetupLogic
         return toggleSwitch.IsChecked ?? false;
     }
 
+    public static void CopyLauncherToInstallation()
+    {
+        var currentProcess = Process.GetCurrentProcess();
+        if (currentProcess?.MainModule != null)
+        {
+            string exeName = currentProcess.MainModule.FileName;
+            string executableName = Path.GetFileName(exeName);
+            string sourceExePath = Path.Combine(AppContext.BaseDirectory, executableName);
+            File.Copy(sourceExePath, MainWindow.InstallPath + "\\Freedeck.exe", true);
+        }
+    }
+
     public void OnLaunch(MainWindow window)
     {
         window.Title = "Freedeck Installer";
@@ -88,14 +100,7 @@ public class SetupLogic
 
                 window.InstallState.Text = "Replacing launcher with this one...";
 
-                var currentProcess = Process.GetCurrentProcess();
-                if (currentProcess?.MainModule != null)
-                {
-                    string exeName = currentProcess.MainModule.FileName;
-                    string executableName = Path.GetFileName(exeName);
-                    string sourceExePath = Path.Combine(AppContext.BaseDirectory, executableName);
-                    File.Copy(sourceExePath, MainWindow.InstallPath + "\\Freedeck.exe", true);
-                }
+                CopyLauncherToInstallation();
                 
                 window.InstallProgress.Value = 15;
                 window.InstallState.Text = "Cleaning up old launcher...";

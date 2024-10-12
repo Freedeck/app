@@ -300,4 +300,9 @@ public partial class MainWindow : Window
         Process.Start(new ProcessStartInfo(exePath) { UseShellExecute = true }); 
         Environment.Exit(0);
     }
+
+    private void CopyToLoc(object? sender, RoutedEventArgs e)
+    {
+        SetupLogic.CopyLauncherToInstallation();
+    }
 }
