@@ -39,3 +39,4 @@ When the App becomes stable, it'll be what you download from [freedeck.app](http
 ## Building
 
 To make a release-ready build, just run `dotnet publish` in your console.
+Or, if you like the GUI way (JetBrains Rider only), right click on the project, click Publish then "Freedeck New Release". 
