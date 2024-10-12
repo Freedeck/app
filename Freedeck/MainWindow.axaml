@@ -7,14 +7,14 @@
         Width="900"
         Height="450"
         x:Class="Freedeck.MainWindow"
-        Background="#2d2d32"
+        Background="#17212a"
         Icon="Assets/FDAP.ico"
         Title="Freedeck Launcher">
     <Window.Styles>
         <StyleInclude Source="/Styles1.axaml" />
     </Window.Styles>
     <DockPanel>
-        <Border CornerRadius="15" BorderThickness="10" Background="#24272B">
+        <Border CornerRadius="15" BorderThickness="10" Background="rgba(0,0,0,0.125)">
         <StackPanel HorizontalAlignment="Center" DockPanel.Dock="Left" Margin="0,15">
             <TextBlock FontSize="36">Freedeck</TextBlock>
             <Image VerticalAlignment="Top" Margin="0,10,0,0" Source="avares://Freedeck/Assets/FDAP.png" Width="100" />
@@ -27,7 +27,7 @@
             </StackPanel>
         </StackPanel>
         </Border>
-        <Border CornerRadius="15" BorderThickness="10" Background="#24272B">
+        <Border CornerRadius="15" BorderThickness="10" Background="rgba(0,0,0,0.125)">
             <TabControl>
                 <TabItem Header="Install" Name="TabInstall" IsVisible="False">
                     <TabControl Name="InstallerNest">
