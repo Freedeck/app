@@ -27,6 +27,9 @@ public partial class MainWindow : Window
 
     private void InstallerDoInstall(object? sender, RoutedEventArgs e)
     {
+        MainWindow.InstallPath = InstallationDirectory.Text;
+        LauncherConfig.Configuration.InstallationDirectory = MainWindow.InstallPath;
+        LauncherConfig.Update();
         FreedeckAppInstaller inst = new FreedeckAppInstaller();
         ITabSetup.IsVisible = false;
         ITabInstall.Header = "Installing...";
@@ -43,7 +46,6 @@ public partial class MainWindow : Window
 
     private void InstallerFinished()
     {
-        MainWindow.InstallPath = InstallationDirectory.Text;
         Dispatcher.UIThread.InvokeAsync(() =>
         {
             GetAndSetVersionData();

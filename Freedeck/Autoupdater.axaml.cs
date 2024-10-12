@@ -22,14 +22,14 @@ namespace Freedeck
             AuProgress.Value = 10;
 
             string av = MainWindow.AppVersion;
-            if (!File.Exists(MainWindow.InstallPath + "\\freedeck\\src\\configs\\config.fd.js"))
+            if (!File.Exists(MainWindow.InstallPath + "\\freedeck\\src\\server.js"))
             {
                 AuProgress.Value = 0;
                 AuCurrent.Text = "Installation path is invalid.";
                 return;
             }
 
-            string userConfig = File.ReadAllText(MainWindow.InstallPath + "\\freedeck\\src\\configs\\config.fd.js");
+            string userConfig = File.ReadAllText(MainWindow.InstallPath + "\\freedeck\\src\\server.js");
             string branch = "v6";
             int line = 0;
             if (userConfig.Contains("release:\"dev\""))

@@ -36,7 +36,11 @@ public class SetupLogic
         window.TabInstall.IsVisible = false;
         window.TabInstall.IsSelected = true;
         if (string.IsNullOrEmpty(MainWindow.InstallPath))
+        {
             MainWindow.InstallPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\Freedeck";
+            LauncherConfig.Configuration.InstallationDirectory = MainWindow.InstallPath;
+            LauncherConfig.Update();
+        }
         window.InstallationDirectory.Text = MainWindow.InstallPath;
         window.SadDirectory.Text = "Directory:" +  window.InstallationDirectory.Text;
         
