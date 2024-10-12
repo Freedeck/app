@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AvaloniaProject">
+    <option name="projectPerEditor">
+      <map>
+        <entry key="Freedeck/App.axaml" value="Freedeck/Freedeck.csproj" />
+        <entry key="Freedeck/Autoupdater.axaml" value="Freedeck/Freedeck.csproj" />
+        <entry key="Freedeck/MainWindow.axaml" value="Freedeck/Freedeck.csproj" />
+        <entry key="Freedeck/Resources.axaml" value="Freedeck/Freedeck.csproj" />
+        <entry key="Freedeck/Resources1axaml.axaml" value="Freedeck/Freedeck.csproj" />
+        <entry key="Freedeck/Styles1.axaml" value="Freedeck/Freedeck.csproj" />
+      </map>
+    </option>
+  </component>
+</project>

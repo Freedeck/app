@@ -1,0 +1,173 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" 
+        d:DesignWidth="900" d:DesignHeight="450"
+        Width="900"
+        Height="450"
+        x:Class="Freedeck.MainWindow"
+        Background="#2d2d32"
+        Title="Freedeck Launcher">
+    <Window.Styles>
+        <StyleInclude Source="/Styles1.axaml" />
+    </Window.Styles>
+    <DockPanel>
+        <Border CornerRadius="15" BorderThickness="10" Background="#24272B">
+        <StackPanel HorizontalAlignment="Center" DockPanel.Dock="Left" Margin="0,15">
+            <TextBlock FontSize="36">Freedeck</TextBlock>
+            <Image VerticalAlignment="Top" Margin="0,10,0,0" Source="avares://Freedeck/Assets/FDAP.png" Width="100" />
+            <TextBlock FontSize="24" Name="InstalledVersion">Freedeck is not installed.</TextBlock>
+            <TextBlock FontSize="24" Name="ILauncherVersion">Launcher vLoading</TextBlock>
+            <TextBlock />
+            <StackPanel Name="ProgressBarContainer">
+                <TextBlock Name="ProgressBarCurrently">Checkling for updatlings</TextBlock>
+                <ProgressBar Name="ProgressBarApp" Height="8" />
+            </StackPanel>
+        </StackPanel>
+        </Border>
+        <Border CornerRadius="15" BorderThickness="10" Background="#24272B">
+            <TabControl>
+                <TabItem Header="Install" Name="TabInstall" IsVisible="False">
+                    <TabControl Name="InstallerNest">
+                        <TabItem Header="Setup" Name="ITabSetup" IsSelected="True">
+                            <ScrollViewer>
+                                <StackPanel>
+                                    <TextBlock FontSize="36">
+                                        Welcome
+                                    </TextBlock>
+                                    <TextBlock>Thank you for choosing my project, Freedeck.</TextBlock>
+                                    <TextBlock>This simple setup wizard will help you get started using Freedeck right away.</TextBlock>
+                                    <TextBlock FontSize="8"/>
+                                    <TextBlock FontSize="24">Launcher Configuration</TextBlock>
+                                    <StackPanel>
+                                        <TextBlock>Directory for installation</TextBlock>
+                                        <TextBox Name="InstallationDirectory" />
+                                    </StackPanel>
+                                    <TextBlock FontSize="8"/>
+                                    <TextBlock FontSize="24">App Configuration</TextBlock>
+                                    <ToggleSwitch IsChecked="False" Name="SaAuthentication" OffContent="No" OnContent="Yes">Use Authentication</ToggleSwitch>
+                                    <TextBox Name="SaAuthenticationPassword" Watermark="Enter a password (Default: FD123!)" PasswordChar="*"></TextBox>
+                                    <ToggleSwitch IsChecked="True" Name="SaRelease" OffContent="Developer Beta" OnContent="Stable">Release Channel</ToggleSwitch>
+                                    <ToggleSwitch IsChecked="True" Name="SaWelcome" OffContent="No" OnContent="Yes">Show welcome Tiles</ToggleSwitch>
+                                    <TextBlock/>
+                                    <Button Name="SaNext" FontSize="24" HorizontalAlignment="Stretch">Next</Button>
+                                    <Button Name="SaMigrate" FontSize="24" HorizontalAlignment="Stretch">I already have Freedeck installed</Button>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </TabItem>
+                        <TabItem Header="Install" Name="ITabInstall">
+                            <StackPanel>
+                                <TextBlock FontSize="36" Name="ITabInstallTxt">
+                                    Install
+                                </TextBlock>
+                                <TextBlock Name="ITabInstallDesc">
+                                    You're one more click away from the FOSS alternative to the Elgato Stream Deck.
+                                </TextBlock>
+                                <TextBlock FontSize="8"/>
+                                <TextBlock FontSize="16">Before you install, please review:</TextBlock>
+                                <Border CornerRadius="15" Background="rgba(0,0,0,0.25)" Padding="10">
+                                    <StackPanel>
+                                        <TextBlock Name="SadDirectory">Directory... failed to load</TextBlock>
+                                        <TextBlock Name="SadAuthentication">Authentication: No</TextBlock>
+                                        <TextBlock Name="SadRelease">Release Channel: Stable</TextBlock>
+                                        <TextBlock Name="SadWelcome">Show Welcome Tiles: Yes</TextBlock>
+                                    </StackPanel>
+                                </Border>
+                                <TextBlock />
+                                <TextBlock FontSize="16">If these look good to you, click Install.</TextBlock>
+                                <TextBlock Name="InstallState"/>
+                                <ProgressBar Name="InstallProgress" />
+                                <TextBlock/>
+                                <Button Name="InstallerBtn" Click="InstallerDoInstall" FontSize="24" HorizontalAlignment="Stretch">Install</Button>
+                            </StackPanel>
+                        </TabItem>
+                    </TabControl>
+                </TabItem>
+                <TabItem Header="Configure" Name="TabConfig">
+                    <StackPanel>
+                        <TextBlock FontSize="36">
+                            Configuration
+                        </TextBlock>
+                        <TextBlock FontSize="24">This feature is coming soon!</TextBlock>
+                        <TextBlock FontWeight="Light">When released, you will be able to customize your Freedeck's style right from this app!</TextBlock>
+                        <TextBlock FontSize="32">To hide this page, go to Settings.</TextBlock>
+                    </StackPanel>
+                </TabItem>
+                <TabItem Header="Launch" Name="TabRun">
+                    <StackPanel>
+                        <TextBlock FontSize="30">Ready to start using Freedeck?</TextBlock>
+                        <SplitButton Name="LaunchApp" Click="LaunchApp_OnClick" Content="Launch Freedeck" FontSize="24">
+                            <SplitButton.Flyout>
+                                <MenuFlyout Placement="RightEdgeAlignedTop">
+                                    <MenuItem Name="LaunchAppCompanion" Header="Launch Companion Only" Click="LaunchAppCompanion_OnClick" FontSize="24" />
+                                    <MenuItem Name="LaunchAppServer" Header="Launch Server Only" Click="LaunchAppServer_OnClick" FontSize="24" />
+                                </MenuFlyout>
+                            </SplitButton.Flyout>
+                        </SplitButton>
+                        <TextBlock Name="UpdateCheckNotice">Freedeck will not check for updates.</TextBlock>
+                    </StackPanel>
+                </TabItem>
+                <TabItem Header="Marketplace" Name="TabMarketplace">
+                    <StackPanel>
+                        <TextBlock FontSize="36">
+                            Marketplace
+                        </TextBlock>
+                        <TextBlock FontSize="24">This feature is coming soon!</TextBlock>
+                        <TextBlock FontWeight="Light">When released, you will be able to directly install plugins from here AND the Freedeck Companion!</TextBlock>
+                        <TextBlock FontSize="32">To hide this page, go to Settings.</TextBlock>
+                    </StackPanel>
+                </TabItem>
+                <TabItem Header="Settings" Name="TabSettings">
+                    <ScrollViewer>
+                        <StackPanel>
+                            <TextBlock FontSize="36">
+                                Settings
+                            </TextBlock>
+                            <TextBlock />
+                            <TextBlock FontSize="24">Launcher</TextBlock>
+                            <TextBlock />
+                            <ToggleSwitch Name="SConfigTab" IsCheckedChanged="ToggleConfigure">Show Configure tab</ToggleSwitch>
+                            <ToggleSwitch Name="SMarketTab" IsCheckedChanged="ToggleButton_OnIsCheckedChanged">Show Marketplace tab</ToggleSwitch>
+                            <TextBlock>Installation Directory</TextBlock>
+                            <DockPanel>
+                                <TextBox MinWidth="200" Name="SFreedeckPath"></TextBox>
+                                <Button Click="Button_OnClick">Change</Button>
+                            </DockPanel>
+                            <TextBlock>Launcher Configuration Path</TextBlock>
+                            <TextBlock>This is not changable.</TextBlock>
+                            <TextBox IsEnabled="False" MinWidth="200" Name="SLCPath"></TextBox>
+                            <TextBlock/>
+                            <TextBlock FontSize="24">App</TextBlock>
+                            <TextBlock/>
+                            <ToggleSwitch Name="ShowTerminal" IsCheckedChanged="ToggleShowTerminal">Show Terminal</ToggleSwitch>
+                            <TextBlock>Autoupdater Behavior</TextBlock>
+                            <ComboBox Name="AutoUpdateMode" SelectionChanged="AutoUpdateMode_OnSelectionChanged">
+                                <ComboBoxItem>Don't skip Autoupdater</ComboBoxItem>
+                                <ComboBoxItem>Skip Autoupdater once</ComboBoxItem>
+                                <ComboBoxItem>Always skip Autoupdater</ComboBoxItem>
+                            </ComboBox>
+                            <TextBlock/>
+                            <TextBlock FontSize="24">Danger</TextBlock>
+                            <TextBlock>You will be asked to confirm these actions.</TextBlock>
+                            <TextBlock>These options do NOT affect your Freedeck, only this launcher.</TextBlock>
+                            <Button Content="Reset Settings">
+                                <Button.Flyout >
+                                    <Flyout>
+                                        <StackPanel>
+                                            <TextBlock>
+                                                Are you sure? The app will restart, and your settings will be lost!
+                                            </TextBlock>
+                                            <Button Click="Reset_Configuration">Confirm</Button>
+                                        </StackPanel>
+                                    </Flyout>
+                                </Button.Flyout>
+                            </Button>
+                            <!-- <Button Click="Reset_Configuration"></Button> -->
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+            </TabControl>
+        </Border>
+    </DockPanel>
+</Window>

@@ -1,0 +1,19 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="150"
+        x:Class="Freedeck.Autoupdater"
+        Background="#2d2d32"
+        Width="800"
+        Height="150"
+        Title="Autoupdater">
+        <Border Background="#24272B" CornerRadius="15" Margin="10">
+                <StackPanel HorizontalAlignment="Stretch"
+                            VerticalAlignment="Center">
+                        <TextBlock FontSize="36">Autoupdater</TextBlock>
+                        <ProgressBar Name="AuProgress" Height="8" Margin="10"/>
+                        <TextBlock Name="AuCurrent" FontSize="32">Fetching freedeck.app/release</TextBlock>
+                </StackPanel>
+        </Border>
+</Window>
