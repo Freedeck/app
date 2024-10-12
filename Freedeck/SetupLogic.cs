@@ -24,6 +24,11 @@ public class SetupLogic
     {
         return ((toggleSwitch.IsChecked ?? false) ? toggleSwitch.OnContent : toggleSwitch.OffContent);
     }
+    
+    public static bool IsChecked(ToggleSwitch toggleSwitch)
+    {
+        return toggleSwitch.IsChecked ?? false;
+    }
 
     public void OnLaunch(MainWindow window)
     {
@@ -102,8 +107,8 @@ public class SetupLogic
                 
                 window.InstallProgress.Value = 30;
                 window.InstallState.Text = "Making new shortcuts!";
-                FreedeckAppInstaller.AppShortcutToDesktop("Freedeck", MainWindow.InstallPath +"\\Freedeck.exe");
-                FreedeckAppInstaller.AppShortcutToDesktop("Freedeck", MainWindow.InstallPath +"\\Freedeck.exe", Environment.SpecialFolder.StartMenu);
+                if(IsChecked(MainWindow.Instance.SaSDesktop)) FreedeckAppInstaller.AppShortcutToDesktop("Freedeck", MainWindow.InstallPath +"\\Freedeck.exe");
+                if(IsChecked(MainWindow.Instance.SaSStart)) FreedeckAppInstaller.AppShortcutToDesktop("Freedeck", MainWindow.InstallPath +"\\Freedeck.exe", Environment.SpecialFolder.StartMenu);
                 window.InstallProgress.Value = 70;
                 window.InstallState.Text = "Setting up configuration";
                 LauncherConfig.Configuration.InstallationDirectory = window.InstallationDirectory.Text;

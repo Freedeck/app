@@ -36,8 +36,8 @@ public class FreedeckAppInstaller
             string sourceExePath = Path.Combine(AppContext.BaseDirectory, executableName);
             File.Copy(sourceExePath, MainWindow.InstallPath + "\\Freedeck.exe", true);
         }
-        AppShortcutToDesktop("Freedeck", MainWindow.InstallPath +"\\Freedeck.exe");
-        AppShortcutToDesktop("Freedeck", MainWindow.InstallPath +"\\Freedeck.exe", Environment.SpecialFolder.StartMenu);
+        if(SetupLogic.IsChecked(MainWindow.Instance.SaSDesktop)) AppShortcutToDesktop("Freedeck", MainWindow.InstallPath +"\\Freedeck.exe");
+        if(SetupLogic.IsChecked(MainWindow.Instance.SaSStart)) AppShortcutToDesktop("Freedeck", MainWindow.InstallPath +"\\Freedeck.exe", Environment.SpecialFolder.StartMenu);
         LauncherConfig.ReloadConfiguration();
         MainWindow.Instance.InstallProgress.Value = 15;
         

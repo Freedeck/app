@@ -40,6 +40,8 @@
                                     <TextBlock>This simple setup wizard will help you get started using Freedeck right away.</TextBlock>
                                     <TextBlock FontSize="8"/>
                                     <TextBlock FontSize="24">Launcher Configuration</TextBlock>
+                                    <ToggleSwitch IsChecked="True" Name="SaSDesktop" OffContent="No" OnContent="Yes">Create Desktop Shortcut</ToggleSwitch>
+                                    <ToggleSwitch IsChecked="True" Name="SaSStart" OffContent="No" OnContent="Yes">Create Start Menu Shortcut</ToggleSwitch>
                                     <StackPanel>
                                         <TextBlock>Directory for installation</TextBlock>
                                         <TextBox Name="InstallationDirectory" />
