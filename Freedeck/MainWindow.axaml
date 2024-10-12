@@ -93,7 +93,7 @@
                             Configuration
                         </TextBlock>
                         <TextBlock FontSize="24">This feature is coming soon!</TextBlock>
-                        <TextBlock FontWeight="Light">When released, you will be able to customize your Freedeck's style right from this app!</TextBlock>
+                        <TextBlock FontWeight="Light">Soon, you'll be able to edit any plugin's settings here!</TextBlock>
                         <TextBlock FontSize="32">To hide this page, go to Settings.</TextBlock>
                     </StackPanel>
                 </TabItem>
@@ -109,6 +109,25 @@
                             </SplitButton.Flyout>
                         </SplitButton>
                         <TextBlock Name="UpdateCheckNotice">Freedeck will not check for updates.</TextBlock>
+                    </StackPanel>
+                </TabItem>
+                <TabItem Header="Handoff" Name="TabHandoff">
+                    <StackPanel>
+                        <TextBlock FontSize="36" Name="THandoffPrompt" TextWrapping="Wrap">
+                            Download Id from Repo?
+                        </TextBlock>
+                        <Border Padding="10" CornerRadius="15" Background="rgba(0,0,0,0.125)">
+                            <TextBlock FontSize="24" Name="THandoffDescription" TextWrapping="Wrap">Not loaded</TextBlock>
+                        </Border>
+                        <TextBlock/>
+                        <TextBlock FontSize="16" Name="THandoffUrl" TextWrapping="Wrap">Not loaded</TextBlock>
+                        <TextBlock FontSize="20" Name="THandoffTrust" TextWrapping="Wrap">Not loaded</TextBlock>
+                        <ProgressBar Name="THandoffProgress"/>
+                        <TextBlock/>
+                        <DockPanel>
+                            <Button Name="THandoffYes">Yes</Button>
+                            <Button Name="THandoffNo">No</Button>
+                        </DockPanel>
                     </StackPanel>
                 </TabItem>
                 <TabItem Header="Marketplace" Name="TabMarketplace">
@@ -152,6 +171,9 @@
                             <TextBlock>Launcher Configuration Path</TextBlock>
                             <TextBlock>This is not changable.</TextBlock>
                             <TextBox IsEnabled="False" MinWidth="200" Name="SLCPath"></TextBox>
+                            <TextBlock>Server URL</TextBlock>
+                            <TextBlock>This will be changable later.</TextBlock>
+                            <TextBox IsEnabled="False" MinWidth="200" Name="SLCServer"></TextBox>
                             <TextBlock/>
                             <TextBlock FontSize="24">App</TextBlock>
                             <TextBlock/>

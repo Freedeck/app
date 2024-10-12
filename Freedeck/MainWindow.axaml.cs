@@ -98,6 +98,7 @@ public partial class MainWindow : Window
         Instance = this;
         ProgressBarContainer.IsVisible = false;
         LauncherConfig.ReloadConfiguration();
+        HandoffHelper.Initialize();
         if (IsAppInstalled())
         {
             GetAndSetVersionData();
@@ -118,6 +119,7 @@ public partial class MainWindow : Window
         SMarketTab.IsChecked = LauncherConfig.Configuration.ShowMarketplaceTab;
         SFreedeckPath.Text = LauncherConfig.Configuration.InstallationDirectory;
         SLCPath.Text = LauncherConfig.Configuration.ConfigurationPath;
+        SLCServer.Text = LauncherConfig.Configuration.ServerUrl;
         ShowTerminal.IsChecked = LauncherConfig.Configuration.ShowTerminal;
         AutoUpdateMode.SelectedIndex = LauncherConfig.Configuration.AutoUpdaterBehavior;
         if (AutoUpdateMode.SelectedIndex != 0)

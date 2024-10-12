@@ -12,5 +12,5 @@ public class LauncherConfigSchema
     public int AutoUpdaterBehavior { get; set; }
     public string ConfigurationPath { get; set; } =
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\FreedeckLauncherConfiguration.json";
-
+    public string ServerUrl { get; set; } = "http://localhost:5754";
 }

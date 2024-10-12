@@ -1,7 +1,12 @@
 using System;
+using System.IO;
+using System.IO.Pipes;
+using System.Runtime.InteropServices;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Avalonia.Threading;
 
 namespace Freedeck;
 
@@ -10,22 +15,53 @@ public partial class App : Application
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
-        
+    }
+    
+    private async void StartListening()
+    {
+        while (true)
+        {
+            try
+            {
+                using var pipeServer = new NamedPipeServerStream("FreedeckAppHandoff", PipeDirection.In, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
+            
+                await pipeServer.WaitForConnectionAsync();
+                using var reader = new StreamReader(pipeServer);
+                string uri = await reader.ReadLineAsync();  // Read the message sent by the new instance.
+            
+                if (!string.IsNullOrWhiteSpace(uri))
+                {
+                    Console.WriteLine($"Received URI: {uri}");
+                    HandleUri(uri);  // Handle the URI command (e.g., bring the window to the front).
+                }
+            }
+            catch (IOException ex)
+            {
+                Console.WriteLine($"Pipe server error: {ex.Message}");
+            }
+        }
+    }
+
+    [DllImport("user32.dll")]
+    private static extern bool SetForegroundWindow(IntPtr hWnd);
+    
+    private void HandleUri(string uri)
+    {
+        Console.WriteLine($"Received URI: {uri}");
+        IntPtr handle = (IntPtr)TopLevel.GetTopLevel(MainWindow.Instance)?.TryGetPlatformHandle()?.Handle!;
+        SetForegroundWindow(handle);
+        Dispatcher.UIThread.InvokeAsync(() =>
+        {
+           HandoffHelper.HandleCommand(uri);
+        });
     }
 
     public override void OnFrameworkInitializationCompleted()
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            foreach (var desktopArg in desktop.Args)
-            {
-                if (desktopArg.Equals("Handoff"))
-                {
-                    return;
-                }
-            }
-
             desktop.MainWindow = new MainWindow();
+            StartListening();
         }
 
         base.OnFrameworkInitializationCompleted();

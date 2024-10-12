@@ -16,7 +16,8 @@ public class LauncherConfig
         InstallationDirectory = MainWindow.InstallPath,
         ShowTerminal = false,
         AutoUpdaterBehavior = 0,
-        ConfigurationPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\FreedeckLauncherConfiguration.json"
+        ConfigurationPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\FreedeckLauncherConfiguration.json",
+        ServerUrl = "http://localhost:5754"
     };
     
     public static void ReloadConfiguration()
