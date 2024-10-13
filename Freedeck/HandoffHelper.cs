@@ -73,8 +73,8 @@ public class HandoffHelper
         MainWindow.Instance.TabMarketplace.IsEnabled = true;
     }
 
-    private static string _currentDownloadId;
-    private static string _currentDownloadUrl;
+    private static string _currentDownloadId = null!;
+    private static string _currentDownloadUrl = null!;
 
     public static void DownloadPluginRequest(string url, string id, string description, string repoTitle)
     {

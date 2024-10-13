@@ -11,12 +11,12 @@ namespace Freedeck;
 
 public class FreedeckAppSchema
 {
-    public string internetUrl { get; set; }
-    public string pathToSaveTo { get; set; }
-    public string expected { get; set; }
-    public string initialMessage { get; set; }
-    public string message { get; set; }
-    public Action callback { get; set; }
+    public string? InternetUrl { get; init; }
+    public string? PathToSaveTo { get; init; }
+    public string? Expected { get; init; }
+    public string? InitialMessage { get; init; }
+    public string? Message { get; init; }
+    public Action? Callback { get; init; }
 }
 
 public class FreedeckAppInstaller
@@ -39,25 +39,25 @@ public class FreedeckAppInstaller
         MainWindow.Instance.InstallProgress.Value = 20;
         FreedeckAppSchema Node = new FreedeckAppSchema
         {
-            internetUrl = "https://nodejs.org/dist/v20.15.0/node-v20.15.0-x64.msi",
-            pathToSaveTo = folder + "\\fd_node_install.msi",
-            expected = "C:\\Program Files\\nodejs\\node.exe",
-            initialMessage = "Checking for node...",
-            message = "Please follow the Node.js installer's instructions!",
-            callback = () =>
+            InternetUrl = "https://nodejs.org/dist/v20.15.0/node-v20.15.0-x64.msi",
+            PathToSaveTo = folder + "\\fd_node_install.msi",
+            Expected = "C:\\Program Files\\nodejs\\node.exe",
+            InitialMessage = "Checking for node...",
+            Message = "Please follow the Node.js installer's instructions!",
+            Callback = () =>
             {
                 StageTwo(callback);
             }
         };
         FreedeckAppSchema Git = new FreedeckAppSchema
         {
-            internetUrl =
+            InternetUrl =
                 "https://github.com/git-for-windows/git/releases/download/v2.47.0.windows.1/Git-2.47.0-64-bit.exe",
-            pathToSaveTo = folder + "\\fd_git_install.exe",
-            expected = "C:\\Program Files\\Git\\bin\\git.exe",
-            initialMessage = "Checking for git...",
-            message = "Please follow the git installer's instructions!",
-            callback = MakeUserInstall(Node)
+            PathToSaveTo = folder + "\\fd_git_install.exe",
+            Expected = "C:\\Program Files\\Git\\bin\\git.exe",
+            InitialMessage = "Checking for git...",
+            Message = "Please follow the git installer's instructions!",
+            Callback = MakeUserInstall(Node)
         };
         MakeUserInstall(Git)();
     }
@@ -133,13 +133,18 @@ public class FreedeckAppInstaller
     {
         return () =>
         {
+            if (schema is not
+                {
+                    InternetUrl: not null, PathToSaveTo: not null, Expected: not null, InitialMessage: not null,
+                    Message: not null, Callback: not null
+                }) return;
             MakeUserInstall(
-                schema.internetUrl, 
-                schema.pathToSaveTo,
-                schema.expected,
-                schema.initialMessage,
-                schema.message,
-                schema.callback);
+                schema.InternetUrl,
+                schema.PathToSaveTo,
+                schema.Expected,
+                schema.InitialMessage,
+                schema.Message,
+                schema.Callback);
         };
     }
 

@@ -113,7 +113,7 @@ public class SetupLogic
                 if (File.Exists(MainWindow.InstallPath + "\\handoff.exe"))
                 {
                     window.InstallState.Text = "Please allow admin, we're removing the old Handoff. We will not need admin after this.";
-                    var exeName = Process.GetCurrentProcess().MainModule.FileName;
+                    var exeName = Process.GetCurrentProcess().MainModule!.FileName;
                     ProcessStartInfo startInfo = new ProcessStartInfo(exeName);
                     startInfo.Verb = "runas";
                     startInfo.ArgumentList.Add("HandoffAdminReset");
@@ -142,7 +142,7 @@ public class SetupLogic
                 window.TabRun.IsVisible = true;
                 window.TabRun.IsSelected = true;
                 window.ILauncherVersion.IsVisible = true;
-                window.ILauncherVersion.Text = "Launcher v" + MainWindow.LauncherVersion;
+                window.ILauncherVersion.Text = "App v" + MainWindow.LauncherVersion;
                 window.SetupAllConfiguration();
                 window.InstallProgress.Value = 100;
                 window.InstallState.Text = "Done!!!";
@@ -159,7 +159,7 @@ public class SetupLogic
     {
         if (sender is TextBox)
         {
-            MainWindow.InstallPath = MainWindow.Instance.InstallationDirectory.Text;
+            MainWindow.InstallPath = MainWindow.Instance.InstallationDirectory.Text!;
             MainWindow.Instance.SadDirectory.Text = "Directory: " + MainWindow.Instance.InstallationDirectory.Text;
         }
     }

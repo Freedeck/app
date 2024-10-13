@@ -11,9 +11,9 @@ public static class UriProtocolRegistrar
         try
         {
             // Determine the base registry key
-            RegistryKey baseKey = userLevel 
+            RegistryKey baseKey = (userLevel 
                 ? Registry.CurrentUser.OpenSubKey("Software\\Classes", true) 
-                : Registry.ClassesRoot;
+                : Registry.ClassesRoot)!;
 
             if (baseKey == null) throw new Exception("Failed to open the registry base key.");
 

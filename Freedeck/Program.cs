@@ -25,23 +25,28 @@ class Program
     public static void Main(string[] args) {
         
         string protocol = "freedeck";  // Replace with your protocol name
-        string appPath = Process.GetCurrentProcess().MainModule.FileName;
-
-        // Try registering without admin rights (user-level)
-        UriProtocolRegistrar.RegisterUriScheme(protocol, appPath, userLevel: true);
-        
-        var mutex = new System.Threading.Mutex(true, "FreedeckAppMutex", out bool isNewInstance);
-        if (!isNewInstance)
+        var mainModuleFileName = Process.GetCurrentProcess().MainModule?.FileName;
+        if (mainModuleFileName != null)
         {
-            // The app is already running. Pass the arguments to the running instance.
-            if(args[0].Contains("freedeck://")) SendArgsToExistingInstance(args);
-            else if(args[0].Contains("HandoffAdminReset") && OperatingSystem.IsWindows())
+            string appPath = mainModuleFileName;
+
+            // Try registering without admin rights (user-level)
+            UriProtocolRegistrar.RegisterUriScheme(protocol, appPath, userLevel: true);
+        
+            var mutex = new System.Threading.Mutex(true, "FreedeckAppMutex", out bool isNewInstance);
+            if (!isNewInstance)
             {
-                if (!IsAdministrator()) return;
-                UriProtocolRegistrar.RegisterUriScheme(protocol, appPath, false);                
+                // The app is already running. Pass the arguments to the running instance.
+                if(args[0].Contains("freedeck://")) SendArgsToExistingInstance(args);
+                else if(args[0].Contains("HandoffAdminReset") && OperatingSystem.IsWindows())
+                {
+                    if (!IsAdministrator()) return;
+                    UriProtocolRegistrar.RegisterUriScheme(protocol, appPath, false);                
+                }
+                return;
             }
-            return;
         }
+
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
     }
 

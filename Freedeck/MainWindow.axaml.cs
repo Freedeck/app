@@ -21,14 +21,14 @@ public partial class MainWindow : Window
     public static string AppVersion = "1.0.0";
     public static string LauncherVersion = "2.0.0";
     public static bool ShouldShowAutoUpdater = true;
-    private bool IsUndergoingModification = false;
-    public static MainWindow Instance;
-    private static SetupLogic _setupLogic = new SetupLogic();
+    private bool _isUndergoingModification = false;
+    public static MainWindow Instance = null!;
+    private static readonly SetupLogic SetupLogic = new SetupLogic();
 
     private void InstallerDoInstall(object? sender, RoutedEventArgs e)
     {
-        MainWindow.InstallPath = InstallationDirectory.Text;
-        LauncherConfig.Configuration.InstallationDirectory = MainWindow.InstallPath;
+        if (InstallationDirectory.Text != null) InstallPath = InstallationDirectory.Text;
+        LauncherConfig.Configuration.InstallationDirectory = InstallPath;
         LauncherConfig.Update();
         FreedeckAppInstaller inst = new FreedeckAppInstaller();
         ITabSetup.IsVisible = false;
@@ -57,7 +57,7 @@ public partial class MainWindow : Window
         TabRun.IsVisible = true;
         TabRun.IsSelected = true;
         ILauncherVersion.IsVisible = true;
-        ILauncherVersion.Text = "Launcher v" + LauncherVersion;
+        ILauncherVersion.Text = "App v" + LauncherVersion;
         SetupAllConfiguration();
     }
 
@@ -82,7 +82,7 @@ public partial class MainWindow : Window
         string version = uver.Split(new string[] { "\"version\": \"" }, StringSplitOptions.None)[1].Split('"')[0];
         AppVersion = version;
         Instance.InstalledVersion.Text = "Freedeck v" + AppVersion;
-        Instance.ILauncherVersion.Text = "Launcher v" + LauncherVersion;
+        Instance.ILauncherVersion.Text = "App v" + LauncherVersion;
         Instance.SFreedeckPath.Text = InstallPath;
     }
 
@@ -108,13 +108,13 @@ public partial class MainWindow : Window
             SetupAllConfiguration();
         }
         else
-            _setupLogic.OnLaunch(this);
+            SetupLogic.OnLaunch(this);
     }
 
     public void SetupAllConfiguration()
     {
         LauncherConfig.ReloadConfiguration();
-        IsUndergoingModification = true;
+        _isUndergoingModification = true;
         SConfigTab.IsChecked = LauncherConfig.Configuration.ShowConfigureTab;
         SMarketTab.IsChecked = LauncherConfig.Configuration.ShowMarketplaceTab;
         SFreedeckPath.Text = LauncherConfig.Configuration.InstallationDirectory;
@@ -135,12 +135,12 @@ public partial class MainWindow : Window
 
         TabConfig.IsVisible = LauncherConfig.Configuration.ShowConfigureTab;
         TabMarketplace.IsVisible = LauncherConfig.Configuration.ShowMarketplaceTab;
-        IsUndergoingModification = false;
+        _isUndergoingModification = false;
     }
 
     private void Button_OnClick(object? sender, RoutedEventArgs e)
     {
-        if(IsUndergoingModification) return;
+        if(_isUndergoingModification) return;
         if (SFreedeckPath.Text != null) InstallPath = SFreedeckPath.Text;
         Dispatcher.UIThread.InvokeAsync(() =>
         {
@@ -182,7 +182,7 @@ public partial class MainWindow : Window
 
     private void ToggleConfigure(object? sender, RoutedEventArgs e)
     {
-        if(IsUndergoingModification) return;
+        if(_isUndergoingModification) return;
         LauncherConfig.Configuration.ShowConfigureTab = !LauncherConfig.Configuration.ShowConfigureTab;
         TabConfig.IsVisible = LauncherConfig.Configuration.ShowConfigureTab;
         LauncherConfig.Update();
@@ -190,7 +190,7 @@ public partial class MainWindow : Window
 
     private void ToggleButton_OnIsCheckedChanged(object? sender, RoutedEventArgs e)
     {
-        if(IsUndergoingModification) return;
+        if(_isUndergoingModification) return;
         LauncherConfig.Configuration.ShowMarketplaceTab = !LauncherConfig.Configuration.ShowMarketplaceTab;
         TabMarketplace.IsVisible = LauncherConfig.Configuration.ShowMarketplaceTab;
         LauncherConfig.Update();
@@ -198,7 +198,7 @@ public partial class MainWindow : Window
 
     private void ToggleShowTerminal(object? sender, RoutedEventArgs e)
     {
-        if(IsUndergoingModification) return;
+        if(_isUndergoingModification) return;
         LauncherConfig.Configuration.ShowTerminal = !LauncherConfig.Configuration.ShowTerminal;
         ShowTerminal.IsChecked = LauncherConfig.Configuration.ShowTerminal;
         LauncherConfig.Update();
@@ -206,7 +206,7 @@ public partial class MainWindow : Window
 
     private void AutoUpdateMode_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
-        if(IsUndergoingModification) return;
+        if(_isUndergoingModification) return;
         if (AutoUpdateMode.SelectedIndex != 0)
         {
             UpdateCheckNotice.IsVisible = true;
@@ -298,8 +298,8 @@ public partial class MainWindow : Window
             ConfigurationPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\FreedeckLauncherConfiguration.json"
         };
         LauncherConfig.Update();
-        string exePath = Process.GetCurrentProcess().MainModule.FileName; 
-        Process.Start(new ProcessStartInfo(exePath) { UseShellExecute = true }); 
+        string? exePath = Process.GetCurrentProcess().MainModule?.FileName;
+        if (exePath != null) Process.Start(new ProcessStartInfo(exePath) { UseShellExecute = true });
         Environment.Exit(0);
     }
 

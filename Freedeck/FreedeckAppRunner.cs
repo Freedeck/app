@@ -28,9 +28,9 @@ enum InternalLogType
 public class FreedeckAppRunner
 {
     private bool _appRunning = false;
-    private Process _node;
-    private Process _electron;
-    private AppLaunchType currentlyRunning;
+    private Process _node = null!;
+    private Process _electron = null!;
+    private AppLaunchType _currentlyRunning;
     
     private void StartInternalProgram(string args, InternalAppType type)
     {
@@ -63,8 +63,8 @@ public class FreedeckAppRunner
             proc.StartInfo.UseShellExecute = false;
             proc.StartInfo.RedirectStandardOutput = true;
             proc.StartInfo.RedirectStandardError = true;
-            proc.OutputDataReceived += (sender, args) => StdoutLog(type, InternalLogType.Out, args.Data);
-            proc.ErrorDataReceived += (sender, args) => StdoutLog(type, InternalLogType.Err, args.Data);
+            proc.OutputDataReceived += (sender, args) => StdoutLog(type, InternalLogType.Out, args.Data!);
+            proc.ErrorDataReceived += (sender, args) => StdoutLog(type, InternalLogType.Err, args.Data!);
         }
 
         proc.Start();
@@ -92,7 +92,7 @@ public class FreedeckAppRunner
             {
                 try
                 {
-                    if(currentlyRunning != AppLaunchType.Server) _electron.Kill();
+                    if(_currentlyRunning != AppLaunchType.Server) _electron.Kill();
                 }
                 catch (Exception errr)
                 {
@@ -112,7 +112,7 @@ public class FreedeckAppRunner
     {
         try
         {
-            if(currentlyRunning != AppLaunchType.Companion) _node.Kill();
+            if(_currentlyRunning != AppLaunchType.Companion) _node.Kill();
             _appRunning = false;
         }
         catch (Exception ex)
@@ -154,7 +154,7 @@ public class FreedeckAppRunner
             MainWindow.GetAndSetVersionData();
             return;
         }
-        currentlyRunning = type;
+        _currentlyRunning = type;
 
         MainWindow.Instance.LaunchApp.IsEnabled = true;
         if (type != AppLaunchType.Companion)

@@ -27,7 +27,7 @@ public partial class App : Application
             
                 await pipeServer.WaitForConnectionAsync();
                 using var reader = new StreamReader(pipeServer);
-                string uri = await reader.ReadLineAsync();  // Read the message sent by the new instance.
+                string uri = await reader.ReadLineAsync() ?? string.Empty;  // Read the message sent by the new instance.
             
                 if (!string.IsNullOrWhiteSpace(uri))
                 {
