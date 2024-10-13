@@ -27,8 +27,17 @@ public class HandoffHelper
             case "update":
                 if (args.Length < 5)
                 {
+                    Console.WriteLine(args.Length);
+                    if (args.Length == 3 && command.Equals("download"))
+                    {
+                        string lid = args[1];
+                        string lurl = Uri.UnescapeDataString(args[2]);
+                        DownloadPluginRequestLegacy(lurl, lid);
+                        break;
+                    }
                     Console.WriteLine("Received malformed command");
-                    return;
+                    validCommand = false;
+                    break;
                 }
                 string id = args[1];
                 string url = Uri.UnescapeDataString(args[2]);
@@ -76,6 +85,18 @@ public class HandoffHelper
     private static string _currentDownloadId = null!;
     private static string _currentDownloadUrl = null!;
 
+    public static void DownloadPluginRequestLegacy(string url, string id)
+    {
+        _currentDownloadUrl = url;
+        _currentDownloadId = id;
+        MainWindow.Instance.THandoffPrompt.Text = $"Download {id}?";
+        MainWindow.Instance.THandoffDescription.Text = "This request comes from an older Freedeck version.";
+        MainWindow.Instance.THandoffUrl.Text = $"from {url}";
+        MainWindow.Instance.THandoffTrust.Text = "This is an unknown source; so be careful.";
+        if (url.StartsWith("https://content-dl.freedeck.app/"))
+            MainWindow.Instance.THandoffTrust.Text = "This is an official source, and can be trusted.";
+    }
+    
     public static void DownloadPluginRequest(string url, string id, string description, string repoTitle)
     {
         _currentDownloadUrl = url;

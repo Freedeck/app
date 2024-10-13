@@ -134,7 +134,7 @@ public class SetupLogic
                 window.InstallState.Text = "Done!! Fixing UI!";
                 MainWindow.InstallPath = window.InstallationDirectory.Text;
                 MainWindow.GetAndSetVersionData();
-                window.Title = "Freedeck Launcher";
+                window.Title = "Freedeck";
                 window.TabInstall.IsVisible = false;
                 window.TabMarketplace.IsVisible = true;
                 window.TabConfig.IsVisible = true;
