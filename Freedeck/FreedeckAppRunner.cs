@@ -92,6 +92,7 @@ public class FreedeckAppRunner
             {
                 try
                 {
+                    Dispatcher.UIThread.InvokeAsync(LauncherPersonalization.Initialize);
                     if(_currentlyRunning != AppLaunchType.Server) _electron.Kill();
                 }
                 catch (Exception errr)
@@ -112,6 +113,7 @@ public class FreedeckAppRunner
     {
         try
         {
+            Dispatcher.UIThread.InvokeAsync(LauncherPersonalization.Initialize);
             if(_currentlyRunning != AppLaunchType.Companion) _node.Kill();
             _appRunning = false;
         }

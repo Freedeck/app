@@ -12,5 +12,9 @@ public class LauncherConfigSchema
     public int AutoUpdaterBehavior { get; set; }
     public string ConfigurationPath { get; set; } =
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\FreedeckLauncherConfiguration.json";
+
+    public string NodePath { get; set; } = "C:\\Program Files\\nodejs\\node.exe";
+    public string NpmPath { get; set; } = "C:\\Program Files\\nodejs\\npm.cmd";
+    public string GitPath { get; set; } = "C:\\Program Files\\Git\\bin\\git.exe";
     public string ServerUrl { get; set; } = "http://localhost:5754";
 }

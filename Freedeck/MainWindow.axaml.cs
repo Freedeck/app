@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
+using System.Text;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
@@ -19,11 +21,18 @@ public partial class MainWindow : Window
     private static readonly string Home = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
     public static string InstallPath = Home + "\\Freedeck";
     public static string AppVersion = "1.0.0";
-    public static string LauncherVersion = "1.0.0 Early Beta";
+    public static string LauncherVersion = "Beta 3";
+    public static string BuildId = "d7801948b7e477b1c467e1778992bb2cdbda0597";
     public static bool ShouldShowAutoUpdater = true;
     private bool _isUndergoingModification = false;
     public static MainWindow Instance = null!;
     private static readonly SetupLogic SetupLogic = new SetupLogic();
+
+    private static string CreateBuildId()
+    {
+        //TODO: Implemetn (lol)
+        return "fd7801948b7e477b1c467e1778992bb2cdbda0597";
+    }
 
     private void InstallerDoInstall(object? sender, RoutedEventArgs e)
     {
@@ -57,7 +66,7 @@ public partial class MainWindow : Window
         TabRun.IsVisible = true;
         TabRun.IsSelected = true;
         ILauncherVersion.IsVisible = true;
-        ILauncherVersion.Text = "App v" + LauncherVersion;
+        ILauncherVersion.Text = "App " + LauncherVersion;
         SetupAllConfiguration();
     }
 
@@ -82,7 +91,7 @@ public partial class MainWindow : Window
         string version = uver.Split(new string[] { "\"version\": \"" }, StringSplitOptions.None)[1].Split('"')[0];
         AppVersion = version;
         Instance.InstalledVersion.Text = "Freedeck v" + AppVersion;
-        Instance.ILauncherVersion.Text = "App v" + LauncherVersion;
+        Instance.ILauncherVersion.Text = "App " + LauncherVersion;
         Instance.SFreedeckPath.Text = InstallPath;
     }
 
@@ -97,8 +106,32 @@ public partial class MainWindow : Window
         InitializeComponent();
         Instance = this;
         ProgressBarContainer.IsVisible = false;
+        BuildIdUser.Text = "FDApp Build Identifier: " + BuildId;
         LauncherConfig.ReloadConfiguration();
         HandoffHelper.Initialize();
+        LauncherPersonalization.Initialize();
+        NewBuildId.Click += (sender, args) =>
+        {
+            using SHA1 shaM = SHA1.Create();
+            DateTime dt = DateTime.Now;
+            string dstr = dt.ToLongDateString();
+            string tstr = DateTime.Now.ToLongTimeString();
+            byte[] rawHash = shaM.ComputeHash(Encoding.UTF8.GetBytes(dstr + tstr));
+            string hash = "";
+            foreach (byte x in rawHash)
+            {
+                hash += $"{x:x2}";
+            }
+
+            BuildIdBoxBeta.Text = hash;
+            rawHash = shaM.ComputeHash(Encoding.UTF8.GetBytes(dstr));
+            hash = "";
+            foreach (byte x in rawHash)
+            {
+                hash += $"{x:x2}";
+            }
+            BuildIdBox.Text = hash;
+        };
         if (IsAppInstalled())
         {
             GetAndSetVersionData();
@@ -120,6 +153,9 @@ public partial class MainWindow : Window
         SFreedeckPath.Text = LauncherConfig.Configuration.InstallationDirectory;
         SLCPath.Text = LauncherConfig.Configuration.ConfigurationPath;
         SLCServer.Text = LauncherConfig.Configuration.ServerUrl;
+        SLCNode.Text = LauncherConfig.Configuration.NodePath;
+        SLCNpm.Text = LauncherConfig.Configuration.NpmPath;
+        SLCGit.Text = LauncherConfig.Configuration.GitPath;
         ShowTerminal.IsChecked = LauncherConfig.Configuration.ShowTerminal;
         AutoUpdateMode.SelectedIndex = LauncherConfig.Configuration.AutoUpdaterBehavior;
         if (AutoUpdateMode.SelectedIndex != 0)
@@ -307,4 +343,5 @@ public partial class MainWindow : Window
     {
         SetupLogic.CopyLauncherToInstallation();
     }
+
 }

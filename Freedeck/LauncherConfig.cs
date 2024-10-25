@@ -17,6 +17,9 @@ public class LauncherConfig
         ShowTerminal = false,
         AutoUpdaterBehavior = 0,
         ConfigurationPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\FreedeckLauncherConfiguration.json",
+        NodePath = "C:\\Program Files\\nodejs\\node.exe",
+        NpmPath = "C:\\Program Files\\nodejs\\npm.cmd",
+        GitPath  = "C:\\Program Files\\Git\\bin\\git.exe",
         ServerUrl = "http://localhost:5754"
     };
     
@@ -35,12 +38,13 @@ public class LauncherConfig
             {
                 Configuration = deserializedConfig; // Update Configuration only if deserialization succeeds
                 MainWindow.InstallPath = Configuration.InstallationDirectory;
+                File.WriteAllTextAsync(Configuration.ConfigurationPath, JsonSerializer.Serialize<LauncherConfigSchema>(Configuration));
             }
         }
     }
 
     public static void Update()
     {
-        File.WriteAllText(Configuration.ConfigurationPath, JsonSerializer.Serialize(Configuration));
+        File.WriteAllText(Configuration.ConfigurationPath, JsonSerializer.Serialize<LauncherConfigSchema>(Configuration));
     }
 }

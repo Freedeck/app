@@ -43,10 +43,41 @@
                                     <TextBlock FontSize="24">Launcher Configuration</TextBlock>
                                     <ToggleSwitch IsChecked="True" Name="SaSDesktop" OffContent="No" OnContent="Yes">Create Desktop Shortcut</ToggleSwitch>
                                     <ToggleSwitch IsChecked="True" Name="SaSStart" OffContent="No" OnContent="Yes">Create Start Menu Shortcut</ToggleSwitch>
-                                    <StackPanel>
-                                        <TextBlock>Directory for installation</TextBlock>
-                                        <TextBox Name="InstallationDirectory" />
-                                    </StackPanel>
+                                    <TextBlock>Installation Directory</TextBlock>
+                                    <DockPanel>
+                                        <TextBox MinWidth="200" Name="InstallationDirectory"></TextBox>
+                                        <Button Name="InstallPathBtn">Check</Button>
+                                    </DockPanel>
+                                    <TextBlock/>
+                                    <Button Content="Advanced Install Paths">
+                                        <Button.Flyout>
+                                            <Flyout>
+                                                <StackPanel>
+                                                    <TextBlock Name="AdvancedError"> </TextBlock>
+                                                    <TextBlock>If you do not know what you're doing, do not change these.</TextBlock>
+                                                    <TextBlock>These are essential programs required for Freedeck to run.</TextBlock>
+                                                    <TextBlock>Node.js Path</TextBlock>
+                                                    <DockPanel>
+                                                        <TextBox MinWidth="200" Name="SNodePath"></TextBox>
+                                                        <Button Name="NodePathBtn">Check</Button>    
+                                                    </DockPanel>
+                                                    <TextBlock>NPM Path</TextBlock>
+                                                    <DockPanel>
+                                                        <TextBox MinWidth="200" Name="SNpmPath"></TextBox>
+                                                        <Button Name="NpmPathBtn">Check</Button>    
+                                                    </DockPanel>
+                                                    <TextBlock>Git Path</TextBlock>
+                                                    <DockPanel>
+                                                        <TextBox MinWidth="200" Name="SGitPath"></TextBox>
+                                                        <Button Name="GitPathBtn">Check</Button>    
+                                                    </DockPanel>
+                                                    <Button Name="SaveConfigurationNow">
+                                                        Save all configuration settings
+                                                    </Button>
+                                                </StackPanel>
+                                            </Flyout>
+                                        </Button.Flyout>
+                                    </Button>
                                     <TextBlock FontSize="8"/>
                                     <TextBlock FontSize="24">App Configuration</TextBlock>
                                     <ToggleSwitch IsChecked="False" Name="SaAuthentication" OffContent="No" OnContent="Yes">Use Authentication</ToggleSwitch>
@@ -154,7 +185,7 @@
                                         <StackPanel>
                                             <TextBlock>
                                                 This will copy your running launcher into the installation path.
-                                            </TextBlock>
+                                            </TextBlock>    
                                             <Button Click="CopyToLoc">Confirm</Button>
                                         </StackPanel>
                                     </Flyout>
@@ -166,14 +197,14 @@
                             <TextBlock>Installation Directory</TextBlock>
                             <DockPanel>
                                 <TextBox MinWidth="200" Name="SFreedeckPath"></TextBox>
-                                <Button Click="Button_OnClick">Change</Button>
+                                <Button Click="Button_OnClick">Change</Button>    
                             </DockPanel>
-                            <TextBlock>Launcher Configuration Path</TextBlock>
-                            <TextBlock>This is not changable.</TextBlock>
-                            <TextBox IsEnabled="False" MinWidth="200" Name="SLCPath"></TextBox>
                             <TextBlock>Server URL</TextBlock>
                             <TextBlock>This will be changable later.</TextBlock>
                             <TextBox IsEnabled="False" MinWidth="200" Name="SLCServer"></TextBox>
+                            <TextBlock>Launcher Configuration Path</TextBlock>
+                            <TextBox IsEnabled="False" MinWidth="200" Name="SLCPath"></TextBox>
+                            <TextBlock Name="BuildIdUser" TextWrapping="Wrap">FDApp Build Identifier: </TextBlock>
                             <TextBlock/>
                             <TextBlock FontSize="24">App</TextBlock>
                             <TextBlock/>
@@ -184,6 +215,27 @@
                                 <ComboBoxItem>Skip Autoupdater once</ComboBoxItem>
                                 <ComboBoxItem>Always skip Autoupdater</ComboBoxItem>
                             </ComboBox>
+                            <TextBlock>Node.js Path</TextBlock>
+                            <TextBox IsEnabled="False" MinWidth="200" Name="SLCNode"></TextBox>
+                            <TextBlock>NPM Path</TextBlock>
+                            <TextBox IsEnabled="False" MinWidth="200" Name="SLCNpm"></TextBox>
+                            <TextBlock>Git Path</TextBlock>
+                            <TextBox IsEnabled="False" MinWidth="200" Name="SLCGit"></TextBox>
+                            <TextBlock/>
+                            <TextBlock FontSize="24">Developer Tools</TextBlock>
+                            <Button Content="Build ID Generator">
+                                <Button.Flyout>
+                                    <Flyout>
+                                        <StackPanel>
+                                            <TextBlock>Beta Build</TextBlock>
+                                            <TextBox Name="BuildIdBoxBeta"/>
+                                            <TextBlock>Stable Build</TextBlock>
+                                            <TextBox Name="BuildIdBox"/>
+                                            <Button Name="NewBuildId" Content="Generate"/>
+                                        </StackPanel>
+                                    </Flyout>
+                                </Button.Flyout>
+                            </Button>
                             <TextBlock/>
                             <TextBlock FontSize="24">Danger</TextBlock>
                             <TextBlock>You will be asked to confirm these actions.</TextBlock>

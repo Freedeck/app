@@ -59,13 +59,26 @@ public class SetupLogic
             LauncherConfig.Update();
         }
         window.InstallationDirectory.Text = MainWindow.InstallPath;
-        window.SadDirectory.Text = "Directory:" +  window.InstallationDirectory.Text;
+        window.SadDirectory.Text = "Installing to " +  window.InstallationDirectory.Text;
         
         window.SaAuthentication.IsCheckedChanged += ToggleAuthenticationEvent;
         window.SaWelcome.IsCheckedChanged += ToggleWelcomeEvent;
         window.SaRelease.IsCheckedChanged += ToggleReleaseEvent;
-        window.InstallationDirectory.TextChanged += DirectoryChangedEvent;
 
+        window.SNodePath.Text = LauncherConfig.Configuration.NodePath;
+        window.SNpmPath.Text = LauncherConfig.Configuration.NpmPath;
+        window.SGitPath.Text = LauncherConfig.Configuration.GitPath;
+        
+        window.InstallPathBtn.Click += DirectoryChangedEvent;
+        window.NodePathBtn.Click += NodePathBtnOnClick;
+        window.NpmPathBtn.Click += NpmPathBtnOnClick;
+        window.GitPathBtn.Click += GitPathBtnOnClick;
+
+        window.SaveConfigurationNow.Click += (sender, args) =>
+        {
+            LauncherConfig.Update();
+        };
+        
         window.SaNext.Click += (sender, args) =>
         {
             window.InstallerNest.SelectedIndex++;
@@ -150,6 +163,60 @@ public class SetupLogic
         };
     }
 
+    private void GitPathBtnOnClick(object? sender, RoutedEventArgs e)
+    {
+        var tmp = LauncherConfig.Configuration;
+        if (MainWindow.Instance.SGitPath.Text != null)
+            LauncherConfig.Configuration.GitPath = MainWindow.Instance.SGitPath.Text;
+        if (!File.Exists(LauncherConfig.Configuration.GitPath))
+        {
+            MainWindow.Instance.AdvancedError.Text += "Git does not exist.";
+        }
+        else
+        {
+            LauncherConfig.Configuration.GitPath = tmp.GitPath;
+            if (MainWindow.Instance.AdvancedError.Text != null)
+                MainWindow.Instance.AdvancedError.Text =
+                MainWindow.Instance.AdvancedError.Text.Replace("Git does not exist.", "");
+        }
+    }
+
+    private void NpmPathBtnOnClick(object? sender, RoutedEventArgs e)
+    {
+        var tmp = LauncherConfig.Configuration;
+        if (MainWindow.Instance.SNpmPath.Text != null)
+            LauncherConfig.Configuration.NpmPath = MainWindow.Instance.SNpmPath.Text;
+        if (!File.Exists(LauncherConfig.Configuration.NpmPath))
+        {
+            MainWindow.Instance.AdvancedError.Text += "NPM does not exist.";
+        }
+        else
+        {
+            LauncherConfig.Configuration.NpmPath = tmp.NpmPath;
+            if (MainWindow.Instance.AdvancedError.Text != null)
+                MainWindow.Instance.AdvancedError.Text =
+                    MainWindow.Instance.AdvancedError.Text.Replace("NPM does not exist.", "");
+        }
+    }
+
+    private void NodePathBtnOnClick(object? sender, RoutedEventArgs e)
+    {
+        var tmp = LauncherConfig.Configuration;
+        if (MainWindow.Instance.SNodePath.Text != null)
+            LauncherConfig.Configuration.NodePath = MainWindow.Instance.SNodePath.Text;
+        if (!File.Exists(LauncherConfig.Configuration.NpmPath))
+        {
+            MainWindow.Instance.AdvancedError.Text += "Node does not exist.";
+        }
+        else
+        {
+            LauncherConfig.Configuration.NodePath = tmp.NodePath;
+            if (MainWindow.Instance.AdvancedError.Text != null)
+                MainWindow.Instance.AdvancedError.Text =
+                MainWindow.Instance.AdvancedError.Text.Replace("Node does not exist.", "");
+        }
+    }
+
     private bool MigrateEnsureExists(string folder)
     {
         return (!Directory.Exists(folder) || !File.Exists(folder + "\\freedeck\\package.json"));
@@ -157,7 +224,7 @@ public class SetupLogic
 
     private void DirectoryChangedEvent(object? sender, RoutedEventArgs e)
     {
-        if (sender is TextBox)
+        if (sender is Button)
         {
             MainWindow.InstallPath = MainWindow.Instance.InstallationDirectory.Text!;
             MainWindow.Instance.SadDirectory.Text = "Directory: " + MainWindow.Instance.InstallationDirectory.Text;
