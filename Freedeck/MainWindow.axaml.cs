@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
@@ -24,6 +25,7 @@ public partial class MainWindow : Window
     public static string LauncherVersion = "Beta 3";
     public static string BuildId = "d7801948b7e477b1c467e1778992bb2cdbda0597";
     public static bool ShouldShowAutoUpdater = true;
+    public static bool AutoUpdaterTestMode = false;
     private bool _isUndergoingModification = false;
     public static MainWindow Instance = null!;
     private static readonly SetupLogic SetupLogic = new SetupLogic();
@@ -46,7 +48,7 @@ public partial class MainWindow : Window
 
         ITabInstallTxt.Text = "Installing Freedeck...";
         ITabInstallDesc.Text =
-            "You may see some Command Prompt (cmd.exe) windows pop up! They're just Freedeck installing required components.";
+            "";
 
         InstallState.Text = "Initializing installer helper...";
         InstallProgress.Value = 10;
@@ -95,21 +97,29 @@ public partial class MainWindow : Window
         Instance.SFreedeckPath.Text = InstallPath;
     }
 
+    private bool IsLauncherInstalled()
+    {
+        return File.Exists(LauncherConfigSchema.AppData + "\\Freedeck.exe");
+    }
+    
     private bool IsAppInstalled()
     {
-        return File.Exists(InstallPath + "\\Freedeck.exe") ||
-               File.Exists(LauncherConfig.Configuration.InstallationDirectory + "\\Freedeck.exe");
+        return File.Exists(LauncherConfig.Configuration.InstallationDirectory + "\\freedeck\\package.json");
     }
 
     public MainWindow()
     {
         InitializeComponent();
         Instance = this;
-        ProgressBarContainer.IsVisible = false;
         BuildIdUser.Text = "FDApp Build Identifier: " + BuildId;
         LauncherConfig.ReloadConfiguration();
         HandoffHelper.Initialize();
         LauncherPersonalization.Initialize();
+        _ = Task.Run(async () =>
+        {
+            await ReleaseHelper.FullyUpdate();
+            NativeBridge.Initialize();
+        });
         NewBuildId.Click += (sender, args) =>
         {
             using SHA1 shaM = SHA1.Create();
@@ -153,6 +163,7 @@ public partial class MainWindow : Window
         SFreedeckPath.Text = LauncherConfig.Configuration.InstallationDirectory;
         SLCPath.Text = LauncherConfig.Configuration.ConfigurationPath;
         SLCServer.Text = LauncherConfig.Configuration.ServerUrl;
+        SLCRelease.Text = ReleaseHelper.server + "/" + ReleaseHelper.file;
         SLCNode.Text = LauncherConfig.Configuration.NodePath;
         SLCNpm.Text = LauncherConfig.Configuration.NpmPath;
         SLCGit.Text = LauncherConfig.Configuration.GitPath;
@@ -202,8 +213,7 @@ public partial class MainWindow : Window
         {
             ProgressBarCurrently.Text = "Checking for updates...";
             ProgressBarApp.Value = 10;
-            Autoupdater au = new Autoupdater();
-            if (ShouldShowAutoUpdater) await au.ShowDialog(this);
+            await Autoupdater.StartUpdateAsync();
         }
 
         ProgressBarCurrently.Text = "Sending state to FDAppRunner";
@@ -344,4 +354,13 @@ public partial class MainWindow : Window
         SetupLogic.CopyLauncherToInstallation();
     }
 
+    private void OpenAuTest(object? sender, RoutedEventArgs e)
+    {
+        AutoUpdaterTestMode = true;
+        // Autoupdater au = new Autoupdater();
+        // au.Show();
+        LeftSidebar.IsVisible = false;
+        TabRun.IsVisible = false;
+        TabSettings.IsVisible = false;
+    }
 }

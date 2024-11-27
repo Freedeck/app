@@ -25,10 +25,7 @@ public class FreedeckAppInstaller
     public void InstallIt(Action callback)
     {
         MainWindow.Instance.InstallState.Text = "Creating folder...";
-        if (!Directory.Exists(MainWindow.InstallPath))
-        {
-            Directory.CreateDirectory(MainWindow.InstallPath);
-        }
+        if (!Directory.Exists(LauncherConfigSchema.AppData)) Directory.CreateDirectory(LauncherConfigSchema.AppData);
         SetupLogic.CopyLauncherToInstallation();
         if(SetupLogic.IsChecked(MainWindow.Instance.SaSDesktop)) AppShortcutToDesktop("Freedeck", MainWindow.InstallPath +"\\Freedeck.exe");
         if(SetupLogic.IsChecked(MainWindow.Instance.SaSStart)) AppShortcutToDesktop("Freedeck", MainWindow.InstallPath +"\\Freedeck.exe", Environment.SpecialFolder.StartMenu);
@@ -62,12 +59,27 @@ public class FreedeckAppInstaller
         MakeUserInstall(Git)();
     }
     
+    private void StdoutLog(string title, InternalLogType logType, string logMessage)
+    {
+        Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            String fmt = $"[{title}] {logMessage}";
+            Console.WriteLine(fmt + logType);
+            MainWindow.Instance.AppInstallLog.Text += fmt + "\n";
+        });
+    }
     private void StageTwo(Action finish)
     {
         MainWindow.Instance.InstallProgress.Value = 30;
         MainWindow.Instance.InstallState.Text = "Fetching Git repo (github: freedeck/freedeck)";
         Process proc = new Process();
         proc.StartInfo.FileName = "C:\\Program Files\\Git\\bin\\git.exe";
+        proc.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+        proc.StartInfo.UseShellExecute = false;
+        proc.StartInfo.RedirectStandardOutput = true;
+        proc.StartInfo.RedirectStandardError = true;
+        proc.OutputDataReceived += (sender, args) => StdoutLog("Git", InternalLogType.Out, args.Data!);
+        proc.ErrorDataReceived += (sender, args) => StdoutLog("Git", InternalLogType.Err, args.Data!);
         proc.StartInfo.ArgumentList.Add("clone");
         proc.StartInfo.ArgumentList.Add("https://github.com/freedeck/freedeck");
         proc.StartInfo.ArgumentList.Add(MainWindow.InstallPath + "\\freedeck");
@@ -82,6 +94,8 @@ public class FreedeckAppInstaller
             });
         });
         proc.Start();
+        proc.BeginOutputReadLine();
+        proc.BeginErrorReadLine();
     }
 
     private void StageThree(Action finish)
@@ -90,7 +104,12 @@ public class FreedeckAppInstaller
         MainWindow.Instance.InstallState.Text = "Cloned Git repo! Installing dependencies...";
         Process proc = new Process();
         proc.StartInfo.FileName = "C:\\Program Files\\nodejs\\npm.cmd";
-        proc.StartInfo.UseShellExecute = true;
+        proc.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+        proc.StartInfo.UseShellExecute = false;
+        proc.StartInfo.RedirectStandardOutput = true;
+        proc.StartInfo.RedirectStandardError = true;
+        proc.OutputDataReceived += (sender, args) => StdoutLog("NPM", InternalLogType.Out, args.Data!);
+        proc.ErrorDataReceived += (sender, args) => StdoutLog("NPM", InternalLogType.Err, args.Data!);
         proc.StartInfo.ArgumentList.Add("i");
         proc.StartInfo.WorkingDirectory = MainWindow.InstallPath + "\\freedeck";
         proc.EnableRaisingEvents = true;
@@ -102,6 +121,8 @@ public class FreedeckAppInstaller
             });
         });
         proc.Start();
+        proc.BeginOutputReadLine();
+        proc.BeginErrorReadLine();
     }
 
     private void StageFour(Action finish)

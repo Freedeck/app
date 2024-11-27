@@ -32,12 +32,15 @@ class Program
 
             // Try registering without admin rights (user-level)
             UriProtocolRegistrar.RegisterUriScheme(protocol, appPath, userLevel: true);
-        
+
             var mutex = new System.Threading.Mutex(true, "FreedeckAppMutex", out bool isNewInstance);
             if (!isNewInstance)
             {
                 // The app is already running. Pass the arguments to the running instance.
-                if(args[0].Contains("freedeck://")) SendArgsToExistingInstance(args);
+                if (args[0].Contains("freedeck://"))
+                {
+                    SendArgsToExistingInstance(args);
+                }
                 else if(args[0].Contains("HandoffAdminReset") && OperatingSystem.IsWindows())
                 {
                     if (!IsAdministrator()) return;
@@ -45,9 +48,12 @@ class Program
                 }
                 return;
             }
+            else
+            {
+                BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+            }
         }
 
-        BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
     }
 
     private static void SendArgsToExistingInstance(string[] args)

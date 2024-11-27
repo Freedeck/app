@@ -38,7 +38,7 @@ public class SetupLogic
             string exeName = currentProcess.MainModule.FileName;
             string executableName = Path.GetFileName(exeName);
             string sourceExePath = Path.Combine(AppContext.BaseDirectory, executableName);
-            File.Copy(sourceExePath, MainWindow.InstallPath + "\\Freedeck.exe", true);
+            File.Copy(sourceExePath, LauncherConfigSchema.AppData + "\\Freedeck.exe", true);
         }
     }
 

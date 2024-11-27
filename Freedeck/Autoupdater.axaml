@@ -4,11 +4,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="150"
         x:Class="Freedeck.Autoupdater"
-        Background="#2d2d32"
+        Background="rgba(0,0,0,0.925)"
         Width="800"
         Height="150"
+        SystemDecorations="None"
         Title="Autoupdater">
-        <Border Background="#24272B" CornerRadius="15" Margin="10">
+        <Border Background="rgba(0,0,0,0.25)" CornerRadius="15" Margin="10">
                 <StackPanel HorizontalAlignment="Stretch"
                             VerticalAlignment="Center">
                         <TextBlock FontSize="36">Autoupdater</TextBlock>

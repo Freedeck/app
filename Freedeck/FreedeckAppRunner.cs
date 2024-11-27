@@ -13,13 +13,13 @@ public enum AppLaunchType
     Companion
 }
 
-enum InternalAppType
+public enum InternalAppType
 {
     Node,
-    Electron
+    Electron,
 }
 
-enum InternalLogType
+public enum InternalLogType
 {
     Err,
     Out

@@ -16,7 +16,9 @@ public class LauncherConfig
         InstallationDirectory = MainWindow.InstallPath,
         ShowTerminal = false,
         AutoUpdaterBehavior = 0,
-        ConfigurationPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\FreedeckLauncherConfiguration.json",
+        ConfigurationPath = LauncherConfigSchema.AppData + "\\Launcher.json",
+        LastReleaseFeedPrefix = LauncherConfigSchema.AppData + "\\CachedRelease\\feed-",
+        LastReleaseIndex = LauncherConfigSchema.AppData + "\\CachedRelease\\index.json",
         NodePath = "C:\\Program Files\\nodejs\\node.exe",
         NpmPath = "C:\\Program Files\\nodejs\\npm.cmd",
         GitPath  = "C:\\Program Files\\Git\\bin\\git.exe",
@@ -36,7 +38,16 @@ public class LauncherConfig
             var deserializedConfig = JsonSerializer.Deserialize<LauncherConfigSchema>(json);
             if (deserializedConfig != null)
             {
-                Configuration = deserializedConfig; // Update Configuration only if deserialization succeeds
+                string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                if (!Directory.Exists(LauncherConfigSchema.AppData)) Directory.CreateDirectory(LauncherConfigSchema.AppData);
+                if (File.Exists(appData + "\\FreedeckLauncherConfiguration.json"))
+                {
+                    File.WriteAllText(Configuration.ConfigurationPath, 
+                        File.ReadAllText(appData + "\\FreedeckLauncherConfiguration.json")
+                    );
+                    File.Delete(appData + "\\FreedeckLauncherConfiguration.json");
+                }
+                
                 MainWindow.InstallPath = Configuration.InstallationDirectory;
                 File.WriteAllTextAsync(Configuration.ConfigurationPath, JsonSerializer.Serialize<LauncherConfigSchema>(Configuration));
             }
@@ -45,6 +56,8 @@ public class LauncherConfig
 
     public static void Update()
     {
+        if (!Directory.Exists(LauncherConfigSchema.AppData)) Directory.CreateDirectory(LauncherConfigSchema.AppData);
+        if (!Directory.Exists(LauncherConfigSchema.AppData + "\\CachedRelease")) Directory.CreateDirectory(LauncherConfigSchema.AppData + "\\CachedRelease");
         File.WriteAllText(Configuration.ConfigurationPath, JsonSerializer.Serialize<LauncherConfigSchema>(Configuration));
     }
 }

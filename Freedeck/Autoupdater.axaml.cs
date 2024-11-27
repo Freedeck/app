@@ -1,86 +1,132 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
+using Avalonia.Threading;
 
 namespace Freedeck
 {
+    public enum AUState
+    {
+        INVALID_INSTALL_PATH,
+        INVALID_APP_VERSION,
+        NOFAIL_TEST_MODE,
+        NOFAIL_COMPLETE,
+        ERROR
+    }
     public partial class Autoupdater : Window
     {
         public Autoupdater()
         {
             InitializeComponent();
-            StartUpdateAsync();
         }
 
-        private async void StartUpdateAsync()
+        public static async Task<AUState> StartUpdateAsync()
         {
-            AuProgress.Value = 10;
-
             string av = MainWindow.AppVersion;
             if (!File.Exists(MainWindow.InstallPath + "\\freedeck\\src\\configs\\config.fd.js"))
             {
-                AuProgress.Value = 0;
-                AuCurrent.Text = "Installation path is invalid.";
-                return;
+                Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    MainWindow.Instance.ProgressBarApp.Value = 0;
+                    MainWindow.Instance.ProgressBarCurrently.Text = "Invalid app install path";
+                });
+                return AUState.INVALID_INSTALL_PATH;
             }
 
-            string userConfig = File.ReadAllText(MainWindow.InstallPath + "\\freedeck\\src\\configs\\config.fd.js");
+            string userConfig = await File.ReadAllTextAsync(MainWindow.InstallPath + "\\freedeck\\src\\configs\\config.fd.js");
             string branch = "v6";
             int line = 0;
+            if (!av.Contains("6"))
+            {
+                Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    MainWindow.Instance.ProgressBarApp.Value = 10;
+                    MainWindow.Instance.ProgressBarCurrently.Text = "Your app version seems to be invalid.";
+                });
+                return AUState.INVALID_APP_VERSION;
+            }
             if (userConfig.Contains("\"release\":\"dev\"") || userConfig.Contains("release:\"dev\""))
             {
                 branch = "v6-dev";
                 line = 1;
             }
+            Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                MainWindow.Instance.ProgressBarApp.Value = 20;
+                MainWindow.Instance.ProgressBarCurrently.Text = $"Using branch {branch}";
+            });
 
             try
             {
                 HttpClient wc = new HttpClient();
-                string res = await wc.GetStringAsync("https://freedeck.app/release");
-
-                if (!av.Contains("6"))
+                var get = await wc.GetAsync("https://freedeck.app/release");
+                if (get.StatusCode != HttpStatusCode.Accepted)
                 {
-                    AuCurrent.Text = av + " doesn't seem like a valid version...";
-                    AuProgress.Value = 0;
-                    return;
-                }
-
+                    ReleaseHelper.isOnline = false;
+                    Dispatcher.UIThread.InvokeAsync(() =>
+                    {
+                        MainWindow.Instance.ProgressBarApp.Value = 0;
+                        MainWindow.Instance.ProgressBarCurrently.Text = "You are offline! Failed to fetch server release.";
+                    });
+                } else ReleaseHelper.isOnline = true;
+                string res = await get.Content.ReadAsStringAsync();
                 string cv = res.Split("\n")[line];
                 if (av != cv)
                 {
-                    AuProgress.Value = 50;
-                    AuCurrent.Text = $"Updating! ({av} -> {cv}) on {branch}";
-                    
+                    Dispatcher.UIThread.InvokeAsync(() =>
+                    {
+                        MainWindow.Instance.ProgressBarApp.Value = 50;
+                        MainWindow.Instance.ProgressBarCurrently.Text = $"Updating! ({av} -> {cv}) on {branch}";
+                    });
+
+                    if (MainWindow.AutoUpdaterTestMode) return AUState.NOFAIL_TEST_MODE;
                     // Run processes asynchronously
+                    Dispatcher.UIThread.InvokeAsync(() =>
+                    {
+                        MainWindow.Instance.ProgressBarApp.Value = 60;
+                        MainWindow.Instance.ProgressBarCurrently.Text = $"Checking out to {branch}";
+                    });
                     await RunProcessAsync("C:\\Program Files\\Git\\bin\\git.exe", $"checkout -f {branch}");
+                    Dispatcher.UIThread.InvokeAsync(() =>
+                    {
+                        MainWindow.Instance.ProgressBarApp.Value = 65;
+                        MainWindow.Instance.ProgressBarCurrently.Text = $"Pulling {cv} from {branch}";
+                    });
                     await RunProcessAsync("C:\\Program Files\\Git\\bin\\git.exe", "pull");
+                    Dispatcher.UIThread.InvokeAsync(() =>
+                    {
+                        MainWindow.Instance.ProgressBarApp.Value = 80;
+                        MainWindow.Instance.ProgressBarCurrently.Text = "Reinstalling dependencies...";
+                    });
                     await RunProcessAsync("C:\\Program Files\\nodejs\\npm.cmd", "i");
+                    Dispatcher.UIThread.InvokeAsync(() =>
+                    {
+                        MainWindow.Instance.ProgressBarApp.Value = 100;
+                        MainWindow.Instance.ProgressBarCurrently.Text = "Done!";
+                    });
                 }
                 else
                 {
                     MainWindow.ShouldShowAutoUpdater = false;
-                    this.Close();
                 }
 
-                AuProgress.Value = 100;
-                AuCurrent.Text = "Up to date.";
-                this.Close();
+                return AUState.NOFAIL_COMPLETE;
             }
             catch (Exception ex)
             {
-                AuProgress.Value = 0;
-                AuCurrent.Text = $"Error: {ex.Message}";
+                return AUState.ERROR;
             }
         }
 
-        private async Task RunProcessAsync(string file, string args)
+
+        private static async Task RunProcessAsync(string file, string args)
         {
-            AuProgress.Value = 0;
             using (Process proc = new Process())
             {
                 proc.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
@@ -101,7 +147,7 @@ namespace Freedeck
 
                 if (!string.IsNullOrWhiteSpace(error))
                 {
-                    AuCurrent.Text = $"Error during process: {error}";
+                    await Console.Error.WriteLineAsync($"Error during process: {error}");
                 }
             }
         }
