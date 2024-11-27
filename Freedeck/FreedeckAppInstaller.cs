@@ -27,8 +27,8 @@ public class FreedeckAppInstaller
         MainWindow.Instance.InstallState.Text = "Creating folder...";
         if (!Directory.Exists(LauncherConfigSchema.AppData)) Directory.CreateDirectory(LauncherConfigSchema.AppData);
         SetupLogic.CopyLauncherToInstallation();
-        if(SetupLogic.IsChecked(MainWindow.Instance.SaSDesktop)) AppShortcutToDesktop("Freedeck", MainWindow.InstallPath +"\\Freedeck.exe");
-        if(SetupLogic.IsChecked(MainWindow.Instance.SaSStart)) AppShortcutToDesktop("Freedeck", MainWindow.InstallPath +"\\Freedeck.exe", Environment.SpecialFolder.StartMenu);
+        if(SetupLogic.IsChecked(MainWindow.Instance.SaSDesktop)) AppShortcutToDesktop("Freedeck", LauncherConfigSchema.AppData + "\\Freedeck.exe", Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
+        if(SetupLogic.IsChecked(MainWindow.Instance.SaSStart)) AppShortcutToDesktop("Freedeck", LauncherConfigSchema.AppData + "\\Freedeck.exe", Environment.GetFolderPath(Environment.SpecialFolder.StartMenu) + "\\Programs");
         LauncherConfig.ReloadConfiguration();
         MainWindow.Instance.InstallProgress.Value = 15;
         
@@ -136,10 +136,10 @@ public class FreedeckAppInstaller
     }
 
     // https://stackoverflow.com/questions/4897655/create-a-shortcut-on-desktop
-    public static void AppShortcutToDesktop(string linkName, string app, Environment.SpecialFolder folder = Environment.SpecialFolder.DesktopDirectory)
+    public static void AppShortcutToDesktop(string linkName, string app, String folder)
     {
-        string deskDir = Environment.GetFolderPath(folder);
-
+        string deskDir = folder;
+        
         using (StreamWriter writer = new StreamWriter(deskDir + "\\" + linkName + ".url"))
         {
             writer.WriteLine("[InternetShortcut]");

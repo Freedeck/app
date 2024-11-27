@@ -62,8 +62,6 @@ public partial class MainWindow : Window
             GetAndSetVersionData();
         });
         TabInstall.IsVisible = false;
-        TabMarketplace.IsVisible = true;
-        TabConfig.IsVisible = true;
         TabSettings.IsVisible = true;
         TabRun.IsVisible = true;
         TabRun.IsSelected = true;
@@ -146,7 +144,6 @@ public partial class MainWindow : Window
         {
             GetAndSetVersionData();
             TabInstall.IsVisible = false;
-            TabConfig.IsVisible = true;
             TabRun.IsSelected = true;
             SetupAllConfiguration();
         }
@@ -158,8 +155,6 @@ public partial class MainWindow : Window
     {
         LauncherConfig.ReloadConfiguration();
         _isUndergoingModification = true;
-        SConfigTab.IsChecked = LauncherConfig.Configuration.ShowConfigureTab;
-        SMarketTab.IsChecked = LauncherConfig.Configuration.ShowMarketplaceTab;
         SFreedeckPath.Text = LauncherConfig.Configuration.InstallationDirectory;
         SLCPath.Text = LauncherConfig.Configuration.ConfigurationPath;
         SLCServer.Text = LauncherConfig.Configuration.ServerUrl;
@@ -180,8 +175,6 @@ public partial class MainWindow : Window
             UpdateCheckNotice.IsVisible = false;
         }
 
-        TabConfig.IsVisible = LauncherConfig.Configuration.ShowConfigureTab;
-        TabMarketplace.IsVisible = LauncherConfig.Configuration.ShowMarketplaceTab;
         _isUndergoingModification = false;
     }
 
@@ -225,22 +218,7 @@ public partial class MainWindow : Window
             AutoUpdateMode.SelectedIndex = 0;
         }
     }
-
-    private void ToggleConfigure(object? sender, RoutedEventArgs e)
-    {
-        if(_isUndergoingModification) return;
-        LauncherConfig.Configuration.ShowConfigureTab = !LauncherConfig.Configuration.ShowConfigureTab;
-        TabConfig.IsVisible = LauncherConfig.Configuration.ShowConfigureTab;
-        LauncherConfig.Update();
-    }
-
-    private void ToggleButton_OnIsCheckedChanged(object? sender, RoutedEventArgs e)
-    {
-        if(_isUndergoingModification) return;
-        LauncherConfig.Configuration.ShowMarketplaceTab = !LauncherConfig.Configuration.ShowMarketplaceTab;
-        TabMarketplace.IsVisible = LauncherConfig.Configuration.ShowMarketplaceTab;
-        LauncherConfig.Update();
-    }
+    
 
     private void ToggleShowTerminal(object? sender, RoutedEventArgs e)
     {
@@ -336,8 +314,6 @@ public partial class MainWindow : Window
         LauncherConfig.Configuration = new LauncherConfigSchema
         {
             PersistentSettings = false,
-            ShowConfigureTab = false,
-            ShowMarketplaceTab = false,
             InstallationDirectory = "",
             ShowTerminal = false,
             AutoUpdaterBehavior = 0,

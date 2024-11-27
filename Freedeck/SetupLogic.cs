@@ -47,9 +47,7 @@ public class SetupLogic
         window.Title = "Freedeck Installer";
         window.ILauncherVersion.IsVisible = false;
         window.TabRun.IsVisible = false;
-        window.TabMarketplace.IsVisible = false;
         window.TabSettings.IsVisible = false;
-        window.TabConfig.IsVisible = false;
         window.TabInstall.IsVisible = false;
         window.TabInstall.IsSelected = true;
         if (string.IsNullOrEmpty(MainWindow.InstallPath))
@@ -137,9 +135,8 @@ public class SetupLogic
                 
                 window.InstallProgress.Value = 30;
                 window.InstallState.Text = "Making new shortcuts!";
-                if(IsChecked(MainWindow.Instance.SaSDesktop)) FreedeckAppInstaller.AppShortcutToDesktop("Freedeck", MainWindow.InstallPath +"\\Freedeck.exe");
-                if(IsChecked(MainWindow.Instance.SaSStart)) FreedeckAppInstaller.AppShortcutToDesktop("Freedeck", MainWindow.InstallPath +"\\Freedeck.exe", Environment.SpecialFolder.StartMenu);
-                window.InstallProgress.Value = 70;
+                if(SetupLogic.IsChecked(MainWindow.Instance.SaSDesktop)) FreedeckAppInstaller.AppShortcutToDesktop("Freedeck", LauncherConfigSchema.AppData + "\\Freedeck.exe", Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
+                if(SetupLogic.IsChecked(MainWindow.Instance.SaSStart)) FreedeckAppInstaller.AppShortcutToDesktop("Freedeck", LauncherConfigSchema.AppData + "\\Freedeck.exe", Environment.GetFolderPath(Environment.SpecialFolder.StartMenu) + "\\Programs");                window.InstallProgress.Value = 70;
                 window.InstallState.Text = "Setting up configuration";
                 LauncherConfig.Configuration.InstallationDirectory = window.InstallationDirectory.Text;
                 LauncherConfig.Update();
@@ -149,8 +146,6 @@ public class SetupLogic
                 MainWindow.GetAndSetVersionData();
                 window.Title = "Freedeck";
                 window.TabInstall.IsVisible = false;
-                window.TabMarketplace.IsVisible = true;
-                window.TabConfig.IsVisible = true;
                 window.TabSettings.IsVisible = true;
                 window.TabRun.IsVisible = true;
                 window.TabRun.IsSelected = true;

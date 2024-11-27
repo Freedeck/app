@@ -119,16 +119,6 @@
                         </TabItem>
                     </TabControl>
                 </TabItem>
-                <TabItem Header="Configure" Name="TabConfig">
-                    <StackPanel>
-                        <TextBlock FontSize="36">
-                            Configuration
-                        </TextBlock>
-                        <TextBlock FontSize="24">This feature is coming soon!</TextBlock>
-                        <TextBlock FontWeight="Light">Soon, you'll be able to edit any plugin's settings here!</TextBlock>
-                        <TextBlock FontSize="32">To hide this page, go to Settings.</TextBlock>
-                    </StackPanel>
-                </TabItem>
                 <TabItem Header="Launch" Name="TabRun">
                    <ScrollViewer>
                        <StackPanel>
@@ -172,16 +162,6 @@
                         </DockPanel>
                     </StackPanel>
                 </TabItem>
-                <TabItem Header="Marketplace" Name="TabMarketplace">
-                    <StackPanel>
-                        <TextBlock FontSize="36">
-                            Marketplace
-                        </TextBlock>
-                        <TextBlock FontSize="24">This feature is coming soon!</TextBlock>
-                        <TextBlock FontWeight="Light">When released, you will be able to directly install plugins from here AND the Freedeck Companion!</TextBlock>
-                        <TextBlock FontSize="32">To hide this page, go to Settings.</TextBlock>
-                    </StackPanel>
-                </TabItem>
                 <TabItem Header="Settings" Name="TabSettings">
                     <ScrollViewer>
                         <StackPanel>
@@ -203,8 +183,6 @@
                                 </Button.Flyout>
                             </Button>
                             <TextBlock />
-                            <ToggleSwitch Name="SConfigTab" IsCheckedChanged="ToggleConfigure">Show Configure tab</ToggleSwitch>
-                            <ToggleSwitch Name="SMarketTab" IsCheckedChanged="ToggleButton_OnIsCheckedChanged">Show Marketplace tab</ToggleSwitch>
                             <TextBlock>Installation Directory</TextBlock>
                             <DockPanel>
                                 <TextBox MinWidth="200" Name="SFreedeckPath"></TextBox>

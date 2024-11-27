@@ -11,8 +11,6 @@ public class LauncherConfig
     public static LauncherConfigSchema Configuration = new LauncherConfigSchema
     {
         PersistentSettings = false,
-        ShowConfigureTab = false,
-        ShowMarketplaceTab = false,
         InstallationDirectory = MainWindow.InstallPath,
         ShowTerminal = false,
         AutoUpdaterBehavior = 0,

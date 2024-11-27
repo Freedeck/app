@@ -6,8 +6,6 @@ public class LauncherConfigSchema
 {
     public static string AppData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\FreedeckApp";
     public bool PersistentSettings { get; set; }
-    public bool ShowConfigureTab { get; set; }
-    public bool ShowMarketplaceTab { get; set; }
     public string InstallationDirectory { get; set; } = MainWindow.InstallPath;
     public bool ShowTerminal { get; set; }
     public int AutoUpdaterBehavior { get; set; }

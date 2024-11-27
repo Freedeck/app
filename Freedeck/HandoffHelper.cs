@@ -70,16 +70,12 @@ public class HandoffHelper
     {
         MainWindow.Instance.TabRun.IsEnabled = false;
         MainWindow.Instance.TabSettings.IsEnabled = false;
-        MainWindow.Instance.TabConfig.IsEnabled = false;
-        MainWindow.Instance.TabMarketplace.IsEnabled = false;
     }
 
     private static void GiveAccess()
     {
         MainWindow.Instance.TabRun.IsEnabled = true;
         MainWindow.Instance.TabSettings.IsEnabled = true;
-        MainWindow.Instance.TabConfig.IsEnabled = true;
-        MainWindow.Instance.TabMarketplace.IsEnabled = true;
     }
 
     private static string _currentDownloadId = null!;
