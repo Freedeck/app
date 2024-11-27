@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
@@ -15,39 +16,25 @@ using Avalonia.Threading;
 
 namespace Freedeck;
 
-public class ReleaseMarketplaceRepository
-{
-    public string title { get; set; }
-    public string description { get; set; }
-    public string folder { get; set; }
-    public string index { get; set; }
-}
 
-public class ReleaseChannel
+public class ReleaseVersioningChannel
 {
     public string id { get; set; }
+    public string type { get; set; }
     public string description { get; set; }
-    public string version { get; set; }
-    public string catalog { get; set; }
+    public JsonElement catalog { get; set; }
 }
 
 public class ReleaseIndexFile
 {
-    public string url { get; set; }
-    public ReleaseMarketplaceRepository[] marketplace_repository { get; set; }
-    public ReleaseChannel[] release_channels { get; set; }
+    public List<ReleaseVersioningChannel> channels { get; set; } = new();
 }
 
-public class ReleaseVersionCatalogVersion
+public class Release
 {
+    public bool? current { get; set; } = false;
     public string version { get; set; }
     public string desc { get; set; }
-}
-
-public class ReleaseVersionCatalog
-{
-    public string title { get; set; } = "No Channel Name";
-    public ReleaseVersionCatalogVersion[] versions { get; set; }
 }
 
 public class ReleaseHelper
@@ -64,7 +51,6 @@ public class ReleaseHelper
     public static string file = "index.json";
     public static bool isOnline = false;
     public static ReleaseIndexFile index = new ReleaseIndexFile();
-    public static Dictionary<string, ReleaseVersionCatalog> catalogs;
 
     public static async Task FullyUpdate()
     {
@@ -73,7 +59,6 @@ public class ReleaseHelper
             MainWindow.Instance.ProgressBarContainer.IsVisible = true;
         });
         await GetLatestIndexAsync();
-        await GetLatestReleaseCatalogAsync();
         await UpdateCatalogAsync();
         Dispatcher.UIThread.InvokeAsync(() =>
         {
@@ -83,29 +68,55 @@ public class ReleaseHelper
         });
     }
 
-    public static async Task GetLatestIndexAsync()
+   public static async Task GetLatestIndexAsync()
     {
         string path = $"{server}/{file}";
         Dispatcher.UIThread.InvokeAsync(() =>
         {
             MainWindow.Instance.ProgressBarCurrently.Text = $"Connecting to {server}/{file}";
         });
+
         using HttpClient hc = new();
         try
         {
             Dispatcher.UIThread.InvokeAsync(() =>
             {
                 MainWindow.Instance.ProgressBarApp.Value = 40;
-                MainWindow.Instance.ProgressBarCurrently.Text = $"Got index. Found {index.release_channels.Length} channels.";
             });
+
             string fileContents = await hc.GetStringAsync(path);
             isOnline = true;
             CheckOnline();
+
+            // Write backup
             _ = Task.Run(() =>
             {
                 File.WriteAllTextAsync(LauncherConfig.Configuration.LastReleaseIndex, fileContents);
             });
-            index = JsonSerializer.Deserialize<ReleaseIndexFile>(fileContents)!;
+
+            // Parse JSON manually to handle the object structure
+            using var document = JsonDocument.Parse(fileContents);
+            var root = document.RootElement;
+
+            var channels = new List<ReleaseVersioningChannel>();
+
+            // Iterate over each property in the "channels" object
+            foreach (var channelProperty in root.GetProperty("channels").EnumerateObject())
+            {
+                var channelElement = channelProperty.Value;
+                var type = channelElement.GetProperty("type").GetString();
+
+                // Process only "release" type channels
+                if (type == "release")
+                {
+                    var releaseChannel = JsonSerializer.Deserialize<ReleaseVersioningChannel>(channelElement.GetRawText());
+
+                    channels.Add(releaseChannel);
+                }
+            }
+
+            index = new ReleaseIndexFile { channels = channels};
+
             Dispatcher.UIThread.InvokeAsync(() =>
             {
                 MainWindow.Instance.ProgressBarApp.Value = 50;
@@ -128,7 +139,24 @@ public class ReleaseHelper
             if (File.Exists(LauncherConfig.Configuration.LastReleaseIndex))
             {
                 string f = File.ReadAllText(LauncherConfig.Configuration.LastReleaseIndex);
-                index = JsonSerializer.Deserialize<ReleaseIndexFile>(f)!;
+                using var backupDocument = JsonDocument.Parse(f);
+                var root = backupDocument.RootElement;
+
+                var channels = new List<ReleaseVersioningChannel>();
+
+                foreach (var channelProperty in root.GetProperty("channels").EnumerateObject())
+                {
+                    var channelElement = channelProperty.Value;
+                    var type = channelElement.GetProperty("type").GetString();
+
+                    if (type == "release")
+                    {
+                        var releaseChannel = JsonSerializer.Deserialize<ReleaseVersioningChannel>(channelElement.GetRawText());
+                        channels.Add(releaseChannel);
+                    }
+                }
+
+                index = new ReleaseIndexFile { channels = channels };
                 Console.WriteLine("Instantiated backup index.");
             }
             else
@@ -143,125 +171,72 @@ public class ReleaseHelper
         }
     }
 
-    public static async Task GetLatestReleaseCatalogAsync()
-    {
-        if (index.release_channels == null)
-        {
-            Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                MainWindow.Instance.ProgressBarCurrently.Text = "No release channels found.";
-            });
-            return;
-        };
 
-        if (catalogs == null)
-            catalogs = new Dictionary<string, ReleaseVersionCatalog>();
 
-        using HttpClient hc = new();
-        foreach (var releaseChannel in index.release_channels)
-        {
-            try
-            {
-                string path = $"{server}/{releaseChannel.catalog}";
-                Console.WriteLine(path);
-                string catalogContent = await hc.GetStringAsync(path);
-                isOnline = true;
-                CheckOnline();
-                _ = Task.Run(() =>
-                {
-                    File.WriteAllTextAsync(LauncherConfig.Configuration.LastReleaseFeedPrefix + $"{releaseChannel.id}.json", catalogContent);
-                });
-                var parsedCatalog = JsonSerializer.Deserialize<ReleaseVersionCatalog>(catalogContent);
-                catalogs[releaseChannel.id] = parsedCatalog!;
-                foreach (var releaseVersionCatalogVersion in parsedCatalog.versions)
-                {
-                    Console.WriteLine("Found " + releaseVersionCatalogVersion.version +" - " + releaseVersionCatalogVersion.desc);
-                }
-            }
-            catch (Exception ex)
-            {
-                isOnline = false;
-                CheckOnline();
-                Console.WriteLine($"Error fetching catalog for {releaseChannel.id}: {ex.Message}");
-                Console.WriteLine("Attempting to fallback to " + LauncherConfig.Configuration.LastReleaseFeedPrefix+$"{releaseChannel.id}.json");
-
-                if (File.Exists( LauncherConfig.Configuration.LastReleaseFeedPrefix+$"{releaseChannel.id}.json"))
-                {
-                    string f = File.ReadAllText( LauncherConfig.Configuration.LastReleaseFeedPrefix+$"{releaseChannel.id}.json");
-                    var parsedCatalog = JsonSerializer.Deserialize<ReleaseVersionCatalog>(f);
-                    catalogs[releaseChannel.id] = parsedCatalog!;
-                    foreach (var releaseVersionCatalogVersion in parsedCatalog.versions)
-                    {
-                        Console.WriteLine("Found " + releaseVersionCatalogVersion.version +" - " + releaseVersionCatalogVersion.desc);
-                    }
-                }
-                else
-                {
-                    Console.WriteLine($"No backup catalog found for {releaseChannel.id}");
-                }
-            }
-        }
-    }
 
     public static async Task UpdateCatalogAsync()
+{
+    await Dispatcher.UIThread.InvokeAsync(() =>
     {
-        await Dispatcher.UIThread.InvokeAsync(() =>
-        {
-            MainWindow.Instance.ProgressBarApp.Value = 100;
-            MainWindow.Instance.ProgressBarCurrently.Text = "";
-            foreach (var releaseVersionCatalog in catalogs)
-            {
-                var catalog = releaseVersionCatalog.Value;
-                string title = catalog.title;
-                Console.WriteLine($"Creating catalog for {releaseVersionCatalog.Key}. {catalog.versions.Length} versions found.");
+        MainWindow.Instance.ProgressBarApp.Value = 100;
+        MainWindow.Instance.ProgressBarCurrently.Text = "";
 
-                var border = new Border
+        foreach (var releaseVersionCatalog in index.channels)
+        {
+            // Deserialize the catalog only for release channels
+            var catalog = JsonSerializer.Deserialize<Release[]>(releaseVersionCatalog.catalog.GetRawText(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            string title = releaseVersionCatalog.description;
+            Console.WriteLine($"Creating catalog for {title}. {catalog.Length} versions found.");
+
+            var border = new Border
+            {
+                CornerRadius = new CornerRadius(15),
+                BorderThickness = new Thickness(10),
+                Background = new SolidColorBrush(Color.FromArgb(32, 0, 0, 0))
+            };
+
+            var container = new StackPanel();
+            border.Child = container;
+
+            var titleText = new TextBlock { Text = title };
+            container.Children.Add(titleText);
+
+            var scrollViewer = new ScrollViewer
+            {
+                Height = 250
+            };
+            var versionContainer = new StackPanel();
+            container.Children.Add(scrollViewer);
+            scrollViewer.Content = versionContainer;
+
+            foreach (var version in catalog)
+            {
+                Console.WriteLine($"Creating {version.version} - {version.desc}");
+                var verBorder = new Border
                 {
                     CornerRadius = new CornerRadius(15),
+                    Width = ((MainWindow.AppVersion == version.version || version.current == true) ? 500 : 400),
+                    Height = 70,
                     BorderThickness = new Thickness(10),
                     Background = new SolidColorBrush(Color.FromArgb(32, 0, 0, 0))
                 };
 
-                var container = new StackPanel();
-                border.Child = container;
-
-                var titleText = new TextBlock { Text = title };
-                container.Children.Add(titleText);
-
-                var scrollViewer = new ScrollViewer
+                var textBlock = new TextBlock
                 {
-                    Height = 250
+                    FontSize = ((MainWindow.AppVersion == version.version || version.current == true) ? 24 : 16),
+                    Text = $"v{version.version} - {version.desc}"
                 };
-                var versionContainer = new StackPanel();
-                container.Children.Add(scrollViewer);
-                scrollViewer.Content = versionContainer;
-
-                foreach (var version in catalog.versions)
-                {
-                    Console.WriteLine($"Creating {version.version} - {version.desc}");
-                    var verBorder = new Border
-                    {
-                        CornerRadius = new CornerRadius(15),
-                        Width = (MainWindow.AppVersion == version.version ? 500 : 400),
-                        Height = 70,
-                        BorderThickness = new Thickness(10),
-                        Background = new SolidColorBrush(Color.FromArgb(32, 0, 0, 0))
-                    };
-
-                    var textBlock = new TextBlock
-                    {
-                        FontSize = (MainWindow.AppVersion == version.version ? 24 : 16),
-                        Text = $"v{version.version} - {version.desc}"
-                    };
-                    verBorder.Child = textBlock;
-                    versionContainer.Children.Add(verBorder);
-                }
-
-                MainWindow.Instance.ReleaseCatalogs.Children.Add(border);
+                verBorder.Child = textBlock;
+                versionContainer.Children.Add(verBorder);
             }
 
-            MainWindow.Instance.ProgressBarContainer.IsVisible = false;
-            return Task.CompletedTask;
-        });
-    }
+            MainWindow.Instance.ReleaseCatalogs.Children.Add(border);
+        }
+
+        MainWindow.Instance.ProgressBarContainer.IsVisible = false;
+        return Task.CompletedTask;
+    });
+}
+
 }

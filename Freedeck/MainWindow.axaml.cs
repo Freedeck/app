@@ -113,10 +113,10 @@ public partial class MainWindow : Window
         LauncherConfig.ReloadConfiguration();
         HandoffHelper.Initialize();
         LauncherPersonalization.Initialize();
+        NativeBridge.Initialize();
         _ = Task.Run(async () =>
         {
             await ReleaseHelper.FullyUpdate();
-            NativeBridge.Initialize();
         });
         NewBuildId.Click += (sender, args) =>
         {

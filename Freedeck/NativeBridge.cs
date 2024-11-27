@@ -101,10 +101,10 @@ public class NativeBridge
         using var master = AudioEndpointVolume.FromDevice(device);
         master.MasterVolumeLevelScalar = vol / 100.0f;
     }
-    public static void Initialize()
+    public static async Task Initialize()
     {
         if (!OperatingSystem.IsWindows()) return;
-        Task.Run(async () =>
+        await Task.Run(async () =>
         {
             var server = new NativeBridgeServer("http://localhost:5756/");
             server.ListenForEvent("get_apps", (WebSocket socket, string[] data) =>
