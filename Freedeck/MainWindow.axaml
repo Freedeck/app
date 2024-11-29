@@ -137,6 +137,8 @@
                            </StackPanel>
                            <TextBlock Name="OfflineStatus">You are offline.</TextBlock>
                            <TextBlock Name="UpdateCheckNotice">Freedeck will not check for updates.</TextBlock>
+                           <TextBlock />
+                           <TextBlock FontSize="20">Releases</TextBlock>
                            <ScrollViewer>
                                <StackPanel Name="ReleaseCatalogs" />
                            </ScrollViewer>
@@ -177,27 +179,46 @@
                                             <TextBlock>
                                                 This will copy your running launcher into the installation path.
                                             </TextBlock>    
+                                            <TextBlock>
+                                                This may not be needed, as the App now auto-updates itself.
+                                            </TextBlock>
                                             <Button Click="CopyToLoc">Confirm</Button>
                                         </StackPanel>
                                     </Flyout>
                                 </Button.Flyout>
                             </Button>
+                            <Button Content="Create Shortcuts">
+                                <Button.Flyout >
+                                    <Flyout>
+                                        <StackPanel>
+                                            <TextBlock>
+                                                This will create a Desktop and Start Menu shortcut.
+                                            </TextBlock>    
+                                            <TextBlock>
+                                                This may not be needed, as the App should've done this for you on installation.
+                                            </TextBlock>
+                                            <Button Click="MkShortcuts">Confirm</Button>
+                                        </StackPanel>
+                                    </Flyout>
+                                </Button.Flyout>
+                            </Button>
                             <TextBlock />
-                            <TextBlock>Installation Directory</TextBlock>
+                            <TextBlock>Companion Installation Directory</TextBlock>
                             <DockPanel>
                                 <TextBox MinWidth="200" Name="SFreedeckPath"></TextBox>
                                 <Button Click="Button_OnClick">Change</Button>    
                             </DockPanel>
-                            <TextBlock>Server URL</TextBlock>
-                            <TextBlock>This will be changable later.</TextBlock>
+                            <TextBlock>Companion URL</TextBlock>
                             <TextBox IsEnabled="False" MinWidth="200" Name="SLCServer"></TextBox>
-                            <TextBlock>Release Feed</TextBlock>
+                            <TextBlock>NativeBridgeWS URL</TextBlock>
+                            <TextBox IsEnabled="False" MinWidth="200" Name="SLCNBWS"></TextBox>
+                            <TextBlock>Release Index</TextBlock>
                             <TextBox IsEnabled="False" MinWidth="200" Name="SLCRelease"></TextBox>
                             <TextBlock>Launcher Configuration Path</TextBlock>
                             <TextBox IsEnabled="False" MinWidth="200" Name="SLCPath"></TextBox>
                             <TextBlock Name="BuildIdUser" TextWrapping="Wrap">FDApp Build Identifier: </TextBlock>
                             <TextBlock/>
-                            <TextBlock FontSize="24">App</TextBlock>
+                            <TextBlock FontSize="24">Companion</TextBlock>
                             <TextBlock/>
                             <ToggleSwitch Name="ShowTerminal" IsCheckedChanged="ToggleShowTerminal">Show Terminal</ToggleSwitch>
                             <TextBlock>Autoupdater Behavior</TextBlock>
@@ -226,9 +247,6 @@
                                         </StackPanel>
                                     </Flyout>
                                 </Button.Flyout>
-                            </Button>
-                            <Button Content="Open Autoupdater in Test Mode">
-                                <Button.Click>OpenAuTest</Button.Click>
                             </Button>
                             <TextBlock/>
                             <TextBlock FontSize="24">Danger</TextBlock>

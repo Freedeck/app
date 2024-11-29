@@ -30,12 +30,6 @@ public partial class MainWindow : Window
     public static MainWindow Instance = null!;
     private static readonly SetupLogic SetupLogic = new SetupLogic();
 
-    private static string CreateBuildId()
-    {
-        //TODO: Implemetn (lol)
-        return "fd7801948b7e477b1c467e1778992bb2cdbda0597";
-    }
-
     private void InstallerDoInstall(object? sender, RoutedEventArgs e)
     {
         if (InstallationDirectory.Text != null) InstallPath = InstallationDirectory.Text;
@@ -111,12 +105,16 @@ public partial class MainWindow : Window
         Instance = this;
         BuildIdUser.Text = "FDApp Build Identifier: " + BuildId;
         LauncherConfig.ReloadConfiguration();
-        HandoffHelper.Initialize();
-        LauncherPersonalization.Initialize();
-        NativeBridge.Initialize();
+        LauncherConfig.UpdateLauncher();
         _ = Task.Run(async () =>
         {
-            await ReleaseHelper.FullyUpdate();
+            Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                HandoffHelper.Initialize();
+                LauncherPersonalization.Initialize();
+                ReleaseHelper.FullyUpdate();
+            });
+            await NativeBridge.Initialize();
         });
         NewBuildId.Click += (sender, args) =>
         {
@@ -143,9 +141,7 @@ public partial class MainWindow : Window
         if (IsAppInstalled())
         {
             GetAndSetVersionData();
-            TabInstall.IsVisible = false;
-            TabRun.IsSelected = true;
-            SetupAllConfiguration();
+            Dispatcher.UIThread.InvokeAsync(SetupAllConfiguration);
         }
         else
             SetupLogic.OnLaunch(this);
@@ -155,9 +151,12 @@ public partial class MainWindow : Window
     {
         LauncherConfig.ReloadConfiguration();
         _isUndergoingModification = true;
+        TabInstall.IsVisible = false;
+        TabRun.IsSelected = true;
         SFreedeckPath.Text = LauncherConfig.Configuration.InstallationDirectory;
         SLCPath.Text = LauncherConfig.Configuration.ConfigurationPath;
         SLCServer.Text = LauncherConfig.Configuration.ServerUrl;
+        SLCNBWS.Text = "http://localhost:5756";
         SLCRelease.Text = ReleaseHelper.server + "/" + ReleaseHelper.file;
         SLCNode.Text = LauncherConfig.Configuration.NodePath;
         SLCNpm.Text = LauncherConfig.Configuration.NpmPath;
@@ -338,5 +337,11 @@ public partial class MainWindow : Window
         LeftSidebar.IsVisible = false;
         TabRun.IsVisible = false;
         TabSettings.IsVisible = false;
+    }
+
+    private void MkShortcuts(object? sender, RoutedEventArgs e)
+    {
+        FreedeckAppInstaller.AppShortcutToDesktop("Freedeck", LauncherConfigSchema.AppData + "\\Freedeck.exe", Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
+        FreedeckAppInstaller.AppShortcutToDesktop("Freedeck", LauncherConfigSchema.AppData + "\\Freedeck.exe", Environment.GetFolderPath(Environment.SpecialFolder.StartMenu) + "\\Programs");              
     }
 }
