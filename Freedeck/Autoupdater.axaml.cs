@@ -21,13 +21,23 @@ namespace Freedeck
     }
     public partial class Autoupdater : Window
     {
+        private static Autoupdater instance;
         public Autoupdater()
         {
             InitializeComponent();
+            instance = this;
         }
 
         public static async Task<AUState> StartUpdateAsync()
         {
+            if (LauncherConfig.Configuration.ShowAutoupdaterWindow)
+            {
+                Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    Autoupdater au = new Autoupdater();
+                    au.Show();
+                });
+            }
             string av = MainWindow.AppVersion;
             if (!File.Exists(MainWindow.InstallPath + "\\freedeck\\src\\configs\\config.fd.js"))
             {
@@ -78,28 +88,31 @@ namespace Freedeck
                         MainWindow.Instance.ProgressBarApp.Value = 60;
                         MainWindow.Instance.ProgressBarCurrently.Text = $"Checking out to {branch}";
                     });
-                    await RunProcessAsync("C:\\Program Files\\Git\\bin\\git.exe", $"checkout -f {branch}");
+                    await RunProcessAsync("C:\\Program Files\\Git\\bin\\git.exe", $"checkout -f {branch}", "Git Checkout");
                     Dispatcher.UIThread.InvokeAsync(() =>
                     {
                         MainWindow.Instance.ProgressBarApp.Value = 65;
                         MainWindow.Instance.ProgressBarCurrently.Text = $"Pulling {cv} from {branch}";
                     });
-                    await RunProcessAsync("C:\\Program Files\\Git\\bin\\git.exe", "pull");
+                    await RunProcessAsync("C:\\Program Files\\Git\\bin\\git.exe", "pull", "Git Pull");
                     Dispatcher.UIThread.InvokeAsync(() =>
                     {
                         MainWindow.Instance.ProgressBarApp.Value = 80;
                         MainWindow.Instance.ProgressBarCurrently.Text = "Reinstalling dependencies...";
                     });
-                    await RunProcessAsync("C:\\Program Files\\nodejs\\npm.cmd", "i");
+                    await RunProcessAsync("C:\\Program Files\\nodejs\\npm.cmd", "i", "NPM");
                     Dispatcher.UIThread.InvokeAsync(() =>
                     {
                         MainWindow.Instance.ProgressBarApp.Value = 100;
                         MainWindow.Instance.ProgressBarCurrently.Text = "Done!";
+                        StdoutLog("Freedeck Autoupdater", InternalLogType.Out, "Update complete! Went from " + av + " to " + cv);
+                        StdoutLog("Freedeck Autoupdater", InternalLogType.Out, "Starting Freedeck. You may close this window.");
                     });
                 }
                 else
                 {
-                    MainWindow.ShouldShowAutoUpdater = false;
+                    StdoutLog("Freedeck Autoupdater", InternalLogType.Out, "Nothing to update!");
+                    StdoutLog("Freedeck Autoupdater", InternalLogType.Out, "Starting Freedeck. You may close this window.");
                 }
 
                 return AUState.NOFAIL_COMPLETE;
@@ -110,8 +123,17 @@ namespace Freedeck
             }
         }
 
+        private static void StdoutLog(string title, InternalLogType logType, string logMessage)
+        {
+            Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                String fmt = $"{title} {(logType == InternalLogType.Err ? "(err)" : "")} >> {logMessage}";
+                Console.WriteLine(fmt);
+                if(instance != null) instance.AutoupdaterState.Text += fmt + "\n";
+            });
+        }
 
-        private static async Task RunProcessAsync(string file, string args)
+        private static async Task RunProcessAsync(string file, string args, string title)
         {
             using (Process proc = new Process())
             {
@@ -122,19 +144,14 @@ namespace Freedeck
                 proc.StartInfo.RedirectStandardOutput = true;
                 proc.StartInfo.RedirectStandardError = true;
                 proc.StartInfo.UseShellExecute = false;
-
+                proc.OutputDataReceived += (sender, args) => StdoutLog(title, InternalLogType.Out, args.Data!);
+                proc.ErrorDataReceived += (sender, args) => StdoutLog(title, InternalLogType.Err, args.Data!);
+                StdoutLog("Freedeck Autoupdater", InternalLogType.Out, $"Running {file} {args}");
                 proc.Start();
-
-                // Read the process output asynchronously to avoid blocking
-                string output = await proc.StandardOutput.ReadToEndAsync();
-                string error = await proc.StandardError.ReadToEndAsync();
+                proc.BeginOutputReadLine();
+                proc.BeginErrorReadLine();
 
                 await proc.WaitForExitAsync();
-
-                if (!string.IsNullOrWhiteSpace(error))
-                {
-                    await Console.Error.WriteLineAsync($"Error during process: {error}");
-                }
             }
         }
     }

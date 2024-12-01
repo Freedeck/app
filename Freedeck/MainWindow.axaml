@@ -228,6 +228,7 @@
                                 <ComboBoxItem>Skip Autoupdater once</ComboBoxItem>
                                 <ComboBoxItem>Always skip Autoupdater</ComboBoxItem>
                             </ComboBox>
+                            <ToggleSwitch Name="ShowAutoupdateWindow" IsCheckedChanged="ToggleShowAutoupdate">Show Autoupdate Window</ToggleSwitch>
                             <TextBlock>Node.js Path</TextBlock>
                             <TextBox IsEnabled="False" MinWidth="200" Name="SLCNode"></TextBox>
                             <TextBlock>NPM Path</TextBlock>

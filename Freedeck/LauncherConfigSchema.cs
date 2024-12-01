@@ -16,6 +16,7 @@ public class LauncherConfigSchema
     public string InstallationDirectory { get; set; } = MainWindow.InstallPath;
     public InstallInformation InstallationInformation { get; set; } = new();
     public bool ShowTerminal { get; set; }
+    public bool ShowAutoupdaterWindow { get; set; }
     public int AutoUpdaterBehavior { get; set; }
     public string ConfigurationPath { get; set; } = AppData + "\\Launcher.json";
     public string LastReleaseIndex { get; set; } = AppData + "\\CacheMarketplaceManifest.json";

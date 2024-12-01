@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Threading;
 
@@ -27,12 +28,12 @@ public enum InternalLogType
 
 public class FreedeckAppRunner
 {
-    private bool _appRunning = false;
-    private Process _node = null!;
-    private Process _electron = null!;
-    private AppLaunchType _currentlyRunning;
+    private static bool _appRunning = false;
+    private static Process _node = null!;
+    private static Process _electron = null!;
+    private static AppLaunchType _currentlyRunning;
     
-    private void StartInternalProgram(string args, InternalAppType type)
+    private static void StartInternalProgram(string args, InternalAppType type)
     {
         bool useElectron = type == InternalAppType.Electron;
         Process proc = new Process();
@@ -75,7 +76,7 @@ public class FreedeckAppRunner
         }
     }
 
-    private void StdoutLog(InternalAppType type, InternalLogType logType, string logMessage)
+    private static void StdoutLog(InternalAppType type, InternalLogType logType, string logMessage)
     {
         String fmt = $"[{(type == InternalAppType.Node ? "SERVER" : "COMPANION")} {(logType == InternalLogType.Out ? "OUT" : "ERR")}] {logMessage}";
         Dispatcher.UIThread.InvokeAsync(() =>
@@ -84,7 +85,7 @@ public class FreedeckAppRunner
         });
     }
 
-    private void Process_ServerExit(object? sender, EventArgs e)
+    private static void Process_ServerExit(object? sender, EventArgs e)
     {
         try
         {
@@ -109,7 +110,7 @@ public class FreedeckAppRunner
         }
     }
 
-    private void Process_ElectronExit(object? sender, EventArgs e)
+    private static void Process_ElectronExit(object? sender, EventArgs e)
     {
         try
         {
@@ -125,7 +126,7 @@ public class FreedeckAppRunner
         BringBack();
     }
 
-    public void BringBack()
+    public static void BringBack()
     {
         _appRunning = false;
         Dispatcher.UIThread.InvokeAsync(() =>
@@ -138,13 +139,19 @@ public class FreedeckAppRunner
         });
     }
 
-    public void SpecificStop()
+    public static void SetProgress(string text, int progress)
     {
         
+        Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            MainWindow.Instance.ProgressBarCurrently.Text = text;
+            MainWindow.Instance.ProgressBarApp.Value = progress;
+        });
     }
 
-    public void StartFreedeck(AppLaunchType type)
+    public static async void StartFreedeck(AppLaunchType type)
     {
+        Console.WriteLine("Starting Freedeck with launch type " + type);
         if (_appRunning)
         {
             _appRunning = false;
@@ -154,33 +161,32 @@ public class FreedeckAppRunner
             if (!_electron.HasExited) _electron.Kill();
             MainWindow.Instance.LaunchApp.IsEnabled = true;
             MainWindow.GetAndSetVersionData();
+            Console.WriteLine("Stopped Freedeck.");
             return;
         }
         _currentlyRunning = type;
 
-        MainWindow.Instance.LaunchApp.IsEnabled = true;
+        Dispatcher.UIThread.InvokeAsync(() => MainWindow.Instance.LaunchApp.IsEnabled = true);
         if (type != AppLaunchType.Companion)
         {
-            MainWindow.Instance.ProgressBarCurrently.Text = "Starting Server... [1/2]";
-            StartInternalProgram("--server-only", InternalAppType.Node);
-            MainWindow.Instance.ProgressBarApp.Value = 30;
+            SetProgress("Starting Server... [1/2]", 30);
+            _ = Task.Run(() => { StartInternalProgram("--server-only", InternalAppType.Node); });
         }
 
         if (type != AppLaunchType.Server)
         {
-            MainWindow.Instance.ProgressBarCurrently.Text = "Starting Companion... [2/2]";
-            StartInternalProgram("--companion-only", InternalAppType.Electron);
-            MainWindow.Instance.ProgressBarApp.Value = 40;
+            SetProgress("Starting Companion... [2/2]", 40);
+            _ = Task.Run(() => { StartInternalProgram("--companion-only", InternalAppType.Electron); });
         }
-        MainWindow.Instance.LaunchApp.IsEnabled = true;
+
+        Dispatcher.UIThread.InvokeAsync(() => MainWindow.Instance.LaunchApp.IsEnabled = true);
         _appRunning = true;
-        MainWindow.Instance.ProgressBarApp.Value = 100;
-        MainWindow.Instance.ProgressBarCurrently.Text = "Here we go!";
+        SetProgress("Here we go!", 100);
         if (type == AppLaunchType.Server) // Server ONLY mode
         {
-            MainWindow.Instance.ProgressBarCurrently.Text = "The server is running.";
+            SetProgress("Server is running!", 100);
         }
         else 
-            MainWindow.Instance.Hide();
+            Dispatcher.UIThread.InvokeAsync(() => MainWindow.Instance.Hide());
     }
 }

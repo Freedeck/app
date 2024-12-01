@@ -4,17 +4,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="150"
         x:Class="Freedeck.Autoupdater"
-        Background="rgba(0,0,0,0.925)"
+        Background="rgb(20,20,20)"
         Width="800"
-        Height="150"
-        SystemDecorations="None"
-        Title="Autoupdater">
+        Height="600"
+        Title="Freedeck Autoupdater">
         <Border Background="rgba(0,0,0,0.25)" CornerRadius="15" Margin="10">
                 <StackPanel HorizontalAlignment="Stretch"
                             VerticalAlignment="Center">
-                        <TextBlock FontSize="36">Autoupdater</TextBlock>
-                        <ProgressBar Name="AuProgress" Height="8" Margin="10"/>
-                        <TextBlock Name="AuCurrent" FontSize="32">Fetching freedeck.app/release</TextBlock>
+                        <TextBlock Foreground="White" FontSize="24" TextAlignment="Center">Freedeck Autoupdater Logs</TextBlock>
+                        <ScrollViewer>
+                                <TextBlock Foreground="White" Name="AutoupdaterState" />
+                        </ScrollViewer>
                 </StackPanel>
         </Border>
 </Window>

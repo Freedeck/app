@@ -24,7 +24,6 @@ public partial class MainWindow : Window
     public static string AppVersion = "1.0.0";
     public static string LauncherVersion = "Beta 5";
     public static string BuildId = "acbef438b283b035b93d7c581aed9a223b5b9c1e";
-    public static bool ShouldShowAutoUpdater = true;
     public static bool AutoUpdaterTestMode = false;
     private bool _isUndergoingModification = false;
     public static MainWindow Instance = null!;
@@ -163,6 +162,7 @@ public partial class MainWindow : Window
         SLCNpm.Text = LauncherConfig.Configuration.NpmPath;
         SLCGit.Text = LauncherConfig.Configuration.GitPath;
         ShowTerminal.IsChecked = LauncherConfig.Configuration.ShowTerminal;
+        ShowAutoupdateWindow.IsChecked = LauncherConfig.Configuration.ShowAutoupdaterWindow;
         AutoUpdateMode.SelectedIndex = LauncherConfig.Configuration.AutoUpdaterBehavior;
         if (AutoUpdateMode.SelectedIndex != 0)
         {
@@ -190,7 +190,6 @@ public partial class MainWindow : Window
 
     private async void LaunchFreedeck(AppLaunchType launchType)
     {
-        FreedeckAppRunner runner = new FreedeckAppRunner();
         Dispatcher.UIThread.InvokeAsync(() =>
         {
             LaunchApp.IsEnabled = false;
@@ -220,8 +219,9 @@ public partial class MainWindow : Window
         });
         _ = Task.Run(async () =>
         {
-            await Autoupdater.StartUpdateAsync();
-            runner.StartFreedeck(launchType);
+            AUState autoUpdater = await Autoupdater.StartUpdateAsync();
+            Console.WriteLine("Autoupdater exited with code " + autoUpdater);
+            FreedeckAppRunner.StartFreedeck(launchType);
         });
     }
 
@@ -301,5 +301,13 @@ public partial class MainWindow : Window
     {
         FreedeckAppInstaller.AppShortcutToDesktop("Freedeck", LauncherConfigSchema.AppData + "\\Freedeck.exe", Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
         FreedeckAppInstaller.AppShortcutToDesktop("Freedeck", LauncherConfigSchema.AppData + "\\Freedeck.exe", Environment.GetFolderPath(Environment.SpecialFolder.StartMenu) + "\\Programs");              
+    }
+
+    private void ToggleShowAutoupdate(object? sender, RoutedEventArgs e)
+    {
+        if(_isUndergoingModification) return;
+        LauncherConfig.Configuration.ShowAutoupdaterWindow = !LauncherConfig.Configuration.ShowAutoupdaterWindow;
+        ShowAutoupdateWindow.IsChecked = LauncherConfig.Configuration.ShowAutoupdaterWindow;
+        LauncherConfig.Update();
     }
 }

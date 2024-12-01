@@ -14,6 +14,7 @@ public class LauncherConfig
         InstallationDirectory = MainWindow.InstallPath,
         InstallationInformation = new InstallInformation(),
         ShowTerminal = false,
+        ShowAutoupdaterWindow = false,
         AutoUpdaterBehavior = 0,
         ConfigurationPath = LauncherConfigSchema.AppData + "\\Launcher.json",
         LastReleaseIndex = LauncherConfigSchema.AppData + "\\CacheMarketplaceManifest.json",
