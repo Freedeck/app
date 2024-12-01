@@ -68,13 +68,13 @@ namespace Freedeck
                 var get = await wc.GetAsync("https://freedeck.app/release");
                 if (get.StatusCode != HttpStatusCode.Accepted)
                 {
-                    ReleaseHelper.isOnline = false;
+                    ReleaseHelper.IsOnline = false;
                     Dispatcher.UIThread.InvokeAsync(() =>
                     {
                         MainWindow.Instance.ProgressBarApp.Value = 0;
                         MainWindow.Instance.ProgressBarCurrently.Text = "You are offline! Failed to fetch server release.";
                     });
-                } else ReleaseHelper.isOnline = true;
+                } else ReleaseHelper.IsOnline = true;
                 string res = await get.Content.ReadAsStringAsync();
                 string cv = res.Split("\n")[line];
                 if (av != cv)

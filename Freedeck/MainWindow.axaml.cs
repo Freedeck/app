@@ -158,7 +158,7 @@ public partial class MainWindow : Window
         SLCPath.Text = LauncherConfig.Configuration.ConfigurationPath;
         SLCServer.Text = LauncherConfig.Configuration.ServerUrl;
         SLCNBWS.Text = "http://localhost:5756";
-        SLCRelease.Text = ReleaseHelper.server + "/" + ReleaseHelper.file;
+        SLCRelease.Text = ReleaseHelper.Server + "/" + ReleaseHelper.File;
         SLCNode.Text = LauncherConfig.Configuration.NodePath;
         SLCNpm.Text = LauncherConfig.Configuration.NpmPath;
         SLCGit.Text = LauncherConfig.Configuration.GitPath;
