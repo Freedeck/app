@@ -49,6 +49,7 @@ public class ReleaseHelper
     
     public static string server = "https://releases.freedeck.app";
     public static string file = "index.json";
+    public static string latestVersion = "v6.0.0";
     public static bool isOnline = false;
     public static ReleaseIndexFile index = new ReleaseIndexFile();
 
@@ -212,6 +213,7 @@ public class ReleaseHelper
 
             foreach (var version in catalog)
             {
+                if(version.current == true) latestVersion = version.version;
                 Console.WriteLine($"Creating {version.version} - {version.desc}");
                 var verBorder = new Border
                 {

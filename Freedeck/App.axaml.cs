@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.IO.Pipes;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -24,7 +25,7 @@ public partial class App : Application
             try
             {
                 using var pipeServer = new NamedPipeServerStream("FreedeckAppHandoff", PipeDirection.In, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
-            
+                Console.WriteLine("Handoff server listening!");
                 await pipeServer.WaitForConnectionAsync();
                 using var reader = new StreamReader(pipeServer);
                 string uri = await reader.ReadLineAsync() ?? string.Empty;  // Read the message sent by the new instance.
@@ -61,7 +62,7 @@ public partial class App : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             desktop.MainWindow = new MainWindow();
-            StartListening();
+            _ = Task.Run(StartListening);
         }
 
         base.OnFrameworkInitializationCompleted();

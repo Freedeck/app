@@ -64,6 +64,7 @@ class Program
         using var writer = new StreamWriter(pipeClient);
         writer.AutoFlush = true;
         writer.WriteLine(string.Join(" ", args));  // Send the URI to the existing instance.
+        writer.Close();
     }
 
     // Avalonia configuration, don't remove; also used by visual designer.

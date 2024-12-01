@@ -50,6 +50,8 @@ public class SetupLogic
         window.TabSettings.IsVisible = false;
         window.TabInstall.IsVisible = false;
         window.TabInstall.IsSelected = true;
+        window.ITabInstall.IsSelected = true;
+        window.AppInstallLogContainer.IsVisible = false;
         if (string.IsNullOrEmpty(MainWindow.InstallPath))
         {
             MainWindow.InstallPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\Freedeck";
@@ -84,6 +86,7 @@ public class SetupLogic
 
         window.SaMigrate.Click += (sender, args) =>
         {
+            window.AppInstallLogContainer.IsVisible = true;
             window.ITabSetup.IsVisible = false;
             window.ITabInstall.IsSelected = true;
             window.ITabInstallTxt.Text = "Updating to new launcher...";

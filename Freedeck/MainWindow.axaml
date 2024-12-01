@@ -26,14 +26,47 @@
             <TabControl>
                 <TabItem Header="Install" Name="TabInstall" IsVisible="False">
                     <TabControl Name="InstallerNest">
-                        <TabItem Header="Setup" Name="ITabSetup" IsSelected="True">
+                        <TabItem Header="Install" Name="ITabInstall" IsSelected="True">
+                            <StackPanel>
+                                <TextBlock FontSize="36" Name="ITabInstallTxt">
+                                    Install
+                                </TextBlock>
+                                <TextBlock>Thank you for choosing my project, Freedeck.</TextBlock>
+                                <TextBlock Name="ITabInstallDesc">
+                                    You're one more click away from the FOSS alternative to the Elgato Stream Deck.
+                                </TextBlock>
+                                <TextBlock FontSize="8"/>
+                                <TextBlock FontSize="16">Before you install, please review:</TextBlock>
+                                <Border CornerRadius="15" Background="rgba(0,0,0,0.25)" Padding="10">
+                                    <StackPanel>
+                                        <TextBlock Name="SadDirectory">Directory... failed to load</TextBlock>
+                                        <TextBlock Name="SadAuthentication">Authentication: No</TextBlock>
+                                        <TextBlock Name="SadRelease">Release Channel: Stable</TextBlock>
+                                        <TextBlock Name="SadWelcome">Show Welcome Tiles: Yes</TextBlock>
+                                    </StackPanel>
+                                </Border>
+                                <Border Name="AppInstallLogContainer" CornerRadius="15" Background="rgba(0,0,0,0.25)" Padding="10">
+                                    <StackPanel>
+                                        <TextBlock Name="AppInstallLog" />
+                                    </StackPanel>
+                                </Border>
+                                <TextBlock />
+                                <TextBlock FontSize="16">If these look good to you, click Install.</TextBlock>
+                                <TextBlock Name="InstallState"/>
+                                <ProgressBar Name="InstallProgress" />
+                                <TextBlock/>
+                                <Button Name="InstallerBtn" Click="InstallerDoInstall" FontSize="24" HorizontalAlignment="Stretch">Install</Button>
+                                <Button Name="SaMigrate" FontSize="24" HorizontalAlignment="Stretch">I already have Freedeck installed</Button>
+                                <TextBlock/>
+                            </StackPanel>
+                        </TabItem>
+                        <TabItem Header="Settings" Name="ITabSetup">
                             <ScrollViewer>
                                 <StackPanel>
                                     <TextBlock FontSize="36">
-                                        Welcome
+                                        Settings
                                     </TextBlock>
-                                    <TextBlock>Thank you for choosing my project, Freedeck.</TextBlock>
-                                    <TextBlock>This simple setup wizard will help you get started using Freedeck right away.</TextBlock>
+                                    <TextBlock>Configure your installation!</TextBlock>
                                     <TextBlock FontSize="8"/>
                                     <TextBlock FontSize="24">Launcher Configuration</TextBlock>
                                     <ToggleSwitch IsChecked="True" Name="SaSDesktop" OffContent="No" OnContent="Yes">Create Desktop Shortcut</ToggleSwitch>
@@ -80,42 +113,9 @@
                                     <ToggleSwitch IsChecked="True" Name="SaRelease" OffContent="Developer Beta" OnContent="Stable">Release Channel</ToggleSwitch>
                                     <ToggleSwitch IsChecked="True" Name="SaWelcome" OffContent="No" OnContent="Yes">Show welcome Tiles</ToggleSwitch>
                                     <TextBlock/>
-                                    <Button Name="SaNext" FontSize="24" HorizontalAlignment="Stretch">Next</Button>
-                                    <Button Name="SaMigrate" FontSize="24" HorizontalAlignment="Stretch">I already have Freedeck installed</Button>
+                                    <Button IsVisible="False" Name="SaNext" FontSize="24" HorizontalAlignment="Stretch">Next</Button>
                                 </StackPanel>
                             </ScrollViewer>
-                        </TabItem>
-                        <TabItem Header="Install" Name="ITabInstall">
-                            <StackPanel>
-                                <TextBlock FontSize="36" Name="ITabInstallTxt">
-                                    Install
-                                </TextBlock>
-                                <TextBlock Name="ITabInstallDesc">
-                                    You're one more click away from the FOSS alternative to the Elgato Stream Deck.
-                                </TextBlock>
-                                <TextBlock FontSize="8"/>
-                                <TextBlock FontSize="16">Before you install, please review:</TextBlock>
-                                <Border CornerRadius="15" Background="rgba(0,0,0,0.25)" Padding="10">
-                                    <StackPanel>
-                                        <TextBlock Name="SadDirectory">Directory... failed to load</TextBlock>
-                                        <TextBlock Name="SadAuthentication">Authentication: No</TextBlock>
-                                        <TextBlock Name="SadRelease">Release Channel: Stable</TextBlock>
-                                        <TextBlock Name="SadWelcome">Show Welcome Tiles: Yes</TextBlock>
-                                    </StackPanel>
-                                </Border>
-                                <TextBlock />
-                                <TextBlock FontSize="16">If these look good to you, click Install.</TextBlock>
-                                <TextBlock Name="InstallState"/>
-                                <ProgressBar Name="InstallProgress" />
-                                <TextBlock/>
-                                <Button Name="InstallerBtn" Click="InstallerDoInstall" FontSize="24" HorizontalAlignment="Stretch">Install</Button>
-                                <TextBlock/>
-                                <Border CornerRadius="15" Background="rgba(0,0,0,0.25)" Padding="10">
-                                    <StackPanel>
-                                        <TextBlock Name="AppInstallLog" />
-                                    </StackPanel>
-                                </Border>
-                            </StackPanel>
                         </TabItem>
                     </TabControl>
                 </TabItem>

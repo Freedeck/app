@@ -39,6 +39,7 @@ public partial class MainWindow : Window
         ITabSetup.IsVisible = false;
         ITabInstall.Header = "Installing...";
         InstallerBtn.IsVisible = false;
+        SaMigrate.IsVisible = false;
 
         ITabInstallTxt.Text = "Installing Freedeck...";
         ITabInstallDesc.Text =
@@ -187,35 +188,56 @@ public partial class MainWindow : Window
         });
     }
 
-    private async void LaunchApp_OnClick(object? sender, RoutedEventArgs e)
+    private async void LaunchFreedeck(AppLaunchType launchType)
     {
-        LaunchApp.IsEnabled = false;
-        ProgressBarCurrently.Text = "Launching...";
-        ProgressBarApp.Value = 1;
-        ProgressBarContainer.IsVisible = true;
-        if (!IsAppInstalled())
-        {
-            ProgressBarCurrently.Text = "Installation path invalid.";
-            ProgressBarApp.Value = 0;
-            LaunchApp.IsEnabled = true;
-            return;
-        }
-
-        if (AutoUpdateMode.SelectedIndex == 0)
-        {
-            ProgressBarCurrently.Text = "Checking for updates...";
-            ProgressBarApp.Value = 10;
-            await Autoupdater.StartUpdateAsync();
-        }
-
-        ProgressBarCurrently.Text = "Sending state to FDAppRunner";
-        ProgressBarApp.Value = 20;
         FreedeckAppRunner runner = new FreedeckAppRunner();
-        runner.StartFreedeck(AppLaunchType.All);
-        if (AutoUpdateMode.SelectedIndex == 1)
+        Dispatcher.UIThread.InvokeAsync(() =>
         {
-            AutoUpdateMode.SelectedIndex = 0;
-        }
+            LaunchApp.IsEnabled = false;
+            ProgressBarCurrently.Text = "Launching...";
+            ProgressBarApp.Value = 1;
+            ProgressBarContainer.IsVisible = true;
+            if (!IsAppInstalled())
+            {
+                ProgressBarCurrently.Text = "Installation path invalid.";
+                ProgressBarApp.Value = 0;
+                LaunchApp.IsEnabled = true;
+                return;
+            }
+
+            if (AutoUpdateMode.SelectedIndex == 0)
+            {
+                ProgressBarCurrently.Text = "Checking for updates...";
+                ProgressBarApp.Value = 10;
+            }
+
+            ProgressBarCurrently.Text = "Sending state to FDAppRunner";
+            ProgressBarApp.Value = 20;
+            if (AutoUpdateMode.SelectedIndex == 1)
+            {
+                AutoUpdateMode.SelectedIndex = 0;
+            }
+        });
+        _ = Task.Run(async () =>
+        {
+            await Autoupdater.StartUpdateAsync();
+            runner.StartFreedeck(launchType);
+        });
+    }
+
+    private void LaunchApp_OnClick(object? sender, RoutedEventArgs e)
+    {
+        LaunchFreedeck(AppLaunchType.All);
+    }
+    
+    private void LaunchAppCompanion_OnClick(object? sender, RoutedEventArgs e)
+    {
+        LaunchFreedeck(AppLaunchType.Companion);
+    }
+
+    private void LaunchAppServer_OnClick(object? sender, RoutedEventArgs e)
+    {
+        LaunchFreedeck(AppLaunchType.Server);
     }
     
 
@@ -242,70 +264,6 @@ public partial class MainWindow : Window
         }
         LauncherConfig.Configuration.AutoUpdaterBehavior = AutoUpdateMode.SelectedIndex;
         LauncherConfig.Update();
-    }
-
-    private async void LaunchAppCompanion_OnClick(object? sender, RoutedEventArgs e)
-    {
-        LaunchApp.IsEnabled = false;
-        ProgressBarCurrently.Text = "Launching...";
-        ProgressBarApp.Value = 1;
-        ProgressBarContainer.IsVisible = true;
-        if (!IsAppInstalled())
-        {
-            ProgressBarCurrently.Text = "Installation path invalid.";
-            ProgressBarApp.Value = 0;
-            LaunchApp.IsEnabled = true;
-            return;
-        }
-
-        if (AutoUpdateMode.SelectedIndex == 0)
-        {
-            ProgressBarCurrently.Text = "Checking for updates...";
-            ProgressBarApp.Value = 10;
-            Autoupdater au = new Autoupdater();
-            if (ShouldShowAutoUpdater) await au.ShowDialog(this);
-        }
-
-        ProgressBarCurrently.Text = "Sending state to FDAppRunner";
-        ProgressBarApp.Value = 20;
-        FreedeckAppRunner runner = new FreedeckAppRunner();
-        runner.StartFreedeck(AppLaunchType.Companion);
-        if (AutoUpdateMode.SelectedIndex == 1)
-        {
-            AutoUpdateMode.SelectedIndex = 0;
-        }
-    }
-
-    private async void LaunchAppServer_OnClick(object? sender, RoutedEventArgs e)
-    {
-        LaunchApp.IsEnabled = false;
-        ProgressBarCurrently.Text = "Launching...";
-        ProgressBarApp.Value = 1;
-        ProgressBarContainer.IsVisible = true;
-        if (!IsAppInstalled())
-        {
-            ProgressBarCurrently.Text = "Installation path invalid.";
-            ProgressBarApp.Value = 0;
-            LaunchApp.IsEnabled = true;
-            return;
-        }
-
-        if (AutoUpdateMode.SelectedIndex == 0)
-        {
-            ProgressBarCurrently.Text = "Checking for updates...";
-            ProgressBarApp.Value = 10;
-            Autoupdater au = new Autoupdater();
-            if (ShouldShowAutoUpdater) await au.ShowDialog(this);
-        }
-
-        ProgressBarCurrently.Text = "Sending state to FDAppRunner";
-        ProgressBarApp.Value = 20;
-        FreedeckAppRunner runner = new FreedeckAppRunner();
-        runner.StartFreedeck(AppLaunchType.Server);
-        if (AutoUpdateMode.SelectedIndex == 1)
-        {
-            AutoUpdateMode.SelectedIndex = 0;
-        }
     }
 
     private void Reset_Configuration(object? sender, RoutedEventArgs e)

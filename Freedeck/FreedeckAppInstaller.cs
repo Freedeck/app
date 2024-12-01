@@ -24,6 +24,7 @@ public class FreedeckAppInstaller
     private string folder = Environment.GetFolderPath(Environment.SpecialFolder.InternetCache);
     public void InstallIt(Action callback)
     {
+        MainWindow.Instance.AppInstallLogContainer.IsVisible = true;
         MainWindow.Instance.InstallState.Text = "Creating folder...";
         if (!Directory.Exists(LauncherConfigSchema.AppData)) Directory.CreateDirectory(LauncherConfigSchema.AppData);
         SetupLogic.CopyLauncherToInstallation();
