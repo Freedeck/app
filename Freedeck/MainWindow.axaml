@@ -175,38 +175,6 @@
                             <TextBlock/>
                             <TextBlock>Version Channel</TextBlock>
                             <ComboBox Name="SChannelSelector" SelectionChanged="SChannelSelector_OnSelectionChanged" />
-                            <TextBlock/>
-                            <Button Content="Update Launcher">
-                                <Button.Flyout >
-                                    <Flyout>
-                                        <StackPanel>
-                                            <TextBlock>
-                                                This will copy your running launcher into the installation path.
-                                            </TextBlock>    
-                                            <TextBlock>
-                                                This may not be needed, as the App now auto-updates itself.
-                                            </TextBlock>
-                                            <Button Click="CopyToLoc">Confirm</Button>
-                                        </StackPanel>
-                                    </Flyout>
-                                </Button.Flyout>
-                            </Button>
-                            <Button Content="Create Shortcuts">
-                                <Button.Flyout >
-                                    <Flyout>
-                                        <StackPanel>
-                                            <TextBlock>
-                                                This will create a Desktop and Start Menu shortcut.
-                                            </TextBlock>    
-                                            <TextBlock>
-                                                This may not be needed, as the App should've done this for you on installation.
-                                            </TextBlock>
-                                            <Button Click="MkShortcuts">Confirm</Button>
-                                        </StackPanel>
-                                    </Flyout>
-                                </Button.Flyout>
-                            </Button>
-                            
                             <TextBlock>Companion Installation Directory</TextBlock>
                             <DockPanel>
                                 <TextBox MinWidth="200" Name="SFreedeckPath"></TextBox>
@@ -214,14 +182,49 @@
                             </DockPanel>
                             <TextBlock>Companion URL</TextBlock>
                             <TextBox IsEnabled="False" MinWidth="200" Name="SlcServer"></TextBox>
-                            <TextBlock>NativeBridgeWS URL</TextBlock>
+                            <TextBlock>NativeBridge URL</TextBlock>
                             <TextBox IsEnabled="False" MinWidth="200" Name="Slcnbws"></TextBox>
-                            <TextBlock>Release Index</TextBlock>
+                            <TextBlock>Release Index Server</TextBlock>
                             <TextBox IsEnabled="False" MinWidth="200" Name="SlcRelease"></TextBox>
                             <TextBlock>Launcher Configuration Path</TextBlock>
                             <TextBox IsEnabled="False" MinWidth="200" Name="SlcPath"></TextBox>
                             <TextBlock Name="BuildIdUser" TextWrapping="Wrap">FDApp Build Identifier: </TextBlock>
+                            <WrapPanel>
+                                <Button Content="Update Launcher">
+                                    <Button.Flyout >
+                                        <Flyout>
+                                            <StackPanel>
+                                                <TextBlock>
+                                                    This will copy your running launcher into the installation path.
+                                                </TextBlock>    
+                                                <TextBlock>
+                                                    This may not be needed, as the App now auto-updates itself.
+                                                </TextBlock>
+                                                <Button Click="CopyToLoc">Confirm</Button>
+                                            </StackPanel>
+                                        </Flyout>
+                                    </Button.Flyout>
+                                </Button>
+                                <Button Content="Create Shortcuts">
+                                    <Button.Flyout >
+                                        <Flyout>
+                                            <StackPanel>
+                                                <TextBlock>
+                                                    This will create a Desktop and Start Menu shortcut.
+                                                </TextBlock>    
+                                                <TextBlock>
+                                                    This may not be needed, as the App should've done this for you on installation.
+                                                </TextBlock>
+                                                <Button Click="MkShortcuts">Confirm</Button>
+                                            </StackPanel>
+                                        </Flyout>
+                                    </Button.Flyout>
+                                </Button>
+                            </WrapPanel>
+                            
                             <TextBlock/>
+                            
+                            
                             <TextBlock FontSize="24">Companion</TextBlock>
                             <TextBlock/>
                             <ToggleSwitch Name="ShowTerminal" IsCheckedChanged="ToggleShowTerminal">Show Terminal</ToggleSwitch>
