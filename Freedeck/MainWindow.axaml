@@ -203,19 +203,20 @@
                                 </Button.Flyout>
                             </Button>
                             <TextBlock />
+                            
                             <TextBlock>Companion Installation Directory</TextBlock>
                             <DockPanel>
                                 <TextBox MinWidth="200" Name="SFreedeckPath"></TextBox>
                                 <Button Click="Button_OnClick">Change</Button>    
                             </DockPanel>
                             <TextBlock>Companion URL</TextBlock>
-                            <TextBox IsEnabled="False" MinWidth="200" Name="SLCServer"></TextBox>
+                            <TextBox IsEnabled="False" MinWidth="200" Name="SlcServer"></TextBox>
                             <TextBlock>NativeBridgeWS URL</TextBlock>
-                            <TextBox IsEnabled="False" MinWidth="200" Name="SLCNBWS"></TextBox>
+                            <TextBox IsEnabled="False" MinWidth="200" Name="Slcnbws"></TextBox>
                             <TextBlock>Release Index</TextBlock>
-                            <TextBox IsEnabled="False" MinWidth="200" Name="SLCRelease"></TextBox>
+                            <TextBox IsEnabled="False" MinWidth="200" Name="SlcRelease"></TextBox>
                             <TextBlock>Launcher Configuration Path</TextBlock>
-                            <TextBox IsEnabled="False" MinWidth="200" Name="SLCPath"></TextBox>
+                            <TextBox IsEnabled="False" MinWidth="200" Name="SlcPath"></TextBox>
                             <TextBlock Name="BuildIdUser" TextWrapping="Wrap">FDApp Build Identifier: </TextBlock>
                             <TextBlock/>
                             <TextBlock FontSize="24">Companion</TextBlock>

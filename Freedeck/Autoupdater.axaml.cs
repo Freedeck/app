@@ -39,9 +39,6 @@ namespace Freedeck
                 return AUState.INVALID_INSTALL_PATH;
             }
 
-            string userConfig = await File.ReadAllTextAsync(MainWindow.InstallPath + "\\freedeck\\src\\configs\\config.fd.js");
-            string branch = "v6";
-            int line = 0;
             if (!av.Contains("6"))
             {
                 Dispatcher.UIThread.InvokeAsync(() =>
@@ -51,11 +48,10 @@ namespace Freedeck
                 });
                 return AUState.INVALID_APP_VERSION;
             }
-            if (userConfig.Contains("\"release\":\"dev\"") || userConfig.Contains("release:\"dev\""))
-            {
-                branch = "v6-dev";
-                line = 1;
-            }
+
+            ReleaseVersioningChannel channel = ReleaseHelper.GetChannel(LauncherConfig.Configuration.InstallationInformation.SourceChannel);
+            string branch = channel.branch;
+            
             Dispatcher.UIThread.InvokeAsync(() =>
             {
                 MainWindow.Instance.ProgressBarApp.Value = 20;
@@ -64,19 +60,7 @@ namespace Freedeck
 
             try
             {
-                HttpClient wc = new HttpClient();
-                var get = await wc.GetAsync("https://freedeck.app/release");
-                if (get.StatusCode != HttpStatusCode.Accepted)
-                {
-                    ReleaseHelper.IsOnline = false;
-                    Dispatcher.UIThread.InvokeAsync(() =>
-                    {
-                        MainWindow.Instance.ProgressBarApp.Value = 0;
-                        MainWindow.Instance.ProgressBarCurrently.Text = "You are offline! Failed to fetch server release.";
-                    });
-                } else ReleaseHelper.IsOnline = true;
-                string res = await get.Content.ReadAsStringAsync();
-                string cv = res.Split("\n")[line];
+                string cv = ReleaseHelper.GetLatestVersionFor(channel);
                 if (av != cv)
                 {
                     Dispatcher.UIThread.InvokeAsync(() =>

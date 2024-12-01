@@ -155,10 +155,10 @@ public partial class MainWindow : Window
         TabInstall.IsVisible = false;
         TabRun.IsSelected = true;
         SFreedeckPath.Text = LauncherConfig.Configuration.InstallationDirectory;
-        SLCPath.Text = LauncherConfig.Configuration.ConfigurationPath;
-        SLCServer.Text = LauncherConfig.Configuration.ServerUrl;
-        SLCNBWS.Text = "http://localhost:5756";
-        SLCRelease.Text = ReleaseHelper.Server + "/" + ReleaseHelper.File;
+        SlcPath.Text = LauncherConfig.Configuration.ConfigurationPath;
+        SlcServer.Text = LauncherConfig.Configuration.ServerUrl;
+        Slcnbws.Text = "http://localhost:5756";
+        SlcRelease.Text = ReleaseHelper.Server + "/" + ReleaseHelper.File;
         SLCNode.Text = LauncherConfig.Configuration.NodePath;
         SLCNpm.Text = LauncherConfig.Configuration.NpmPath;
         SLCGit.Text = LauncherConfig.Configuration.GitPath;
