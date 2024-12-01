@@ -172,6 +172,10 @@
                             </TextBlock>
                             <TextBlock />
                             <TextBlock FontSize="24">Launcher</TextBlock>
+                            <TextBlock/>
+                            <TextBlock>Version Channel</TextBlock>
+                            <ComboBox Name="SChannelSelector" SelectionChanged="SChannelSelector_OnSelectionChanged" />
+                            <TextBlock/>
                             <Button Content="Update Launcher">
                                 <Button.Flyout >
                                     <Flyout>
@@ -202,7 +206,6 @@
                                     </Flyout>
                                 </Button.Flyout>
                             </Button>
-                            <TextBlock />
                             
                             <TextBlock>Companion Installation Directory</TextBlock>
                             <DockPanel>

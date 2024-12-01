@@ -216,7 +216,22 @@ public class ReleaseHelper
 
     public static async Task UpdateCatalogAsync()
     {
-        await Dispatcher.UIThread.InvokeAsync(() =>
+        Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            ComboBox selector = MainWindow.Instance.SChannelSelector;
+            selector.Items.Clear();
+            foreach (ReleaseVersioningChannel channel in _index.channels)
+            {
+                ComboBoxItem item = new ComboBoxItem
+                {
+                    Content = $"{channel.description} ({channel.id})",
+                    Tag = channel.id
+                };
+                selector.Items.Add(item);
+            }
+            selector.SelectedIndex = 0;
+        });
+        Dispatcher.UIThread.InvokeAsync(() =>
         {
             MainWindow.Instance.ProgressBarApp.Value = 100;
             MainWindow.Instance.ProgressBarCurrently.Text = "";

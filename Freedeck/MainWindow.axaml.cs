@@ -310,4 +310,12 @@ public partial class MainWindow : Window
         ShowAutoupdateWindow.IsChecked = LauncherConfig.Configuration.ShowAutoupdaterWindow;
         LauncherConfig.Update();
     }
+    
+    private void SChannelSelector_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if(_isUndergoingModification) return;
+        ComboBoxItem? item = (ComboBoxItem) e.AddedItems[0];
+        LauncherConfig.Configuration.InstallationInformation.SourceChannel = item.Tag.ToString();
+        LauncherConfig.Update();
+    }
 }

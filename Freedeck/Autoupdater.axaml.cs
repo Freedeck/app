@@ -38,7 +38,9 @@ namespace Freedeck
                     au.Show();
                 });
             }
+            await Dispatcher.UIThread.InvokeAsync(MainWindow.GetAndSetVersionData);
             string av = MainWindow.AppVersion;
+            Console.WriteLine($"Freedeck is currently on version {av}");
             if (!File.Exists(MainWindow.InstallPath + "\\freedeck\\src\\configs\\config.fd.js"))
             {
                 Dispatcher.UIThread.InvokeAsync(() =>
@@ -61,7 +63,6 @@ namespace Freedeck
 
             ReleaseVersioningChannel channel =
                 await ReleaseHelper.GetChannel(LauncherConfig.Configuration.InstallationInformation.SourceChannel);
-            Console.WriteLine(channel.id);
             string branch = channel.branch;
             
             Dispatcher.UIThread.InvokeAsync(() =>
@@ -73,6 +74,7 @@ namespace Freedeck
             try
             {
                 string cv = ReleaseHelper.GetLatestVersionFor(channel);
+                Console.WriteLine($"Current version for channel {channel.id} is {cv}");
                 if (av != cv)
                 {
                     Dispatcher.UIThread.InvokeAsync(() =>
