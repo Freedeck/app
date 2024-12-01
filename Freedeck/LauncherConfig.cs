@@ -12,6 +12,7 @@ public class LauncherConfig
     {
         PersistentSettings = false,
         InstallationDirectory = MainWindow.InstallPath,
+        InstallationInformation = new InstallInformation(),
         ShowTerminal = false,
         AutoUpdaterBehavior = 0,
         ConfigurationPath = LauncherConfigSchema.AppData + "\\Launcher.json",
@@ -47,7 +48,9 @@ public class LauncherConfig
                 }
                 
                 MainWindow.InstallPath = Configuration.InstallationDirectory;
-                File.WriteAllTextAsync(Configuration.ConfigurationPath, JsonSerializer.Serialize<LauncherConfigSchema>(Configuration));
+                Configuration = deserializedConfig;
+                File.WriteAllTextAsync(Configuration.ConfigurationPath, 
+                    JsonSerializer.Serialize<LauncherConfigSchema>(Configuration));
             }
         }
     }

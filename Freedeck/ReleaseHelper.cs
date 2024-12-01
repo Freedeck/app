@@ -109,7 +109,7 @@ public class ReleaseHelper
                 {
                     var releaseChannel =
                         JsonSerializer.Deserialize<ReleaseVersioningChannel>(channelElement.GetRawText());
-
+                    releaseChannel.id = channelProperty.Name;
                     channels.Add(releaseChannel);
                 }
             }
@@ -201,15 +201,17 @@ public class ReleaseHelper
         return "v0.0.0";
     }
 
-    public static ReleaseVersioningChannel GetChannel(string id)
+    public static Task<ReleaseVersioningChannel> GetChannel(string id)
     {
         foreach (var release in _index.channels)
         {
             if (release.id == id)
-                return release;
+            {
+                return Task.FromResult(release);
+            }
         }
 
-        return new ReleaseVersioningChannel();
+        return Task.FromResult(new ReleaseVersioningChannel());
     }
 
     public static async Task UpdateCatalogAsync()

@@ -49,7 +49,9 @@ namespace Freedeck
                 return AUState.INVALID_APP_VERSION;
             }
 
-            ReleaseVersioningChannel channel = ReleaseHelper.GetChannel(LauncherConfig.Configuration.InstallationInformation.SourceChannel);
+            ReleaseVersioningChannel channel =
+                await ReleaseHelper.GetChannel(LauncherConfig.Configuration.InstallationInformation.SourceChannel);
+            Console.WriteLine(channel.id);
             string branch = channel.branch;
             
             Dispatcher.UIThread.InvokeAsync(() =>
