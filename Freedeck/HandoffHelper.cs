@@ -28,10 +28,19 @@ public class HandoffHelper
                 if(args.Length > 1 && args[1] == "front")
                     App.BringToTop();
                 break;
+            case "hide":
+                MainWindow.Instance.Hide();
+                break;
             case "download":
             case "update":
                 MainWindow.Instance.Show();
                 App.BringToTop();
+                if (!MainWindow.Instance.IsVisible)
+                {
+                    MainWindow.Instance.IsVisible = true;
+                } 
+                MainWindow.Instance.TabHandoff.IsVisible = true;
+                MainWindow.Instance.TabHandoff.IsSelected = true;
                 if (args.Length < 5)
                 {
                     Console.WriteLine(args.Length);
@@ -64,12 +73,6 @@ public class HandoffHelper
         }
 
         if (!validCommand) return;
-        if (!MainWindow.Instance.IsVisible)
-        {
-            MainWindow.Instance.IsVisible = true;
-        } 
-        MainWindow.Instance.TabHandoff.IsVisible = true;
-        MainWindow.Instance.TabHandoff.IsSelected = true;
         TakeAccess();
     }
 
