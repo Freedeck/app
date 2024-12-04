@@ -23,8 +23,15 @@ public class HandoffHelper
         string command = args[0];
         switch (command)
         {
+            case "show":
+                MainWindow.Instance.Show();
+                if(args.Length > 1 && args[1] == "front")
+                    App.BringToTop();
+                break;
             case "download":
             case "update":
+                MainWindow.Instance.Show();
+                App.BringToTop();
                 if (args.Length < 5)
                 {
                     Console.WriteLine(args.Length);

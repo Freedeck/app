@@ -37,6 +37,7 @@ class Program
             if (!isNewInstance)
             {
                 // The app is already running. Pass the arguments to the running instance.
+                Console.WriteLine(args);
                 if (args[0].Contains("freedeck://"))
                 {
                     SendArgsToExistingInstance(args);
@@ -51,6 +52,10 @@ class Program
             else
             {
                 BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+                if (args.Length > 0 && args[0].Contains("freedeck://startup"))
+                {
+                    MainWindow.Instance.Hide();
+                }
             }
         }
 
@@ -65,6 +70,7 @@ class Program
         writer.AutoFlush = true;
         writer.WriteLine(string.Join(" ", args));  // Send the URI to the existing instance.
         writer.Close();
+        Process.GetCurrentProcess().Kill();
     }
 
     // Avalonia configuration, don't remove; also used by visual designer.

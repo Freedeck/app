@@ -228,24 +228,30 @@ public class ReleaseHelper
                     Tag = channel.id
                 };
                 selector.Items.Add(item);
+                if(item.Tag.ToString() == LauncherConfig.Configuration.InstallationInformation.SourceChannel)
+                    selector.SelectedItem = item;
             }
-            selector.SelectedIndex = 0;
         });
         Dispatcher.UIThread.InvokeAsync(() =>
         {
-            MainWindow.Instance.ProgressBarApp.Value = 100;
-            MainWindow.Instance.ProgressBarCurrently.Text = "";
+            MainWindow.Instance.ProgressBarApp.Value = 90;
+            MainWindow.Instance.ProgressBarCurrently.Text = "Loading catalog...";
+            MainWindow.Instance.ReleaseCatalogs.Children.Clear();
+            
+            // Retrieve the selected channel ID
+            string selectedChannelId = LauncherConfig.Configuration.InstallationInformation.SourceChannel;
 
-            foreach (var releaseVersionCatalog in _index.channels)
-            {
-                // Deserialize the catalog only for release channels
-                var catalog = JsonSerializer.Deserialize<Release[]>(releaseVersionCatalog.catalog.GetRawText(),
+            // Sort the channels, placing the selected channel at the top
+            var wantedChannel = _index.channels.Find(x => x.id == selectedChannelId);
+
+           // Deserialize the catalog only for release channels
+                var catalog = JsonSerializer.Deserialize<Release[]>(wantedChannel.catalog.GetRawText(),
                     new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
                     });
 
-                string title = releaseVersionCatalog.description;
+                string title = wantedChannel.description;
                 Console.WriteLine($"Creating catalog for {title}. {catalog.Length} versions found.");
 
                 var border = new Border
@@ -263,7 +269,8 @@ public class ReleaseHelper
 
                 var titleText = new TextBlock
                 {
-                    Text = title
+                    Text = title,
+                    TextAlignment = TextAlignment.Center
                 };
                 container.Children.Add(titleText);
 
@@ -281,9 +288,9 @@ public class ReleaseHelper
                     var verBorder = new Border
                     {
                         CornerRadius = new CornerRadius(15),
-                        Width = ((MainWindow.AppVersion == version.version || version.current == true)
-                            ? 500
-                            : 400),
+                        Width = (version.current == true
+                            ? 300
+                            : 200),
                         Height = 70,
                         BorderThickness = new Thickness(10),
                         Background = new SolidColorBrush(Color.FromArgb(32,
@@ -294,18 +301,24 @@ public class ReleaseHelper
 
                     var textBlock = new TextBlock
                     {
-                        FontSize = ((MainWindow.AppVersion == version.version || version.current == true)
-                            ? 24
-                            : 16),
-                        Text = $"v{version.version} - {version.desc}"
+                        FontSize = (version.current == true
+                            ? 20
+                            : 12),
+                        Text = $"v{version.version}\n{version.desc}",
+                        TextAlignment = TextAlignment.Center
                     };
+                    if (version.current == true && MainWindow.AppVersion != version.version)
+                    {
+                        textBlock.Text += "\nUpdate available!";
+                    }
                     verBorder.Child = textBlock;
                     versionContainer.Children.Add(verBorder);
                 }
 
                 MainWindow.Instance.ReleaseCatalogs.Children.Add(border);
-            }
 
+            MainWindow.Instance.ProgressBarApp.Value = 100;
+            MainWindow.Instance.ProgressBarCurrently.Text = "";
             MainWindow.Instance.ProgressBarContainer.IsVisible = false;
             return Task.CompletedTask;
         });

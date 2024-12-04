@@ -45,15 +45,21 @@ public partial class App : Application
 
     [DllImport("user32.dll")]
     private static extern bool SetForegroundWindow(IntPtr hWnd);
+
+    public static void BringToTop()
+    {
+        IntPtr handle = (IntPtr)TopLevel.GetTopLevel(MainWindow.Instance)?.TryGetPlatformHandle()?.Handle!;
+        SetForegroundWindow(handle);
+    }
     
     private void HandleUri(string uri)
     {
         Console.WriteLine($"Received URI: {uri}");
-        IntPtr handle = (IntPtr)TopLevel.GetTopLevel(MainWindow.Instance)?.TryGetPlatformHandle()?.Handle!;
-        SetForegroundWindow(handle);
+        BringToTop();
         Dispatcher.UIThread.InvokeAsync(() =>
-        {
-           HandoffHelper.HandleCommand(uri);
+        { 
+            MainWindow.Instance.Show();
+            HandoffHelper.HandleCommand(uri);
         });
     }
 

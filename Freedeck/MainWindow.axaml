@@ -5,7 +5,7 @@
         mc:Ignorable="d" 
         d:DesignWidth="900" d:DesignHeight="450"
         Width="900"
-        Height="450"
+        Height="460"
         x:Class="Freedeck.MainWindow"
         Background="#17212a"
         Icon="Assets/FDAP.ico"
@@ -14,13 +14,27 @@
         <StyleInclude Source="/Styles1.axaml" />
     </Window.Styles>
     <DockPanel>
-        <Border Name="LeftSidebar" CornerRadius="15" BorderThickness="10" Background="rgba(0,0,0,0.125)">
-        <StackPanel HorizontalAlignment="Center" DockPanel.Dock="Left" Margin="0,15">
-            <TextBlock FontSize="36">Freedeck</TextBlock>
-            <Image VerticalAlignment="Top" Margin="0,10,0,0" Source="avares://Freedeck/Assets/FDAP.png" Width="100" />
-            <TextBlock FontSize="24" Name="InstalledVersion">Freedeck is not installed.</TextBlock>
-            <TextBlock FontSize="24" Name="ILauncherVersion">Launcher vLoading</TextBlock>
-        </StackPanel>
+        <Border Name="LeftSidebar" CornerRadius="15">
+            <StackPanel HorizontalAlignment="Center" DockPanel.Dock="Left">
+                <Border Margin="0,15,0,0" CornerRadius="0,15,15,0" BorderThickness="0" Background="rgba(0,0,0,0.125)">
+                    <StackPanel>
+                       <WrapPanel HorizontalAlignment="Center">
+                           <TextBlock Margin="0,0,10,0" FontSize="36" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center">Freedeck</TextBlock>
+                           <Image HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,10,0,0" Source="avares://Freedeck/Assets/FDAP.png" Width="75" />
+                       </WrapPanel>
+                       <TextBlock FontSize="16"  Name="InstalledVersion">Freedeck is not installed.</TextBlock>
+                       <TextBlock FontSize="16" Name="ILauncherVersion">Launcher vLoading</TextBlock>
+                   </StackPanel>
+                </Border>
+                <Border Margin="0,15,0,0" CornerRadius="0,15,15,0" VerticalAlignment="Stretch" DockPanel.Dock="Left" Background="rgba(0,0,0,0.125)">
+                        <StackPanel>
+                            <TextBlock FontSize="20" HorizontalAlignment="Center" TextAlignment="Center">Releases</TextBlock>
+                            <ScrollViewer>
+                                <StackPanel Name="ReleaseCatalogs" />
+                            </ScrollViewer>
+                        </StackPanel>
+                </Border>
+            </StackPanel>
         </Border>
         <Border CornerRadius="15" BorderThickness="10" Background="rgba(0,0,0,0.125)">
             <TabControl>
@@ -137,11 +151,6 @@
                            </StackPanel>
                            <TextBlock Name="OfflineStatus">You are offline.</TextBlock>
                            <TextBlock Name="UpdateCheckNotice">Freedeck will not check for updates.</TextBlock>
-                           <TextBlock />
-                           <TextBlock FontSize="20">Releases</TextBlock>
-                           <ScrollViewer>
-                               <StackPanel Name="ReleaseCatalogs" />
-                           </ScrollViewer>
                        </StackPanel>
                    </ScrollViewer>
                 </TabItem>
@@ -174,7 +183,10 @@
                             <TextBlock FontSize="24">Launcher</TextBlock>
                             <TextBlock/>
                             <TextBlock>Version Channel</TextBlock>
-                            <ComboBox Name="SChannelSelector" SelectionChanged="SChannelSelector_OnSelectionChanged" />
+                            <DockPanel>
+                                <ComboBox Name="SChannelSelector" />
+                                <Button Click="SChannelSelector_OnClick">Change</Button>
+                            </DockPanel>
                             <TextBlock>Companion Installation Directory</TextBlock>
                             <DockPanel>
                                 <TextBox MinWidth="200" Name="SFreedeckPath"></TextBox>

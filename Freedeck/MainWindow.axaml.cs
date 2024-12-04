@@ -22,7 +22,7 @@ public partial class MainWindow : Window
     private static readonly string Home = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
     public static string InstallPath = Home + "\\Freedeck";
     public static string AppVersion = "1.0.0";
-    public static string LauncherVersion = "Beta 5";
+    public static string LauncherVersion = "1.0.0-b5";
     public static string BuildId = "7a1982e2321cc0c51e5adf48f813badb1f646dc0";
     public static bool AutoUpdaterTestMode = false;
     private bool _isUndergoingModification = false;
@@ -84,8 +84,8 @@ public partial class MainWindow : Window
         string uver = File.ReadAllText(InstallPath + "\\freedeck\\package.json");
         string version = uver.Split(new string[] { "\"version\": \"" }, StringSplitOptions.None)[1].Split('"')[0];
         AppVersion = version;
-        Instance.InstalledVersion.Text = "Freedeck v" + AppVersion;
-        Instance.ILauncherVersion.Text = "App " + LauncherVersion;
+        Instance.InstalledVersion.Text = "Companion v" + AppVersion;
+        Instance.ILauncherVersion.Text = "App v" + LauncherVersion;
         Instance.SFreedeckPath.Text = InstallPath;
     }
 
@@ -173,6 +173,12 @@ public partial class MainWindow : Window
         else
         {
             UpdateCheckNotice.IsVisible = false;
+        }
+        
+        foreach (ComboBoxItem item in SChannelSelector.Items)
+        {
+            if(item.Tag.ToString() == LauncherConfig.Configuration.InstallationInformation.SourceChannel)
+                SChannelSelector.SelectedItem = item;
         }
 
         _isUndergoingModification = false;
@@ -310,12 +316,14 @@ public partial class MainWindow : Window
         ShowAutoupdateWindow.IsChecked = LauncherConfig.Configuration.ShowAutoupdaterWindow;
         LauncherConfig.Update();
     }
-    
-    private void SChannelSelector_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
+
+    private void SChannelSelector_OnClick(object? sender, RoutedEventArgs e)
     {
         if(_isUndergoingModification) return;
-        ComboBoxItem? item = (ComboBoxItem) e.AddedItems[0];
+        ComboBoxItem? item = (ComboBoxItem) SChannelSelector.SelectedItem;
+        SChannelSelector.SelectedItem = item;
         LauncherConfig.Configuration.InstallationInformation.SourceChannel = item.Tag.ToString();
         LauncherConfig.Update();
+        _ = Task.Run(async () => ReleaseHelper.FullyUpdate());
     }
 }
