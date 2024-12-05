@@ -149,7 +149,7 @@
                                <TextBlock Name="ProgressBarCurrently">Checking for updates...</TextBlock>
                                <ProgressBar Name="ProgressBarApp" Height="8" />
                            </StackPanel>
-                           <TextBlock Name="OfflineStatus">You are offline.</TextBlock>
+                           <TextBlock Name="OfflineStatus">You are offline. Auto-updating will not work.</TextBlock>
                            <TextBlock Name="UpdateCheckNotice">Freedeck will not check for updates.</TextBlock>
                        </StackPanel>
                    </ScrollViewer>
@@ -263,7 +263,7 @@
                                             <TextBox Name="BuildIdBoxBeta"/>
                                             <TextBlock>Stable Build</TextBlock>
                                             <TextBox Name="BuildIdBox"/>
-                                            <Button Name="NewBuildId" Content="Generate"/>
+                                            <Button Click="NewBuildId_OnClick" Name="NewBuildId" Content="Generate"/>
                                         </StackPanel>
                                     </Flyout>
                                 </Button.Flyout>

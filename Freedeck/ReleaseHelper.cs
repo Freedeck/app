@@ -157,6 +157,7 @@ public class ReleaseHelper
                     {
                         var releaseChannel =
                             JsonSerializer.Deserialize<ReleaseVersioningChannel>(channelElement.GetRawText());
+                        releaseChannel.id = channelProperty.Name;
                         channels.Add(releaseChannel);
                     }
                 }
@@ -216,7 +217,7 @@ public class ReleaseHelper
 
     public static async Task UpdateCatalogAsync()
     {
-        Dispatcher.UIThread.InvokeAsync(() =>
+        await Dispatcher.UIThread.InvokeAsync(() =>
         {
             ComboBox selector = MainWindow.Instance.SChannelSelector;
             selector.Items.Clear();
@@ -232,7 +233,7 @@ public class ReleaseHelper
                     selector.SelectedItem = item;
             }
         });
-        Dispatcher.UIThread.InvokeAsync(() =>
+        await Dispatcher.UIThread.InvokeAsync(() =>
         {
             MainWindow.Instance.ProgressBarApp.Value = 90;
             MainWindow.Instance.ProgressBarCurrently.Text = "Loading catalog...";
@@ -309,8 +310,19 @@ public class ReleaseHelper
                     };
                     if (version.current == true && MainWindow.AppVersion != version.version)
                     {
-                        textBlock.Text += "\nUpdate available!";
+                        textBlock.Text = $"v{version.version}\nUpdate available!";
+                        verBorder.Background = new SolidColorBrush(Color.FromArgb(20,
+                            0,
+                            0,
+                            0));
+                    } else if (version.current == true && MainWindow.AppVersion == version.version)
+                    {
+                        verBorder.Background = new SolidColorBrush(Color.FromArgb(40,
+                            60,
+                            255,
+                            60));
                     }
+
                     verBorder.Child = textBlock;
                     versionContainer.Children.Add(verBorder);
                 }

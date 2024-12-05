@@ -106,9 +106,9 @@ public partial class MainWindow : Window
         Instance = this;
         BuildIdUser.Text = "FDApp Build Identifier: " + BuildId;
         LauncherConfig.ReloadConfiguration();
-        LauncherConfig.UpdateLauncher();
         _ = Task.Run(async () =>
-        {
+        { 
+            LauncherConfig.UpdateLauncher();
             Dispatcher.UIThread.InvokeAsync(() =>
             {
                 HandoffHelper.Initialize();
@@ -117,28 +117,6 @@ public partial class MainWindow : Window
             });
             await NativeBridge.Initialize();
         });
-        NewBuildId.Click += (sender, args) =>
-        {
-            using SHA1 shaM = SHA1.Create();
-            DateTime dt = DateTime.Now;
-            string dstr = dt.ToLongDateString();
-            string tstr = DateTime.Now.ToLongTimeString();
-            byte[] rawHash = shaM.ComputeHash(Encoding.UTF8.GetBytes(dstr + tstr));
-            string hash = "";
-            foreach (byte x in rawHash)
-            {
-                hash += $"{x:x2}";
-            }
-
-            BuildIdBoxBeta.Text = hash;
-            rawHash = shaM.ComputeHash(Encoding.UTF8.GetBytes(dstr));
-            hash = "";
-            foreach (byte x in rawHash)
-            {
-                hash += $"{x:x2}";
-            }
-            BuildIdBox.Text = hash;
-        };
         if (IsAppInstalled())
         {
             GetAndSetVersionData();
@@ -192,6 +170,7 @@ public partial class MainWindow : Window
         Dispatcher.UIThread.InvokeAsync(() =>
         {
             GetAndSetVersionData();
+            ReleaseHelper.FullyUpdate();
         });
     }
 
@@ -326,5 +305,29 @@ public partial class MainWindow : Window
         LauncherConfig.Configuration.InstallationInformation.SourceChannel = item.Tag.ToString();
         LauncherConfig.Update();
         _ = Task.Run(async () => ReleaseHelper.FullyUpdate());
+    }
+
+    private void NewBuildId_OnClick(object? sender, RoutedEventArgs e)
+    {
+            using SHA1 shaM = SHA1.Create();
+            DateTime dt = DateTime.Now;
+            string dstr = dt.ToLongDateString();
+            string tstr = DateTime.Now.ToLongTimeString();
+            byte[] rawHash = shaM.ComputeHash(Encoding.UTF8.GetBytes(dstr + tstr));
+            string hash = "";
+            foreach (byte x in rawHash)
+            {
+                hash += $"{x:x2}";
+            }
+
+            BuildIdBoxBeta.Text = hash;
+            rawHash = shaM.ComputeHash(Encoding.UTF8.GetBytes(dstr));
+            hash = "";
+            foreach (byte x in rawHash)
+            {
+                hash += $"{x:x2}";
+            }
+
+            BuildIdBox.Text = hash;
     }
 }

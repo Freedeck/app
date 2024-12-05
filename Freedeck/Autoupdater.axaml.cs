@@ -17,7 +17,15 @@ namespace Freedeck
         INVALID_APP_VERSION,
         NOFAIL_TEST_MODE,
         NOFAIL_COMPLETE,
+        NOFAIL_OFFLINE,
         ERROR
+    }
+
+    public class AppReleaseNow
+    {
+        public string Now { get; set; } = "0.0.0";
+        public string Latest { get; set; } = "0.0.0";
+        public string? Error { get; set; } = "";
     }
     public partial class Autoupdater : Window
     {
@@ -26,6 +34,47 @@ namespace Freedeck
         {
             InitializeComponent();
             instance = this;
+        }
+
+        public static async Task<AppReleaseNow> GetData()
+        {
+            string av = MainWindow.AppVersion;
+            Console.WriteLine($"Freedeck is currently on version {av}");
+            if (!File.Exists(MainWindow.InstallPath + "\\freedeck\\src\\configs\\config.fd.js"))
+            {
+                Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    MainWindow.Instance.ProgressBarApp.Value = 0;
+                    MainWindow.Instance.ProgressBarCurrently.Text = "Invalid app install path";
+                });
+                return new AppReleaseNow()
+                {
+                    Now = av,
+                    Error = "Invalid app install path"
+                };
+            }
+            if (!av.Contains("6"))
+            {
+                Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    MainWindow.Instance.ProgressBarApp.Value = 10;
+                    MainWindow.Instance.ProgressBarCurrently.Text = "Your app version seems to be invalid.";
+                });
+                return new AppReleaseNow()
+                {
+                    Now = av,
+                    Error = "Invalid app version"
+                };
+            }
+            
+            ReleaseVersioningChannel channel =
+                await ReleaseHelper.GetChannel(LauncherConfig.Configuration.InstallationInformation.SourceChannel);
+            string cv = ReleaseHelper.GetLatestVersionFor(channel);
+            return new AppReleaseNow()
+            {
+                Now = av,
+                Latest = cv
+            };
         }
 
         public static async Task<AUState> StartUpdateAsync()
@@ -39,27 +88,7 @@ namespace Freedeck
                 });
             }
             await Dispatcher.UIThread.InvokeAsync(MainWindow.GetAndSetVersionData);
-            string av = MainWindow.AppVersion;
-            Console.WriteLine($"Freedeck is currently on version {av}");
-            if (!File.Exists(MainWindow.InstallPath + "\\freedeck\\src\\configs\\config.fd.js"))
-            {
-                Dispatcher.UIThread.InvokeAsync(() =>
-                {
-                    MainWindow.Instance.ProgressBarApp.Value = 0;
-                    MainWindow.Instance.ProgressBarCurrently.Text = "Invalid app install path";
-                });
-                return AUState.INVALID_INSTALL_PATH;
-            }
-
-            if (!av.Contains("6"))
-            {
-                Dispatcher.UIThread.InvokeAsync(() =>
-                {
-                    MainWindow.Instance.ProgressBarApp.Value = 10;
-                    MainWindow.Instance.ProgressBarCurrently.Text = "Your app version seems to be invalid.";
-                });
-                return AUState.INVALID_APP_VERSION;
-            }
+            AppReleaseNow currentlyRelease = await GetData();
 
             ReleaseVersioningChannel channel =
                 await ReleaseHelper.GetChannel(LauncherConfig.Configuration.InstallationInformation.SourceChannel);
@@ -73,8 +102,8 @@ namespace Freedeck
 
             try
             {
-                string cv = ReleaseHelper.GetLatestVersionFor(channel);
-                Console.WriteLine($"Current version for channel {channel.id} is {cv}");
+                string av = currentlyRelease.Now;
+                string cv = currentlyRelease.Latest;
                 if (av != cv)
                 {
                     Dispatcher.UIThread.InvokeAsync(() =>
@@ -84,6 +113,11 @@ namespace Freedeck
                     });
 
                     if (MainWindow.AutoUpdaterTestMode) return AUState.NOFAIL_TEST_MODE;
+                    if (!ReleaseHelper.IsOnline)
+                    {
+                        StdoutLog("Freedeck Autoupdater", InternalLogType.Out, "You are offline.");
+                        return AUState.NOFAIL_OFFLINE;
+                    }
                     // Run processes asynchronously
                     Dispatcher.UIThread.InvokeAsync(() =>
                     {
