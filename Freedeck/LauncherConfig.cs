@@ -11,7 +11,7 @@ public class LauncherConfig
     public static LauncherConfigSchema Configuration = new LauncherConfigSchema
     {
         PersistentSettings = false,
-        InstallationDirectory = MainWindow.InstallPath,
+        InstallationDirectory = LauncherConfigSchema.AppData,
         InstallationInformation = new InstallInformation(),
         ShowTerminal = false,
         ShowAutoupdaterWindow = false,
