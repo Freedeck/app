@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Security.Principal;
+using System.Threading.Tasks;
 
 namespace Freedeck;
 
@@ -28,16 +29,9 @@ class Program
         var mainModuleFileName = Process.GetCurrentProcess().MainModule?.FileName;
         if (mainModuleFileName != null)
         {
-            string appPath = mainModuleFileName;
-
-            // Try registering without admin rights (user-level)
-            UriProtocolRegistrar.RegisterUriScheme(protocol, appPath, userLevel: true);
-
-            var mutex = new System.Threading.Mutex(true, "FreedeckAppMutex", out bool isNewInstance);
+            var mutex = new System.Threading.Mutex(true, "fd_app_inst", out bool isNewInstance);
             if (!isNewInstance)
             {
-                // The app is already running. Pass the arguments to the running instance.
-                Console.WriteLine(args);
                 if (args[0].Contains("freedeck://"))
                 {
                     SendArgsToExistingInstance(args);
@@ -45,17 +39,17 @@ class Program
                 else if(args[0].Contains("HandoffAdminReset") && OperatingSystem.IsWindows())
                 {
                     if (!IsAdministrator()) return;
-                    UriProtocolRegistrar.RegisterUriScheme(protocol, appPath, false);                
+                    UriProtocolRegistrar.RegisterUriScheme(protocol, mainModuleFileName, false);                
                 }
                 return;
             }
             else
             {
-                BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
-                if (args.Length > 0 && args[0].Contains("freedeck://startup"))
+                _ = Task.Run(() =>
                 {
-                    MainWindow.Instance.Hide();
-                }
+                    UriProtocolRegistrar.RegisterUriScheme(protocol, mainModuleFileName, userLevel: true);
+                });
+                BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
             }
         }
 
@@ -63,7 +57,7 @@ class Program
 
     private static void SendArgsToExistingInstance(string[] args)
     {
-        using var pipeClient = new System.IO.Pipes.NamedPipeClientStream(".", "FreedeckAppHandoff", 
+        using var pipeClient = new System.IO.Pipes.NamedPipeClientStream(".", "fd_app_handoff", 
             System.IO.Pipes.PipeDirection.Out);
         pipeClient.Connect();
         using var writer = new StreamWriter(pipeClient);

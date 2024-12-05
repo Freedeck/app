@@ -20,12 +20,12 @@ public partial class App : Application
     
     private async void StartListening()
     {
+        Console.WriteLine("Handoff pipe listening!");
         while (true)
         {
             try
             {
-                using var pipeServer = new NamedPipeServerStream("FreedeckAppHandoff", PipeDirection.In, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
-                Console.WriteLine("Handoff server listening!");
+                using var pipeServer = new NamedPipeServerStream("fd_app_handoff", PipeDirection.In, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
                 await pipeServer.WaitForConnectionAsync();
                 using var reader = new StreamReader(pipeServer);
                 string uri = await reader.ReadLineAsync() ?? string.Empty;  // Read the message sent by the new instance.
@@ -68,6 +68,10 @@ public partial class App : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             desktop.MainWindow = new MainWindow();
+            if (desktop.Args!.Length > 0 && desktop.Args[0].Contains("freedeck://startup"))
+            {
+                desktop.MainWindow.Hide();
+            }
             _ = Task.Run(StartListening);
         }
 
