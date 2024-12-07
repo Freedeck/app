@@ -20,7 +20,7 @@
                     <StackPanel>
                        <WrapPanel HorizontalAlignment="Center">
                            <TextBlock Margin="0,0,10,0" FontSize="36" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center">Freedeck</TextBlock>
-                           <Image HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,10,0,0" Source="avares://Freedeck/Assets/FDAP.png" Width="75" />
+                           <Image HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,5,0,0" Source="avares://Freedeck/Assets/FDAP.png" Width="75" />
                        </WrapPanel>
                        <TextBlock FontSize="16"  Name="InstalledVersion">Freedeck is not installed.</TextBlock>
                        <TextBlock FontSize="16" Name="ILauncherVersion">Launcher vLoading</TextBlock>
@@ -30,7 +30,7 @@
                         <StackPanel>
                             <TextBlock FontSize="20" HorizontalAlignment="Center" TextAlignment="Center">Releases</TextBlock>
                             <ScrollViewer>
-                                <StackPanel Name="ReleaseCatalogs" />
+                                <StackPanel Width="260" Height="270" Name="ReleaseCatalogs" />
                             </ScrollViewer>
                         </StackPanel>
                 </Border>

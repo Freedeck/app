@@ -93,6 +93,7 @@ namespace Freedeck
             ReleaseVersioningChannel channel =
                 await ReleaseHelper.GetChannel(LauncherConfig.Configuration.InstallationInformation.SourceChannel);
             string branch = channel.branch;
+            if(channel.error == true) return AUState.ERROR;
             
             Dispatcher.UIThread.InvokeAsync(() =>
             {

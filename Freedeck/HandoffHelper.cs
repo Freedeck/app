@@ -27,9 +27,11 @@ public class HandoffHelper
                 MainWindow.Instance.Show();
                 if(args.Length > 1 && args[1] == "front")
                     App.BringToTop();
+                GiveAccess();
                 break;
             case "hide":
                 MainWindow.Instance.Hide();
+                GiveAccess();
                 break;
             case "download":
             case "update":
@@ -41,6 +43,7 @@ public class HandoffHelper
                 } 
                 MainWindow.Instance.TabHandoff.IsVisible = true;
                 MainWindow.Instance.TabHandoff.IsSelected = true;
+                TakeAccess();
                 if (args.Length < 5)
                 {
                     Console.WriteLine(args.Length);
@@ -73,7 +76,6 @@ public class HandoffHelper
         }
 
         if (!validCommand) return;
-        TakeAccess();
     }
 
     private static void TakeAccess()

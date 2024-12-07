@@ -9,6 +9,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Documents;
 using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
 using Avalonia.Media;
@@ -25,6 +26,8 @@ public class ReleaseVersioningChannel
     public string branch { get; set; }
     public string description { get; set; }
     public JsonElement catalog { get; set; }
+    public bool? error { get; set; } = false;
+    public string? error_message { get; set; } = "none";
 }
 
 public class ReleaseIndexFile
@@ -212,7 +215,7 @@ public class ReleaseHelper
             }
         }
 
-        return Task.FromResult(new ReleaseVersioningChannel());
+        return Task.FromResult(new ReleaseVersioningChannel(){error=true, error_message = "Could not find release channel " + id +"."});
     }
 
     public static async Task UpdateCatalogAsync()
@@ -229,7 +232,7 @@ public class ReleaseHelper
                     Tag = channel.id
                 };
                 selector.Items.Add(item);
-                if(item.Tag.ToString() == LauncherConfig.Configuration.InstallationInformation.SourceChannel)
+                if (item.Tag.ToString() == LauncherConfig.Configuration.InstallationInformation.SourceChannel)
                     selector.SelectedItem = item;
             }
         });
@@ -238,26 +241,74 @@ public class ReleaseHelper
             MainWindow.Instance.ProgressBarApp.Value = 90;
             MainWindow.Instance.ProgressBarCurrently.Text = "Loading catalog...";
             MainWindow.Instance.ReleaseCatalogs.Children.Clear();
-            
-            // Retrieve the selected channel ID
+
             string selectedChannelId = LauncherConfig.Configuration.InstallationInformation.SourceChannel;
 
-            // Sort the channels, placing the selected channel at the top
             var wantedChannel = _index.channels.Find(x => x.id == selectedChannelId);
+            if (wantedChannel == null)
+            {
+                var containerTwo = new StackPanel();
+                var errorMsg = new TextBlock
+                {
+                    Text = $"Couldn't find release channel {selectedChannelId}.",
+                    TextAlignment = TextAlignment.Center
+                };
+                containerTwo.Children.Add(errorMsg);
+                MainWindow.Instance.ReleaseCatalogs.Children.Add(containerTwo);
 
-           // Deserialize the catalog only for release channels
-                var catalog = JsonSerializer.Deserialize<Release[]>(wantedChannel.catalog.GetRawText(),
-                    new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
+                MainWindow.Instance.ProgressBarApp.Value = 100;
+                MainWindow.Instance.ProgressBarCurrently.Text = "";
+                MainWindow.Instance.ProgressBarContainer.IsVisible = false;
+                return Task.CompletedTask;
+            }
 
-                string title = wantedChannel.description;
-                Console.WriteLine($"Creating catalog for {title}. {catalog.Length} versions found.");
+            var catalog = JsonSerializer.Deserialize<Release[]>(wantedChannel.catalog.GetRawText(),
+                new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
 
-                var border = new Border
+            string title = wantedChannel.description;
+            Console.WriteLine($"Creating catalog for {title}. {catalog.Length} versions found.");
+
+            var border = new Border
+            {
+                CornerRadius = new CornerRadius(15),
+                BorderThickness = new Thickness(10),
+                Background = new SolidColorBrush(Color.FromArgb(0,
+                    0,
+                    0,
+                    0))
+            };
+
+            var container = new StackPanel();
+            border.Child = container;
+
+            var titleText = new TextBlock
+            {
+                Text = title,
+                TextAlignment = TextAlignment.Center
+            };
+            container.Children.Add(titleText);
+
+            var scrollViewer = new ScrollViewer
+            {
+                Height = 250
+            };
+            var versionContainer = new StackPanel();
+            container.Children.Add(scrollViewer);
+            scrollViewer.Content = versionContainer;
+
+            foreach (var version in catalog)
+            {
+                Console.WriteLine($"Creating {version.version} - {version.desc}");
+                var verBorder = new Border
                 {
                     CornerRadius = new CornerRadius(15),
+                    Width = (version.current == true
+                        ? 250
+                        : 200),
+                    Height = 70,
                     BorderThickness = new Thickness(10),
                     Background = new SolidColorBrush(Color.FromArgb(32,
                         0,
@@ -265,69 +316,35 @@ public class ReleaseHelper
                         0))
                 };
 
-                var container = new StackPanel();
-                border.Child = container;
-
-                var titleText = new TextBlock
+                var textBlock = new TextBlock
                 {
-                    Text = title,
+                    FontSize = (version.current == true
+                        ? 20
+                        : 12),
+                    Text = $"v{version.version}\n{version.desc}",
                     TextAlignment = TextAlignment.Center
                 };
-                container.Children.Add(titleText);
-
-                var scrollViewer = new ScrollViewer
+                if (version.current == true && MainWindow.AppVersion != version.version)
                 {
-                    Height = 250
-                };
-                var versionContainer = new StackPanel();
-                container.Children.Add(scrollViewer);
-                scrollViewer.Content = versionContainer;
-
-                foreach (var version in catalog)
+                    textBlock.Text = $"v{version.version}\nUpdate available!";
+                    verBorder.Background = new SolidColorBrush(Color.FromArgb(20,
+                        0,
+                        0,
+                        0));
+                }
+                else if (version.current == true && MainWindow.AppVersion == version.version)
                 {
-                    Console.WriteLine($"Creating {version.version} - {version.desc}");
-                    var verBorder = new Border
-                    {
-                        CornerRadius = new CornerRadius(15),
-                        Width = (version.current == true
-                            ? 300
-                            : 200),
-                        Height = 70,
-                        BorderThickness = new Thickness(10),
-                        Background = new SolidColorBrush(Color.FromArgb(32,
-                            0,
-                            0,
-                            0))
-                    };
-
-                    var textBlock = new TextBlock
-                    {
-                        FontSize = (version.current == true
-                            ? 20
-                            : 12),
-                        Text = $"v{version.version}\n{version.desc}",
-                        TextAlignment = TextAlignment.Center
-                    };
-                    if (version.current == true && MainWindow.AppVersion != version.version)
-                    {
-                        textBlock.Text = $"v{version.version}\nUpdate available!";
-                        verBorder.Background = new SolidColorBrush(Color.FromArgb(20,
-                            0,
-                            0,
-                            0));
-                    } else if (version.current == true && MainWindow.AppVersion == version.version)
-                    {
-                        verBorder.Background = new SolidColorBrush(Color.FromArgb(40,
-                            60,
-                            255,
-                            60));
-                    }
-
-                    verBorder.Child = textBlock;
-                    versionContainer.Children.Add(verBorder);
+                    verBorder.Background = new SolidColorBrush(Color.FromArgb(40,
+                        60,
+                        255,
+                        60));
                 }
 
-                MainWindow.Instance.ReleaseCatalogs.Children.Add(border);
+                verBorder.Child = textBlock;
+                versionContainer.Children.Add(verBorder);
+            }
+
+            MainWindow.Instance.ReleaseCatalogs.Children.Add(border);
 
             MainWindow.Instance.ProgressBarApp.Value = 100;
             MainWindow.Instance.ProgressBarCurrently.Text = "";
