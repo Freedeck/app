@@ -68,6 +68,8 @@ public class NativeBridgeServer
         socket.SendAsync(new ArraySegment<byte>(
             Encoding.UTF8.GetBytes(dat)
         ), WebSocketMessageType.Text, true, CancellationToken.None);
+        
+        Console.WriteLine("Sent: " + datOne);
     }
 
     private async Task HandleWebSocketAsync(WebSocket webSocket)

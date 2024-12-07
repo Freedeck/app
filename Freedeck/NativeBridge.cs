@@ -16,6 +16,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Interactivity;
 using CSCore.CoreAudioAPI;
+using WindowsInput;
+using WindowsInput.Native;
 
 namespace Freedeck;
 
@@ -106,6 +108,7 @@ public class NativeBridge
         if (!OperatingSystem.IsWindows()) return;
         await Task.Run(async () =>
         {
+            InputSimulator sim = new InputSimulator();
             var server = new NativeBridgeServer("http://localhost:5756/");
             server.ListenForEvent("get_apps", (WebSocket socket, string[] data) =>
             {
@@ -117,9 +120,42 @@ public class NativeBridge
                     Data = new string[] { apps.ToString() }
                 }, socket);
             });
-            server.ListenForEvent("macro", ((socket, strings) =>
+            server.ListenForEvent("macro", (WebSocket socket, string[] data) =>
             {
-                
+                // Split data[0] by "+"
+                string[] keys = data[0].Split("+");
+                List<VirtualKeyCode> modifierKeys = new List<VirtualKeyCode>();
+                List<VirtualKeyCode> mainKeys = new List<VirtualKeyCode>();
+
+                foreach (string key in keys)
+                {
+                    if (Enum.TryParse(typeof(VirtualKeyCode), key.Trim(), out var modKey))
+                    {
+                        modifierKeys.Add((VirtualKeyCode)modKey);
+                    }
+                    else if (Enum.TryParse(typeof(VirtualKeyCode), "VK_" + key.Trim(), out var vkKey))
+                    {
+                        mainKeys.Add((VirtualKeyCode)vkKey);
+                    }
+                }
+
+                if (modifierKeys.Count > 0 && mainKeys.Count > 0)
+                {
+                    sim.Keyboard.ModifiedKeyStroke(modifierKeys, mainKeys);
+                }
+                else if (modifierKeys.Count > 0)
+                {
+                    sim.Keyboard.ModifiedKeyStroke(modifierKeys, mainKeys.FirstOrDefault());
+                }
+                else if (mainKeys.Count > 0)
+                {
+                    sim.Keyboard.ModifiedKeyStroke(modifierKeys.FirstOrDefault(), mainKeys);
+                }
+                Console.WriteLine("Pressed " + data[0]);
+            });
+            server.ListenForEvent("macro_text", ((WebSocket socket, string[] strings) =>
+            {
+                sim.Keyboard.TextEntry(strings[0]);
             }));
             server.ListenForEvent("hello", (WebSocket socket, string[] data) =>
             {
