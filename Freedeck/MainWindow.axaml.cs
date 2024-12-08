@@ -54,6 +54,7 @@ public partial class MainWindow : Window
         Dispatcher.UIThread.InvokeAsync(() =>
         {
             GetAndSetVersionData();
+            ReleaseHelper.UpdateCatalogAsync();
         });
         TabInstall.IsVisible = false;
         TabSettings.IsVisible = true;
@@ -61,6 +62,7 @@ public partial class MainWindow : Window
         TabRun.IsSelected = true;
         ILauncherVersion.IsVisible = true;
         ILauncherVersion.Text = "App " + LauncherVersion;
+        Instance.Title = "Freedeck";
         SetupAllConfiguration();
     }
 
