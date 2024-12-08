@@ -7,7 +7,9 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
@@ -116,7 +118,8 @@ public partial class MainWindow : Window
             LauncherConfig.UpdateLauncher();
             Dispatcher.UIThread.InvokeAsync(() =>
             {
-                HandoffHelper.Initialize();
+                if (Application.Current?.ApplicationLifetime is ClassicDesktopStyleApplicationLifetime { Args.Length: > 0 } desktop) HandoffHelper.HandleCommand(desktop.Args[0]);
+
                 LauncherPersonalization.Initialize();
                 ReleaseHelper.FullyUpdate();
             });

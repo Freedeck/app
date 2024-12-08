@@ -23,6 +23,9 @@ public class HandoffHelper
         string command = args[0];
         switch (command)
         {
+            case "startup":
+                MainWindow.Instance.Hide();
+                break;
             case "show":
                 MainWindow.Instance.Show();
                 if(args.Length > 1 && args[1] == "front")

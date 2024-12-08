@@ -68,10 +68,6 @@ public partial class App : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             desktop.MainWindow = new MainWindow();
-            if (desktop.Args!.Length > 0 && desktop.Args[0].Contains("freedeck://startup"))
-            {
-                desktop.MainWindow.Hide();
-            }
             _ = Task.Run(StartListening);
         }
 
