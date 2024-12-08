@@ -1,11 +1,12 @@
 ﻿name: Freedeck New Release
 
+permissions:
+  contents: write
+
 on:
   push:
-    branches:
-      - main
-  release:
-    types: [published]
+    tags:
+      - "v*.*.*"
 
 jobs:
   build:
@@ -32,5 +33,10 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: freedeck-release
+          name: Freedeck.exe
           path: ${{ github.workspace }}/Freedeck/bin/Release/net8.0/win-x64/publish
+      - name: Release
+          uses: softprops/action-gh-release@v2
+          if: startsWith(github.ref, 'refs/tags/')
+          with:
+            files: ${{ github.workspace }}/Freedeck/bin/Release/net8.0/win-x64/publish/Freedeck.exe
