@@ -24,11 +24,8 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
 
-      - name: Build
-        run: dotnet build --configuration Release --no-restore
-
       - name: Publish
-        run: dotnet publish --configuration Release --no-build --self-contained true --output ${{ github.workspace }}/Freedeck/bin/Release/net8.0/win-x64/publish /p:PublishSingleFile=true /p:RuntimeIdentifier=win-x64 /p:ReadyToRun=true /p:IncludeAllContentForSelfExtract=true /p:IncludeNativeLibsForSelfExtract=true
+        run: dotnet publish -c Release -r win-x64 -f net8.0 --self-contained true -o ${{ github.workspace }}/Freedeck/bin/Release/net8.0/win-x64/publish /p:PublishSingleFile=true /p:ReadyToRun=true /p:IncludeAllContentForSelfExtract=true /p:IncludeNativeLibsForSelfExtract=true
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
