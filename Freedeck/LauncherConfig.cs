@@ -75,6 +75,12 @@ public class LauncherConfig
                 SetupLogic.CopyLauncherToInstallation();
                 Console.WriteLine("Auto-updating launcher...");
             }
+            if (!File.Exists(LauncherConfigSchema.AppData + "\\Freedeck.exe"))
+            {
+                File.WriteAllText(Configuration.CurrentInstalledBuild, prefix+MainWindow.BuildId);
+                SetupLogic.CopyLauncherToInstallation();
+                Console.WriteLine("No Freedeck.exe. Auto-updating...");
+            }
         }
         else
         {
