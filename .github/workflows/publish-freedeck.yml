@@ -22,7 +22,7 @@ jobs:
           dotnet-version: '8.x'
 
       - name: Publish
-        run: dotnet publish Freedeck/Freedeck.csproj -c Release -r win-x64 -f net8.0 --self-contained true -o ${{ github.workspace }}/Freedeck/bin/Release/net8.0/win-x64/publish /p:PublishSingleFile=true /p:ReadyToRun=true /p:IncludeAllContentForSelfExtract=true /p:IncludeNativeLibsForSelfExtract=true /p:PublishTrimmed=false
+        run: dotnet publish ${{ github.workspace }}/Freedeck/Freedeck.csproj -c Release -r win-x64 -f net8.0 --self-contained true -o ${{ github.workspace }}/Freedeck/bin/Release/net8.0/win-x64/publish /p:PublishSingleFile=true /p:ReadyToRun=true /p:IncludeAllContentForSelfExtract=true /p:IncludeNativeLibsForSelfExtract=true /p:PublishTrimmed=false
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
@@ -32,14 +33,17 @@ public class SetupLogic
 
     public static void CopyLauncherToInstallation()
     {
-        var currentProcess = Process.GetCurrentProcess();
-        if (currentProcess?.MainModule != null)
+        _ = Task.Run(() =>
         {
-            string exeName = currentProcess.MainModule.FileName;
-            string executableName = Path.GetFileName(exeName);
-            string sourceExePath = Path.Combine(AppContext.BaseDirectory, executableName);
-            File.Copy(sourceExePath, LauncherConfigSchema.AppData + "\\Freedeck.exe", true);
-        }
+            var currentProcess = Process.GetCurrentProcess();
+            if (currentProcess?.MainModule != null)
+            {
+                string exeName = currentProcess.MainModule.FileName;
+                string executableName = Path.GetFileName(exeName);
+                string sourceExePath = Path.Combine(AppContext.BaseDirectory, executableName);
+                File.Copy(sourceExePath, LauncherConfigSchema.AppData + "\\Freedeck.exe", true);
+            }
+        });
     }
 
     public void OnLaunch(MainWindow window)

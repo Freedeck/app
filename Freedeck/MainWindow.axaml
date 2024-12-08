@@ -40,10 +40,10 @@
             <TabControl>
                 <TabItem Header="Install" Name="TabInstall" IsVisible="False">
                     <TabControl Name="InstallerNest">
-                        <TabItem Header="Install" Name="ITabInstall" IsSelected="True">
+                        <TabItem Header="Welcome" Name="ITabInstall" IsSelected="True">
                             <StackPanel>
                                 <TextBlock FontSize="36" Name="ITabInstallTxt">
-                                    Install
+                                    Welcome
                                 </TextBlock>
                                 <TextBlock>Thank you for choosing my project, Freedeck.</TextBlock>
                                 <TextBlock Name="ITabInstallDesc">
@@ -59,6 +59,7 @@
                                         <TextBlock Name="SadWelcome">Show Welcome Tiles: Yes</TextBlock>
                                     </StackPanel>
                                 </Border>
+                                <TextBlock/>
                                 <Border Name="AppInstallLogContainer" CornerRadius="15" Background="rgba(0,0,0,0.25)" Padding="10">
                                     <StackPanel>
                                         <TextBlock Name="AppInstallLog" />
@@ -70,7 +71,7 @@
                                 <ProgressBar Name="InstallProgress" />
                                 <TextBlock/>
                                 <Button Name="InstallerBtn" Click="InstallerDoInstall" FontSize="24" HorizontalAlignment="Stretch">Install</Button>
-                                <Button Name="SaMigrate" FontSize="24" HorizontalAlignment="Stretch">I already have Freedeck installed</Button>
+                                <Button IsVisible="False" Name="SaMigrate" FontSize="24" HorizontalAlignment="Stretch">I already have Freedeck installed</Button>
                                 <TextBlock/>
                             </StackPanel>
                         </TabItem>
@@ -154,7 +155,7 @@
                        </StackPanel>
                    </ScrollViewer>
                 </TabItem>
-                <TabItem Header="Handoff" Name="TabHandoff">
+                <TabItem Header="Handoff" Name="TabHandoff" IsVisible="False">
                     <StackPanel>
                         <TextBlock FontSize="36" Name="THandoffPrompt" TextWrapping="Wrap">
                             Download Id from Repo?

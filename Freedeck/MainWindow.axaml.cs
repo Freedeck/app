@@ -22,8 +22,8 @@ public partial class MainWindow : Window
     private static readonly string Home = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
     public static string InstallPath = Home + "\\Freedeck";
     public static string AppVersion = "1.0.0";
-    public static string LauncherVersion = "1.0.0-b5";
-    public static string BuildId = "107cb3ef50849fab6c61e0e1e410df9e6e7c5012";
+    public static string LauncherVersion = "1.0.0-rc1";
+    public static string BuildId = "bafa6bba3a10bd96927133ebb2d512a3df6c7930";
     public static bool AutoUpdaterTestMode = false;
     private bool _isUndergoingModification = false;
     public static MainWindow Instance = null!;
@@ -84,9 +84,12 @@ public partial class MainWindow : Window
         string uver = File.ReadAllText(InstallPath + "\\freedeck\\package.json");
         string version = uver.Split(new string[] { "\"version\": \"" }, StringSplitOptions.None)[1].Split('"')[0];
         AppVersion = version;
-        Instance.InstalledVersion.Text = "Companion v" + AppVersion;
-        Instance.ILauncherVersion.Text = "App v" + LauncherVersion;
-        Instance.SFreedeckPath.Text = InstallPath;
+        Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            Instance.InstalledVersion.Text = "Companion v" + AppVersion;
+            Instance.ILauncherVersion.Text = "App v" + LauncherVersion;
+            Instance.SFreedeckPath.Text = InstallPath;
+        });
     }
 
     private bool IsLauncherInstalled()
@@ -115,7 +118,7 @@ public partial class MainWindow : Window
                 LauncherPersonalization.Initialize();
                 ReleaseHelper.FullyUpdate();
             });
-            await NativeBridge.Initialize();
+            NativeBridge.Initialize();
         });
         if (IsAppInstalled())
         {
@@ -123,7 +126,7 @@ public partial class MainWindow : Window
             Dispatcher.UIThread.InvokeAsync(SetupAllConfiguration);
         }
         else
-            SetupLogic.OnLaunch(this);
+            Dispatcher.UIThread.InvokeAsync(() => SetupLogic.OnLaunch(this));
     }
 
     public void SetupAllConfiguration()
