@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Principal;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 
 namespace Freedeck;
 
@@ -22,9 +23,14 @@ class Program
         return principal.IsInRole(WindowsBuiltInRole.Administrator);
     }
 
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    static extern bool AllocConsole();
+
     [STAThread]
     public static void Main(string[] args) {
-        
+        // AllocConsole();
         string protocol = "freedeck";  // Replace with your protocol name
         var mainModuleFileName = Process.GetCurrentProcess().MainModule?.FileName;
         if (mainModuleFileName != null)

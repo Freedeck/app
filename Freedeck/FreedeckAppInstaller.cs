@@ -26,8 +26,6 @@ public class FreedeckAppInstaller
     {
         MainWindow.Instance.AppInstallLogContainer.IsVisible = true;
         MainWindow.Instance.InstallState.Text = "Creating folder...";
-        if (!Directory.Exists(LauncherConfigSchema.AppData)) Directory.CreateDirectory(LauncherConfigSchema.AppData);
-        SetupLogic.CopyLauncherToInstallation();
         if(SetupLogic.IsChecked(MainWindow.Instance.SaSDesktop)) AppShortcutToDesktop("Freedeck", LauncherConfigSchema.AppData + "\\Freedeck.exe", Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
         if(SetupLogic.IsChecked(MainWindow.Instance.SaSStart)) AppShortcutToDesktop("Freedeck", LauncherConfigSchema.AppData + "\\Freedeck.exe", Environment.GetFolderPath(Environment.SpecialFolder.StartMenu) + "\\Programs");
         LauncherConfig.ReloadConfiguration();

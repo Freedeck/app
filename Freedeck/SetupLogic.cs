@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
@@ -33,17 +34,20 @@ public class SetupLogic
 
     public static void CopyLauncherToInstallation()
     {
-        _ = Task.Run(() =>
+        var currentProcess = Process.GetCurrentProcess();
+        if (currentProcess?.MainModule != null)
         {
-            var currentProcess = Process.GetCurrentProcess();
-            if (currentProcess?.MainModule != null)
+            string exeName = currentProcess.MainModule.FileName;
+            string executableName = Path.GetFileName(exeName);
+            string sourceExePath = Path.Combine(Environment.CurrentDirectory, executableName);
+            Console.WriteLine("Launching copy task.");
+            _ = Task.Run(() =>
             {
-                string exeName = currentProcess.MainModule.FileName;
-                string executableName = Path.GetFileName(exeName);
-                string sourceExePath = Path.Combine(AppContext.BaseDirectory, executableName);
+                Console.WriteLine($"Copying from {sourceExePath} to {LauncherConfigSchema.AppData}\\Freedeck.exe");
                 File.Copy(sourceExePath, LauncherConfigSchema.AppData + "\\Freedeck.exe", true);
-            }
-        });
+                Console.WriteLine("Copied launcher to installation directory.");
+            });
+        }
     }
 
     public void OnLaunch(MainWindow window)
@@ -62,6 +66,9 @@ public class SetupLogic
             LauncherConfig.Configuration.InstallationDirectory = MainWindow.InstallPath;
             LauncherConfig.Update();
         }
+        if (!Directory.Exists(LauncherConfigSchema.AppData)) Directory.CreateDirectory(LauncherConfigSchema.AppData);
+        CopyLauncherToInstallation();
+        
         window.InstallationDirectory.Text = MainWindow.InstallPath;
         window.SadDirectory.Text = "Installing to " +  window.InstallationDirectory.Text;
         

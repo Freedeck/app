@@ -78,8 +78,8 @@ public class LauncherConfig
         }
         else
         {
-            SetupLogic.CopyLauncherToInstallation();
             File.WriteAllText(Configuration.CurrentInstalledBuild, prefix+MainWindow.BuildId);
+            SetupLogic.CopyLauncherToInstallation();
             Console.WriteLine("First time auto-updating...");
         }
     }
