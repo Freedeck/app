@@ -25,7 +25,7 @@ jobs:
         run: dotnet restore
 
       - name: Publish
-        run: dotnet publish -c Release -r win-x64 -f net8.0 --self-contained true -o ${{ github.workspace }}/Freedeck/bin/Release/net8.0/win-x64/publish /p:PublishSingleFile=true /p:ReadyToRun=true /p:IncludeAllContentForSelfExtract=true /p:IncludeNativeLibsForSelfExtract=true
+        run: dotnet publish Freedeck/Freedeck.csproj -c Release -r win-x64 -f net8.0 --self-contained true -o ${{ github.workspace }}/Freedeck/bin/Release/net8.0/win-x64/publish /p:PublishSingleFile=true /p:ReadyToRun=true /p:IncludeAllContentForSelfExtract=true /p:IncludeNativeLibsForSelfExtract=true  dotnet publish Freedeck/Freedeck.csproj -c Release -r win-x64 -f net8.0 --self-contained true -o ${{ github.workspace }}/Freedeck/bin/Release/net8.0/win-x64/publish /p:PublishSingleFile=true /p:ReadyToRun=true /p:IncludeAllContentForSelfExtract=true /p:IncludeNativeLibsForSelfExtract=true
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
