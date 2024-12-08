@@ -12,7 +12,8 @@ Made with Avalonia and .NET 8.0.
 These may not be up-to-date as the UI continues to evolve.  
 
 ## Installation: Setup
-![Launch tab](ss/UIISetup.png)
+![Setup tab](ss/UIISetup.png)
+![Setup tab, installing](ss/UIISetupProgress.png)
 
 
 ## Launch Tab
@@ -21,7 +22,7 @@ These may not be up-to-date as the UI continues to evolve.
 
 ## Settings Tab
 ![Settings tab](ss/UISettings.png)
-![Settings tab, showing option to reset launcher config](ss/UISettingsExtended.png)
+![Settings tab, showing Companion settings](ss/UISettingsExtended.png)
 
 ## Handoff Plugin Download Request
 ![Download request](ss/UIHDownload.png)
