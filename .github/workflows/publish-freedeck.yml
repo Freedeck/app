@@ -35,8 +35,9 @@ jobs:
         with:
           name: Freedeck.exe
           path: ${{ github.workspace }}/Freedeck/bin/Release/net8.0/win-x64/publish
+        
       - name: Release
-          uses: softprops/action-gh-release@v2
-          if: startsWith(github.ref, 'refs/tags/')
-          with:
-            files: ${{ github.workspace }}/Freedeck/bin/Release/net8.0/win-x64/publish/Freedeck.exe
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: ${{ github.workspace }}/Freedeck/bin/Release/net8.0/win-x64/publish/Freedeck.exe
