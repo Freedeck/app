@@ -9,6 +9,7 @@ namespace Freedeck;
 
 public class HandoffHelper
 {
+    public static bool ActiveQuery = false;
     public static void Initialize()
     {
         MainWindow.Instance.TabHandoff.IsVisible = false;
@@ -85,12 +86,14 @@ public class HandoffHelper
     {
         MainWindow.Instance.TabRun.IsEnabled = false;
         MainWindow.Instance.TabSettings.IsEnabled = false;
+        ActiveQuery = true;
     }
 
     private static void GiveAccess()
     {
         MainWindow.Instance.TabRun.IsEnabled = true;
         MainWindow.Instance.TabSettings.IsEnabled = true;
+        ActiveQuery = false;
     }
 
     private static string _currentDownloadId = null!;
@@ -149,6 +152,7 @@ public class HandoffHelper
             "/notify/Downloading " + _currentDownloadId);
         DownloadIt(_currentDownloadId, _currentDownloadUrl, httpClient);
         GiveAccess();
+        ActiveQuery = false;
     }
 
     private static void DownloadIt(string id, string url, HttpClient httpClient)

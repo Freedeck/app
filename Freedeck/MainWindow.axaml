@@ -9,7 +9,9 @@
         x:Class="Freedeck.MainWindow"
         Background="#17212a"
         Icon="Assets/FDAP.ico"
-        Title="Freedeck">
+        Title="Freedeck"
+        Closing="OnClosing"
+        >
     <Window.Styles>
         <StyleInclude Source="/Styles1.axaml" />
     </Window.Styles>

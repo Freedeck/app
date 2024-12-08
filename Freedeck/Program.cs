@@ -35,22 +35,19 @@ class Program
         var mainModuleFileName = Process.GetCurrentProcess().MainModule?.FileName;
         if (mainModuleFileName != null)
         {
-            var mutex = new System.Threading.Mutex(true, "fd_app_inst", out bool isNewInstance);
-            if (!isNewInstance)
+            using var mutex = new System.Threading.Mutex(true, "Global\\fd_app_inst", out var createdNew);
+            if (!createdNew)
             {
-                if (args[0].Contains("freedeck://"))
+                if (args.Length > 0 && args[0].Contains("freedeck://"))
                 {
                     SendArgsToExistingInstance(args);
                 }
-                else if(args[0].Contains("HandoffAdminReset") && OperatingSystem.IsWindows())
+                else if (args.Length > 0 && args[0].Contains("HandoffAdminReset") && OperatingSystem.IsWindows())
                 {
                     if (!IsAdministrator()) return;
-                    UriProtocolRegistrar.RegisterUriScheme(protocol, mainModuleFileName, false);                
+                    UriProtocolRegistrar.RegisterUriScheme(protocol, mainModuleFileName, false);
                 }
-                return;
-            }
-            else
-            {
+            } else {
                 _ = Task.Run(() =>
                 {
                     UriProtocolRegistrar.RegisterUriScheme(protocol, mainModuleFileName, userLevel: true);

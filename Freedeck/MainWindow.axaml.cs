@@ -31,6 +31,15 @@ public partial class MainWindow : Window
     public static MainWindow Instance = null!;
     private static readonly SetupLogic SetupLogic = new SetupLogic();
 
+    private void OnClosing(object? sender, WindowClosingEventArgs e)
+    {
+        if (HandoffHelper.ActiveQuery)
+        {
+            this.Hide();
+            e.Cancel = true;
+        } else this.Close();
+    }
+    
     private void InstallerDoInstall(object? sender, RoutedEventArgs e)
     {
         if (InstallationDirectory.Text != null) InstallPath = InstallationDirectory.Text;
@@ -119,7 +128,7 @@ public partial class MainWindow : Window
             Dispatcher.UIThread.InvokeAsync(() =>
             {
                 if (Application.Current?.ApplicationLifetime is ClassicDesktopStyleApplicationLifetime { Args.Length: > 0 } desktop) HandoffHelper.HandleCommand(desktop.Args[0]);
-
+                HandoffHelper.Initialize();
                 LauncherPersonalization.Initialize();
                 ReleaseHelper.FullyUpdate();
             });
