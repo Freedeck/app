@@ -177,8 +177,9 @@ public class HandoffHelper
                 "/handoff/" + GetHandoffToken() +
                 "/reload-plugins");
         };
+        string extension = url.Split(".")[url.Split(".").Length - 1];
         wc.DownloadFileAsync(new Uri(url), 
-            MainWindow.InstallPath + $"\\freedeck\\plugins\\{id}.Freedeck");
+            MainWindow.InstallPath + $"\\freedeck\\plugins\\{id}.{extension}");
     }
     
     private static string GetHandoffToken()
