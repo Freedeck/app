@@ -29,9 +29,28 @@ public enum InternalLogType
 public class FreedeckAppRunner
 {
     private static bool _appRunning = false;
-    private static Process _node = null!;
-    private static Process _electron = null!;
+    private static Process _node = null;
+    private static Process _electron = null;
     private static AppLaunchType _currentlyRunning;
+
+    public static bool IsAppRunning()
+    {
+        return _appRunning;
+    }
+
+    public static bool ReallyCheckIfAppIsRunning()
+    {
+        var otherChecks = false;
+        var pname = Process.GetProcessesByName("node");
+        var pname2 = Process.GetProcessesByName("electron");
+        if (pname.Length > 0 || pname2.Length > 0)
+        {
+            otherChecks = true;
+        }
+
+        var hasExitedCheck =  ((_node != null && _node.HasExited) || (_electron != null && _electron.HasExited));
+        return _appRunning || hasExitedCheck || otherChecks;
+    }
     
     private static void StartInternalProgram(string args, InternalAppType type)
     {
