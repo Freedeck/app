@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -24,6 +26,13 @@ public class HandoffHelper
         string command = args[0];
         switch (command)
         {
+            case "native_open":
+                MainWindow.Instance.Show();
+                break;
+            case "exit":
+                MainWindow.Instance.TabClose.IsVisible = true;
+                MainWindow.Instance.TabClose.IsSelected = true;
+                break;
             case "startup":
                 MainWindow.Instance.Hide();
                 break;
@@ -98,6 +107,25 @@ public class HandoffHelper
 
     private static string _currentDownloadId = null!;
     private static string _currentDownloadUrl = null!;
+    
+    private static List<String> _officialPrefixes = new List<string>()
+    {
+        "https://content-dl.freedeck.app/",
+        "https://freedeck.app/",
+        "https://freedeck.github.io/plugins/"
+    };
+
+    public static bool IsFromOfficialSource(String url)
+    {
+        foreach (String prefix in _officialPrefixes)
+        {
+            if (url.StartsWith(prefix))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 
     public static void DownloadPluginRequestLegacy(string url, string id)
     {
@@ -107,11 +135,11 @@ public class HandoffHelper
         MainWindow.Instance.THandoffDescription.Text = "This request comes from an older Freedeck version.";
         MainWindow.Instance.THandoffUrl.Text = $"from {url}";
         MainWindow.Instance.THandoffTrust.Text = "This is an unknown source; so be careful.";
-        if (url.StartsWith("https://content-dl.freedeck.app/"))
+        if (IsFromOfficialSource(url))
             MainWindow.Instance.THandoffTrust.Text = "This is an official source, and can be trusted.";
     }
-    
-    public static void DownloadPluginRequest(string url, string id, string description, string repoTitle)
+
+    private static void DownloadPluginRequest(string url, string id, string description, string repoTitle)
     {
         _currentDownloadUrl = url;
         _currentDownloadId = id;
@@ -119,10 +147,11 @@ public class HandoffHelper
         MainWindow.Instance.THandoffDescription.Text = description;
         MainWindow.Instance.THandoffUrl.Text = $"from {url}";
         MainWindow.Instance.THandoffTrust.Text = "This is an unknown source; so be careful.";
-        if (url.StartsWith("https://content-dl.freedeck.app/"))
+        if (IsFromOfficialSource(url))
             MainWindow.Instance.THandoffTrust.Text = "This is an official source, and can be trusted.";
     }
-    public static void UpdatePluginRequest(string url, string id, string description, string repoTitle, string from, string to)
+
+    private static void UpdatePluginRequest(string url, string id, string description, string repoTitle, string from, string to)
     {
         _currentDownloadUrl = url;
         _currentDownloadId = id;
@@ -130,7 +159,7 @@ public class HandoffHelper
         MainWindow.Instance.THandoffDescription.Text = description + $"\n\nUpdating from v{from} to v{to}";
         MainWindow.Instance.THandoffUrl.Text = $"from {url}";
         MainWindow.Instance.THandoffTrust.Text = "This is an unknown source; so be careful.";
-        if (url.StartsWith("https://content-dl.freedeck.app/"))
+        if (IsFromOfficialSource(url))
             MainWindow.Instance.THandoffTrust.Text = "This is an official source, and can be trusted.";
     }
 

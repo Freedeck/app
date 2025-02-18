@@ -31,16 +31,41 @@ public partial class MainWindow : Window
     public static MainWindow Instance = null!;
     private static readonly SetupLogic SetupLogic = new SetupLogic();
 
-    private void OnClosing(object? sender, WindowClosingEventArgs e)
+    public static bool CloseHandler(bool force = false)
     {
-        Hide();
-        if (HandoffHelper.ActiveQuery || FreedeckAppRunner.ReallyCheckIfAppIsRunning())
+        if (HandoffHelper.ActiveQuery)
         {
-            e.Cancel = true;
+            Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                Instance.Hide();
+            });
+            return true;
+        };
+        if (FreedeckAppRunner.ReallyCheckIfAppIsRunning() || force)
+        {
+           Dispatcher.UIThread.InvokeAsync(() =>
+           {
+                Instance.TabClose.IsVisible = true;
+                Instance.TabClose.IsSelected = true;
+                Instance.TabRun.IsVisible = false;
+                Instance.TabSettings.IsVisible = false;
+                bool[] list = FreedeckAppRunner.ReallyCheckIfAppIsRunningList();
+                Instance.CloseAppForRealsiesText.Text = (list[0] ? (list[0]?"Node" + (list[1]?" and Electron are ":" is"):"Electron is") : "No essential processes are" )+ " still running.";
+           });
+            return true;
         }
         else
         {
-            Process.GetCurrentProcess().Kill();
+            return false;
+        }
+    }
+    
+    private void OnClosing(object? sender, WindowClosingEventArgs e)
+    {
+        bool shouldDo = CloseHandler();
+        if (shouldDo)
+        {
+            e.Cancel = true;
         }
     }
     
@@ -116,6 +141,7 @@ public partial class MainWindow : Window
     
     private bool IsAppInstalled()
     {
+        Console.WriteLine(InstallPath + "\\freedeck\\package.json");
         if(!Directory.Exists(InstallPath + "\\freedeck")) return false;
         return File.Exists(InstallPath + "\\freedeck\\package.json");
     }
@@ -135,6 +161,7 @@ public partial class MainWindow : Window
                 HandoffHelper.Initialize();
                 LauncherPersonalization.Initialize();
                 ReleaseHelper.FullyUpdate();
+                FreedeckAppRunner.ProbeAndAttachRunningInstancesOfFreedeck();
             });
             NativeBridge.Initialize();
         });
@@ -152,7 +179,7 @@ public partial class MainWindow : Window
         LauncherConfig.ReloadConfiguration();
         _isUndergoingModification = true;
         TabInstall.IsVisible = false;
-        TabRun.IsSelected = true;
+        // TabRun.IsSelected = true;
         SFreedeckPath.Text = LauncherConfig.Configuration.InstallationDirectory;
         SlcPath.Text = LauncherConfig.Configuration.ConfigurationPath;
         SlcServer.Text = LauncherConfig.Configuration.ServerUrl;
@@ -350,5 +377,19 @@ public partial class MainWindow : Window
             }
 
             BuildIdBox.Text = hash;
+    }
+
+    private void CloseAppForRealsies(object? sender, RoutedEventArgs e)
+    {
+        FreedeckAppRunner.KillAllProcesses();
+        TabClose.IsVisible = false;
+        TabRun.IsVisible = true;
+        TabSettings.IsVisible = true;
+        Instance.Close(true);
+    }
+
+    private void Wrapper_CloseHandler(object? sender, RoutedEventArgs e)
+    {
+        CloseHandler(true);
     }
 }

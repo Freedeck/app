@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
@@ -48,8 +49,72 @@ public class FreedeckAppRunner
             otherChecks = true;
         }
 
-        var hasExitedCheck =  ((_node != null && _node.HasExited) || (_electron != null && _electron.HasExited));
-        return _appRunning || hasExitedCheck || otherChecks;
+        Console.WriteLine("_apRuning=" + _appRunning);
+        if(_node != null)  Console.WriteLine("node has exitied" + _node.HasExited);
+        if(_electron != null) Console.WriteLine("electron has exited " + _electron.HasExited);
+        var hasExitedCheck =  (_node is { HasExited: true } || _electron is { HasExited: true });
+        Console.WriteLine("hasc" + hasExitedCheck);
+        Console.WriteLine("other checks" + otherChecks);
+        Console.WriteLine("returning " + ((_appRunning && !hasExitedCheck) || otherChecks));
+        return (_appRunning && !hasExitedCheck) || otherChecks;
+    }
+    
+    public static bool[] ReallyCheckIfAppIsRunningList()
+    {
+        var fdServer = GetFdProcesses(Process.GetProcessesByName("node"))[0];
+        var fdCompanion = GetFdProcesses(Process.GetProcessesByName("electron"))[0];
+        
+        return [fdServer != null, fdCompanion != null];
+    }
+
+    public static void KillAllProcesses()
+    {
+        var fdServer = GetFdProcesses(Process.GetProcessesByName("node"));
+        var fdCompanion = GetFdProcesses(Process.GetProcessesByName("electron"));
+        foreach(var p in fdServer) p.Kill();
+        foreach(var p in fdCompanion) p.Kill();
+    }
+
+    public static List<Process> GetFdProcesses(Process[] ps)
+    {
+        var n = new List<Process>();
+        foreach (var p in ps)
+        {
+            if (!p.StartInfo.WorkingDirectory.Contains("freedeck")) continue;
+            n.Add(p);
+            break;
+        }
+
+        return n;
+    }
+    
+    public static Task ProbeAndAttachRunningInstancesOfFreedeck()
+    {
+        var fdServer = GetFdProcesses(Process.GetProcessesByName("node"))[0];
+        var fdCompanion = GetFdProcesses(Process.GetProcessesByName("electron"))[0];
+        
+        if (fdServer != null && fdCompanion != null)
+        {
+            _node = fdServer;
+            _electron = fdCompanion;
+            _appRunning = true;
+            _currentlyRunning = AppLaunchType.All;
+        }
+        else if (fdServer != null)
+        {
+            _node = fdServer;
+            _appRunning = true;
+            _currentlyRunning = AppLaunchType.Server;
+        }
+        else if (fdCompanion != null)
+        {
+            _electron = fdCompanion;
+            _appRunning = true;
+            _currentlyRunning = AppLaunchType.Companion;
+        }
+        
+        Console.WriteLine("Probed - Node: " + fdServer + " Electron: " + fdCompanion);
+        return Task.CompletedTask;
     }
     
     private static void StartInternalProgram(string args, InternalAppType type)
@@ -108,20 +173,24 @@ public class FreedeckAppRunner
     {
         try
         {
-            if (File.Exists(MainWindow.InstallPath + "\\freedeck\\src\\configs\\config.fd.js"))
+            try
             {
-                try
+                Dispatcher.UIThread.InvokeAsync(LauncherPersonalization.Initialize);
+                Dispatcher.UIThread.InvokeAsync(() =>
                 {
-                    Dispatcher.UIThread.InvokeAsync(LauncherPersonalization.Initialize);
-                    if(_currentlyRunning != AppLaunchType.Server) _electron.Kill();
-                }
-                catch (Exception errr)
-                {
-                    StdoutLog(InternalAppType.Node, InternalLogType.Err, $"Couldn't kill Electron.\n{errr}");
-                }
-
-                BringBack();
+                    MainWindow.Instance.TabHandoff.IsVisible = false;
+                    MainWindow.Instance.TabRun.IsSelected = true;
+                    MainWindow.Instance.TabSettings.IsEnabled = true;
+                    MainWindow.Instance.TabRun.IsEnabled = true;
+                });
+                if(_currentlyRunning != AppLaunchType.Server) _electron.Kill();
             }
+            catch (Exception errr)
+            {
+                StdoutLog(InternalAppType.Node, InternalLogType.Err, $"Couldn't kill Electron.\n{errr}");
+            }
+
+            BringBack();
         }
         catch (Exception ex)
         {
