@@ -24,8 +24,8 @@ public partial class MainWindow : Window
     private static readonly string Home = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
     public static string InstallPath = Home + "\\Freedeck";
     public static string AppVersion = "1.0.0";
-    public static string LauncherVersion = "1.0.0-rc5";
-    public static string BuildId = "55a26fded78800e648ce46cff9f6d2c5d57af04d";
+    public static string LauncherVersion = "1.0.0-rc6";
+    public static string BuildId = "8c8f78b2f8969c60f627c1637b3797c40341f894";
     public static bool AutoUpdaterTestMode = false;
     private bool _isUndergoingModification = false;
     public static MainWindow Instance = null!;
@@ -179,6 +179,8 @@ public partial class MainWindow : Window
         LauncherConfig.ReloadConfiguration();
         _isUndergoingModification = true;
         TabInstall.IsVisible = false;
+        TabClose.IsVisible = false;
+        TabClose.IsSelected = false;
         // TabRun.IsSelected = true;
         SFreedeckPath.Text = LauncherConfig.Configuration.InstallationDirectory;
         SlcPath.Text = LauncherConfig.Configuration.ConfigurationPath;

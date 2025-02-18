@@ -35,7 +35,7 @@ class Program
     
     [STAThread]
     public static void Main(string[] args) {
-        AllocConsole();
+        // AllocConsole();
         var protocol = "freedeck";  // Replace with your protocol name
         var mainModuleFileName = Process.GetCurrentProcess().MainModule?.FileName;
         if (mainModuleFileName == null) return;
