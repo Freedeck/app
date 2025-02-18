@@ -21,7 +21,7 @@ public class FreedeckAppSchema
 
 public class FreedeckAppInstaller
 {
-    private string folder = Environment.GetFolderPath(Environment.SpecialFolder.InternetCache);
+    private string folder = LauncherConfigSchema.AppData;
     public void InstallIt(Action callback)
     {
         MainWindow.Instance.AppInstallLogContainer.IsVisible = true;
@@ -37,7 +37,7 @@ public class FreedeckAppInstaller
         {
             InternetUrl = "https://nodejs.org/dist/v20.15.0/node-v20.15.0-x64.msi",
             PathToSaveTo = folder + "\\fd_node_install.msi",
-            Expected = "C:\\Program Files\\nodejs\\node.exe",
+            Expected = @"C:\Program Files\nodejs\node.exe",
             InitialMessage = "Checking for node...",
             Message = "Please follow the Node.js installer's instructions!",
             Callback = () =>
@@ -50,7 +50,7 @@ public class FreedeckAppInstaller
             InternetUrl =
                 "https://github.com/git-for-windows/git/releases/download/v2.47.0.windows.1/Git-2.47.0-64-bit.exe",
             PathToSaveTo = folder + "\\fd_git_install.exe",
-            Expected = "C:\\Program Files\\Git\\bin\\git.exe",
+            Expected = @"C:\Program Files\Git\bin\git.exe",
             InitialMessage = "Checking for git...",
             Message = "Please follow the git installer's instructions!",
             Callback = MakeUserInstall(Node)
@@ -176,27 +176,38 @@ public class FreedeckAppInstaller
             callback();
             return () => { };
         };
-        HttpClient hc = new HttpClient();
-        Uri uri = new Uri(internetUrl);
 
-        async void Action()
+        async void GetAction()
         {
+            var hc = new HttpClient();
+            var uri = new Uri(internetUrl);
+            Console.WriteLine("Getting");
             var response = await hc.GetAsync(uri);
-            await using (var fs = new FileStream(pathToSaveTo, FileMode.CreateNew))
+            var fs = new FileStream(pathToSaveTo, FileMode.OpenOrCreate);
+            
+            await using (fs)
             {
+                Console.WriteLine("Copying to");
                 await response.Content.CopyToAsync(fs);
             }
-
-            MainWindow.Instance.InstallState.Text = message;
+            
+            Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                MainWindow.Instance.InstallState.Text = message;
+            });
+            
             Process proc = new Process();
             proc.StartInfo.WorkingDirectory = folder;
             proc.StartInfo.FileName = pathToSaveTo;
             proc.EnableRaisingEvents = true;
-            proc.Exited += (sender, args) => { Dispatcher.UIThread.InvokeAsync(() => callback); };
+            proc.Exited += (sender, args) =>
+            {
+                Dispatcher.UIThread.InvokeAsync(() => callback);
+            };
             proc.Start();
         }
 
-        _ = new Task(Action);
+        Dispatcher.UIThread.InvokeAsync(GetAction);
         return () => { };
     }
 
