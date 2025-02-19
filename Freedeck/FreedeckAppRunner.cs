@@ -48,9 +48,7 @@ public class FreedeckAppRunner
         {
             otherChecks = true;
         }
-
-        if(_node != null)  Console.WriteLine("node has exitied" + _node.HasExited);
-        if(_electron != null) Console.WriteLine("electron has exited " + _electron.HasExited);
+        
         var hasExitedCheck =  (_node is { HasExited: true } || _electron is { HasExited: true });
         return (_appRunning && !hasExitedCheck) || otherChecks;
     }
@@ -130,7 +128,7 @@ public class FreedeckAppRunner
         if (useElectron)
             proc.StartInfo.FileName = MainWindow.InstallPath + "\\freedeck\\node_modules\\electron\\dist\\electron.exe";
         else
-            proc.StartInfo.FileName = "C:\\Program Files\\nodejs\\node.exe";
+            proc.StartInfo.FileName = LauncherConfig.Configuration.NodePath;
 
         proc.EnableRaisingEvents = true;
         
@@ -235,7 +233,7 @@ public class FreedeckAppRunner
 
     public static async void StartFreedeck(AppLaunchType type)
     {
-        Console.WriteLine("Starting Freedeck with launch type " + type);
+        MainWindow.Log("FreedeckAppRunner", "Starting Freedeck with launch type " + type);
         if (_appRunning)
         {
             _appRunning = false;

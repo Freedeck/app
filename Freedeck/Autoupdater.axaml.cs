@@ -125,19 +125,19 @@ namespace Freedeck
                         MainWindow.Instance.ProgressBarApp.Value = 60;
                         MainWindow.Instance.ProgressBarCurrently.Text = $"Checking out to {branch}";
                     });
-                    await RunProcessAsync("C:\\Program Files\\Git\\bin\\git.exe", $"checkout -f {branch}", "Git Checkout");
+                    await RunProcessAsync(LauncherConfig.Configuration.GitPath, $"checkout -f {branch}", "Git Checkout");
                     Dispatcher.UIThread.InvokeAsync(() =>
                     {
                         MainWindow.Instance.ProgressBarApp.Value = 65;
                         MainWindow.Instance.ProgressBarCurrently.Text = $"Pulling {cv} from {branch}";
                     });
-                    await RunProcessAsync("C:\\Program Files\\Git\\bin\\git.exe", "pull", "Git Pull");
+                    await RunProcessAsync(LauncherConfig.Configuration.GitPath, "pull", "Git Pull");
                     Dispatcher.UIThread.InvokeAsync(() =>
                     {
                         MainWindow.Instance.ProgressBarApp.Value = 80;
                         MainWindow.Instance.ProgressBarCurrently.Text = "Reinstalling dependencies...";
                     });
-                    await RunProcessAsync("C:\\Program Files\\nodejs\\npm.cmd", "i", "NPM");
+                    await RunProcessAsync(LauncherConfig.Configuration.NpmPath, "i", "NPM");
                     Dispatcher.UIThread.InvokeAsync(() =>
                     {
                         MainWindow.Instance.ProgressBarApp.Value = 100;

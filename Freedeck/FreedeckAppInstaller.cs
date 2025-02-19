@@ -73,7 +73,7 @@ public class FreedeckAppInstaller
         MainWindow.Instance.InstallProgress.Value = 30;
         MainWindow.Instance.InstallState.Text = "Fetching Git repo (github: freedeck/freedeck)";
         Process proc = new Process();
-        proc.StartInfo.FileName = "C:\\Program Files\\Git\\bin\\git.exe";
+        proc.StartInfo.FileName = LauncherConfig.Configuration.GitPath;
         proc.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
         proc.StartInfo.UseShellExecute = false;
         proc.StartInfo.RedirectStandardOutput = true;
@@ -103,7 +103,7 @@ public class FreedeckAppInstaller
         MainWindow.Instance.InstallProgress.Value = 40;
         MainWindow.Instance.InstallState.Text = "Cloned Git repo! Installing dependencies...";
         Process proc = new Process();
-        proc.StartInfo.FileName = "C:\\Program Files\\nodejs\\npm.cmd";
+        proc.StartInfo.FileName = LauncherConfig.Configuration.NpmPath;
         proc.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
         proc.StartInfo.UseShellExecute = false;
         proc.StartInfo.RedirectStandardOutput = true;
