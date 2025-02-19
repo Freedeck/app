@@ -163,8 +163,7 @@ public class SetupLogic
                 window.TabSettings.IsVisible = true;
                 window.TabRun.IsVisible = true;
                 window.TabRun.IsSelected = true;
-                window.ILauncherVersion.IsVisible = true;
-                window.ILauncherVersion.Text = "App v" + MainWindow.LauncherVersion;
+                MainWindow.SetInstalledVersions();
                 window.SetupAllConfiguration();
                 window.InstallProgress.Value = 100;
                 window.InstallState.Text = "Done!!!";

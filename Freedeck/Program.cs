@@ -3,6 +3,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Security.Principal;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
@@ -36,14 +37,20 @@ class Program
     [STAThread]
     public static void Main(string[] args) {
         // AllocConsole();
-        var protocol = "freedeck";  // Replace with your protocol name
-        var mainModuleFileName = Process.GetCurrentProcess().MainModule?.FileName;
-        if (mainModuleFileName == null) return;
-        if (args.Length > 0 && args[0].Contains("HandoffAdminReset") && OperatingSystem.IsWindows())
+        if (args.Length > 0 && args[0].Contains("--protocol-register-admin") && OperatingSystem.IsWindows())
         {
-            if (!IsAdministrator()) return;
-            UriProtocolRegistrar.RegisterUriScheme(protocol, mainModuleFileName, false);
+            var mainModuleFileName = Process.GetCurrentProcess().MainModule?.FileName;
+            if (mainModuleFileName == null) return;
+            if (!IsAdministrator())
+            {
+                Console.WriteLine("Please run this program as an administrator to register the protocol.");
+                return;
+            };
+            UriProtocolRegistrar.RegisterUriScheme("freedeck", mainModuleFileName, false);
+            
+            Process.GetCurrentProcess().Kill();
         }
+        
         if (AnotherInstanceRunning())
         {
             switch (args.Length)
@@ -55,14 +62,18 @@ class Program
                     SendArgsToExistingInstance(args);
                     break;
             }
+
+            Process.GetCurrentProcess().Kill();
         } else {
             _ = Task.Run(() =>
             {
-                UriProtocolRegistrar.RegisterUriScheme(protocol, mainModuleFileName, userLevel: true);
+                var mainModuleFileName = Process.GetCurrentProcess().MainModule?.FileName;
+                if (mainModuleFileName == null) return;
+                UriProtocolRegistrar.RegisterUriScheme("freedeck", mainModuleFileName, userLevel: true);
             });
+            
             BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
         }
-
     }
 
     private static void SendArgsToExistingInstance(string[] args)

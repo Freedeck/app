@@ -144,6 +144,8 @@ namespace Freedeck
                         MainWindow.Instance.ProgressBarCurrently.Text = "Done!";
                         StdoutLog("Freedeck Autoupdater", InternalLogType.Out, "Update complete! Went from " + av + " to " + cv);
                         StdoutLog("Freedeck Autoupdater", InternalLogType.Out, "Starting Freedeck. You may close this window.");
+
+                        _ = ReleaseHelper.FullyUpdate();
                     });
                 }
                 else

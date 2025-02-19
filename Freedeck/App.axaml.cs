@@ -20,21 +20,20 @@ public partial class App : Application
     
     private async void StartListening()
     {
-        Console.WriteLine("Handoff pipe listening!");
+        MainWindow.Log("HandoffPipe", "Listening for commands on 'fd_app_handoff'.");
         while (true)
         {
             try
             {
-                using var pipeServer = new NamedPipeServerStream("fd_app_handoff", PipeDirection.In, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
+                await using var pipeServer = new NamedPipeServerStream("fd_app_handoff", PipeDirection.In, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
                 await pipeServer.WaitForConnectionAsync();
                 using var reader = new StreamReader(pipeServer);
-                string uri = await reader.ReadLineAsync() ?? string.Empty;  // Read the message sent by the new instance.
-            
-                if (!string.IsNullOrWhiteSpace(uri))
-                {
-                    Console.WriteLine($"Received URI: {uri}");
-                    HandleUri(uri);  // Handle the URI command (e.g., bring the window to the front).
-                }
+                var uri = await reader.ReadLineAsync() ?? string.Empty;  // Read the message sent by the new instance.
+
+                if (string.IsNullOrWhiteSpace(uri)) continue;
+                
+                MainWindow.Log("HandoffPipe", $"Received command {uri}, handling...");
+                HandleUri(uri);
             }
             catch (IOException ex)
             {
@@ -54,7 +53,6 @@ public partial class App : Application
     
     private void HandleUri(string uri)
     {
-        Console.WriteLine($"Received URI: {uri}");
         BringToTop();
         Dispatcher.UIThread.InvokeAsync(() =>
         { 
@@ -68,7 +66,10 @@ public partial class App : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             desktop.MainWindow = new MainWindow();
-            _ = Task.Run(StartListening);
+            Task.Run(() =>
+            {
+                _ = Task.Run(StartListening);
+            });
         }
 
         base.OnFrameworkInitializationCompleted();

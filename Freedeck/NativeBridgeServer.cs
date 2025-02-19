@@ -23,10 +23,12 @@ public class NativeBridgeServer
 {
     private HttpListener _httpListener;
     public static Dictionary<string, Action<WebSocket, string[]>> _callback = new Dictionary<string, Action<WebSocket, string[]>>();
+    private string uriPrefix;
     
     public NativeBridgeServer(string uriPrefix)
     {
         _httpListener = new HttpListener();
+        this.uriPrefix = uriPrefix;
         _httpListener.Prefixes.Add(uriPrefix);
     }
     
@@ -37,9 +39,10 @@ public class NativeBridgeServer
 
     public async Task StartAsync()
     {
+        MainWindow.Log("NativeBridgeServer", "NBWS starting..."); 
         _httpListener.Start();
-        Console.WriteLine("nativebridgews server started.");
-
+        MainWindow.Log("NativeBridgeServer", "NBWS opened on " + uriPrefix); 
+        
         while (true)
         {
             var httpContext = await _httpListener.GetContextAsync();
@@ -68,8 +71,6 @@ public class NativeBridgeServer
         socket.SendAsync(new ArraySegment<byte>(
             Encoding.UTF8.GetBytes(dat)
         ), WebSocketMessageType.Text, true, CancellationToken.None);
-        
-        Console.WriteLine("Sent: " + datOne);
     }
 
     private async Task HandleWebSocketAsync(WebSocket webSocket)
@@ -80,8 +81,6 @@ public class NativeBridgeServer
         while (result.MessageType != WebSocketMessageType.Close)
         {
             var message = Encoding.UTF8.GetString(buffer, 0, result.Count);
-            Console.WriteLine("Received: " + message);
-
             try
             {
                 NBSDataStructure? data = JsonSerializer.Deserialize<NBSDataStructure>(message);

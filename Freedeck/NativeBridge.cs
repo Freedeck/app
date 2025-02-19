@@ -187,8 +187,11 @@ public class NativeBridge
                     Data = new string[] { apps.ToString() }
                 }, socket);
             });
-            Console.WriteLine("Started NBWS server");
-            await server.StartAsync();
+            await Task.Run(async () =>
+            {
+                 MainWindow.Log("NativeBridge", "Starting server..."); 
+                 await server.StartAsync();
+            });
         });
     }
 }

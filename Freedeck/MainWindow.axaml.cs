@@ -29,9 +29,10 @@ public partial class MainWindow : Window
     public static bool AutoUpdaterTestMode = false;
     private bool _isUndergoingModification = false;
     public static MainWindow Instance = null!;
+    private const bool DebugLog = true;
     private static readonly SetupLogic SetupLogic = new SetupLogic();
 
-    public static bool CloseHandler(bool force = false)
+    private static bool CloseHandler(bool force = false)
     {
         if (HandoffHelper.ActiveQuery)
         {
@@ -62,7 +63,7 @@ public partial class MainWindow : Window
     
     private void OnClosing(object? sender, WindowClosingEventArgs e)
     {
-        bool shouldDo = CloseHandler();
+        var shouldDo = CloseHandler();
         if (shouldDo)
         {
             e.Cancel = true;
@@ -94,24 +95,30 @@ public partial class MainWindow : Window
         Dispatcher.UIThread.InvokeAsync(() =>
         {
             GetAndSetVersionData();
-            ReleaseHelper.UpdateCatalogAsync();
+            _ = ReleaseHelper.UpdateCatalogAsync();
         });
         TabInstall.IsVisible = false;
         TabSettings.IsVisible = true;
         TabRun.IsVisible = true;
         TabRun.IsSelected = true;
-        ILauncherVersion.IsVisible = true;
-        ILauncherVersion.Text = "App " + LauncherVersion;
+        SetInstalledVersions();
         Instance.Title = "Freedeck";
         SetupAllConfiguration();
     }
 
-    private void InstallerFinishedHelper()
+    public static void SetInstalledVersions()
     {
         Dispatcher.UIThread.InvokeAsync(() =>
         {
-            InstallerFinished();
+            Instance.ILauncherVersion.IsVisible = true;
+            Instance.InstalledVersion.Text = "Companion v" + AppVersion;
+            Instance.ILauncherVersion.Text = "App v" + LauncherVersion;
         });
+    }
+    
+    private void InstallerFinishedHelper()
+    {
+        Dispatcher.UIThread.InvokeAsync(InstallerFinished);
     }
 
     public static void GetAndSetVersionData()
@@ -128,51 +135,83 @@ public partial class MainWindow : Window
         AppVersion = version;
         Dispatcher.UIThread.InvokeAsync(() =>
         {
-            Instance.InstalledVersion.Text = "Companion v" + AppVersion;
-            Instance.ILauncherVersion.Text = "App v" + LauncherVersion;
+            SetInstalledVersions();
             Instance.SFreedeckPath.Text = InstallPath;
         });
-    }
-
-    private bool IsLauncherInstalled()
-    {
-        return File.Exists(LauncherConfigSchema.AppData + "\\Freedeck.exe");
     }
     
     private bool IsAppInstalled()
     {
-        Console.WriteLine(InstallPath + "\\freedeck\\package.json");
-        if(!Directory.Exists(InstallPath + "\\freedeck")) return false;
-        return File.Exists(InstallPath + "\\freedeck\\package.json");
+        return Directory.Exists(InstallPath + @"\freedeck") 
+               && File.Exists(InstallPath + @"\freedeck\package.json");
+    }
+
+    public static void Log(String title, String message)
+    {
+        if(DebugLog) Console.WriteLine($"[{title}] {message}");
     }
 
     public MainWindow()
     {
+        Log("MainWindow", "Pre-init");
         InitializeComponent();
+        Log("MainWindow", "Post-init");
+        
         Instance = this;
+        Log("MainWindow", "Set instance");
+        
         BuildIdUser.Text = "FDApp Build Identifier: " + BuildId;
-        LauncherConfig.ReloadConfiguration();
+        Log("MainWindow>UI", "Set App Build ID");
+        
+        Log("MainWindow", "Invoking tasks");
         _ = Task.Run(async () =>
         { 
-            LauncherConfig.UpdateLauncher();
+            Log("MainWindow>TaskOwner", "Invoking tasks");
+            await Task.Run(() =>
+            {
+                Log("TaskOwner>Initializers", "Reloading LauncherConfig");
+                LauncherConfig.ReloadConfiguration();
+                Log("TaskOwner>Initializers", "Updating Launcher");
+                LauncherConfig.UpdateLauncher();
+                Log("TaskOwner>Initializers", "Initializing FAI");
+                FreedeckAppInstaller.Initialize();
+                Log("TaskOwner>Initializers", "Initializing NBWS server");
+                _ = NativeBridge.Initialize();
+            });
+
+            Log("MainWindow>TaskOwner", "Invoking UI tasks");
             Dispatcher.UIThread.InvokeAsync(() =>
             {
+                Log("TaskOwner>UIT", "Handling Handoff argument");
                 if (Application.Current?.ApplicationLifetime is ClassicDesktopStyleApplicationLifetime { Args.Length: > 0 } desktop) HandoffHelper.HandleCommand(desktop.Args[0]);
+                Log("TaskOwner>UIT", "Initializing Handoff Helper");
                 HandoffHelper.Initialize();
+                Log("TaskOwner>UIT", "Initializing Launcher Personalization");
                 LauncherPersonalization.Initialize();
-                ReleaseHelper.FullyUpdate();
+                Log("TaskOwner>UIT", "Fully updating release catalog");
+                _ = ReleaseHelper.FullyUpdate();
+                Log("TaskOwner>UIT", "Probing for running instances of Freedeck");
                 FreedeckAppRunner.ProbeAndAttachRunningInstancesOfFreedeck();
             });
-            FreedeckAppInstaller.Initialize();
-            NativeBridge.Initialize();
+            
+            Log("MainWindow>TaskOwner", "Invoking configuration logic");
+            await Task.Run(() =>
+            {
+                Log("MainWindow>CfgTasks", "Checking if app is installed");
+                if (IsAppInstalled())
+                {
+                    Log("MainWindow>CfgTasks", "Setting version data");
+                    GetAndSetVersionData();
+                    Log("MainWindow>CfgTasks", "Invoking SetupAllConfiguration");
+                    Dispatcher.UIThread.InvokeAsync(SetupAllConfiguration);
+                }
+                else
+                {
+                    Log("MainWindow>CfgTasks", "Moving view to SetupLogic");
+                    Dispatcher.UIThread.InvokeAsync(() => SetupLogic.OnLaunch(this));
+                }
+            });
         });
-        if (IsAppInstalled())
-        {
-            GetAndSetVersionData();
-            Dispatcher.UIThread.InvokeAsync(SetupAllConfiguration);
-        }
-        else
-            Dispatcher.UIThread.InvokeAsync(() => SetupLogic.OnLaunch(this));
     }
 
     public void SetupAllConfiguration()
@@ -225,7 +264,7 @@ public partial class MainWindow : Window
         });
     }
 
-    private async void LaunchFreedeck(AppLaunchType launchType)
+    private void LaunchFreedeck(AppLaunchType launchType)
     {
         Dispatcher.UIThread.InvokeAsync(() =>
         {
@@ -256,8 +295,14 @@ public partial class MainWindow : Window
         });
         _ = Task.Run(async () =>
         {
-            AUState autoUpdater = await Autoupdater.StartUpdateAsync();
-            Console.WriteLine("Autoupdater exited with code " + autoUpdater);
+            var autoUpdater = await Autoupdater.StartUpdateAsync();
+            Log("MainWindow>Autoupdate", "Exited with code " + autoUpdater);
+            
+            Log("MainWindow>Autoupdate", "Setting version data");
+            GetAndSetVersionData();
+            Log("MainWindow>Autoupdate", "Invoking SetupAllConfiguration");
+            Dispatcher.UIThread.InvokeAsync(SetupAllConfiguration);
+            
             FreedeckAppRunner.StartFreedeck(launchType);
         });
     }

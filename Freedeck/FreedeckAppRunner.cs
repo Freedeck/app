@@ -49,13 +49,9 @@ public class FreedeckAppRunner
             otherChecks = true;
         }
 
-        Console.WriteLine("_apRuning=" + _appRunning);
         if(_node != null)  Console.WriteLine("node has exitied" + _node.HasExited);
         if(_electron != null) Console.WriteLine("electron has exited " + _electron.HasExited);
         var hasExitedCheck =  (_node is { HasExited: true } || _electron is { HasExited: true });
-        Console.WriteLine("hasc" + hasExitedCheck);
-        Console.WriteLine("other checks" + otherChecks);
-        Console.WriteLine("returning " + ((_appRunning && !hasExitedCheck) || otherChecks));
         return (_appRunning && !hasExitedCheck) || otherChecks;
     }
     

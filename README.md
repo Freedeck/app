@@ -67,6 +67,10 @@ An example, using [TextBG](https://github.com/Freedeck/TextBG)
 
 When the App becomes stable, it'll be what you download from [freedeck.app](https://freedeck.app). For now, it'll be only on GitHub releases.
 
+## Arguments
+
+`--protocol-register-admin` - Registers the `freedeck:` protocol as an admin. This is not required, but you do need admin to run this action.
+
 ## Building
 
 To make a release-ready build, just run `dotnet publish` in your console.
