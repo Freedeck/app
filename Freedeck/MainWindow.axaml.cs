@@ -25,7 +25,7 @@ public partial class MainWindow : Window
     public static string InstallPath = Home + "\\Freedeck";
     public static string AppVersion = "1.0.0";
     public static string LauncherVersion = "1.0.0-rc6";
-    public static string BuildId = "8c8f78b2f8969c60f627c1637b3797c40341f894";
+    public static string BuildId = "8a76d4fdc843891aad07b6073ea14b4132286d97";
     public static bool AutoUpdaterTestMode = false;
     private bool _isUndergoingModification = false;
     public static MainWindow Instance = null!;
