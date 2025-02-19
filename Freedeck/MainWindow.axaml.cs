@@ -163,6 +163,7 @@ public partial class MainWindow : Window
                 ReleaseHelper.FullyUpdate();
                 FreedeckAppRunner.ProbeAndAttachRunningInstancesOfFreedeck();
             });
+            FreedeckAppInstaller.Initialize();
             NativeBridge.Initialize();
         });
         if (IsAppInstalled())

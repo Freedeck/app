@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Threading;
 using Freedeck.Fakedeck;
+using ShellLink;
 
 namespace Freedeck;
 
@@ -138,14 +139,27 @@ public class FreedeckAppInstaller
     public static void AppShortcutToDesktop(string linkName, string app, String folder)
     {
         string deskDir = folder;
-        
-        using (StreamWriter writer = new StreamWriter(deskDir + "\\" + linkName + ".url"))
+        if (File.Exists(deskDir + "\\" + linkName + ".url"))
         {
-            writer.WriteLine("[InternetShortcut]");
-            writer.WriteLine("URL=" + app);
-            writer.WriteLine("IconIndex=0");
-            string icon = app.Replace('\\', '/');
-            writer.WriteLine("IconFile=" + icon);
+            File.Delete(deskDir + "\\" + linkName + ".url");
+        }
+        Shortcut sc = Shortcut.CreateShortcut(app, "", LauncherConfigSchema.AppData);
+        sc.WriteToFile(folder + "\\" + linkName + ".lnk");
+    }
+
+    public static void Initialize()
+    {
+        var d = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+        var s = Environment.GetFolderPath(Environment.SpecialFolder.StartMenu) +"\\Programs";
+
+        if (File.Exists(s + "\\Freedeck.url"))
+        {
+            AppShortcutToDesktop("Freedeck", LauncherConfigSchema.AppData + "\\Freedeck.exe", s);
+        }
+
+        if (File.Exists(d + "\\Freedeck.url"))
+        {
+            AppShortcutToDesktop("Freedeck", LauncherConfigSchema.AppData + "\\Freedeck.exe", d);
         }
     }
     

@@ -23,6 +23,7 @@
         <PackageReference Include="CSCore" Version="1.2.1.2" />
         <PackageReference Include="InputSimulator" Version="1.0.4" />
         <PackageReference Include="Microsoft.DotNet.ILCompiler" Version="9.0.0-rc.2.24473.5" />
+        <PackageReference Include="securifybv.ShellLink" Version="0.1.0" />
     </ItemGroup>
     
     <ItemGroup>
