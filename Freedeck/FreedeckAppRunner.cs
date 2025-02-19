@@ -49,8 +49,15 @@ public class FreedeckAppRunner
             otherChecks = true;
         }
 
-        var hasExitedCheck = _node == null ||_electron == null ||
-            (_node is { HasExited: true } || _electron is { HasExited: true });
+        var nodeIsNotNull = _node != null;
+        var electronIsNotNull = _electron != null;
+
+        var nodeHasExited = _node is { HasExited: true };
+        var electronHasExited = _electron is { HasExited: true };
+        var hasExitedCheck = (nodeIsNotNull && nodeHasExited) || (electronIsNotNull && electronHasExited);
+        MainWindow.Log("FAR>ReallyCheckIfAppIsRunning", "hasExitedCheck:\nNode is not null = " + (_node != null) +"\nElectron is not null = " + (_electron != null) +"\nnode exited = " + nodeHasExited +"\nelectron has exited = " + electronHasExited);
+        MainWindow.Log("FAR>ReallyCheckIfAppIsRunning", "_appRunning =" + _appRunning);
+        MainWindow.Log("FAR>ReallyCheckIfAppIsRunning", "otherChecks =" + otherChecks);
         return (_appRunning && !hasExitedCheck) || otherChecks;
     }
     
@@ -58,6 +65,24 @@ public class FreedeckAppRunner
     {
         var fdServer = GetFdProcesses(Process.GetProcessesByName("node"))[0];
         var fdCompanion = GetFdProcesses(Process.GetProcessesByName("electron"))[0];
+        try
+        {
+            _ = fdServer.StartInfo;
+        }
+        catch (Exception ignored)
+        {
+            // its not ours
+            fdServer = null;
+        }
+        try
+        {
+            _ = fdCompanion.StartInfo;
+        }
+        catch (Exception ignored)
+        {
+            // its not ours
+            fdCompanion = null;
+        }
         
         return [fdServer != null, fdCompanion != null];
     }
@@ -84,6 +109,7 @@ public class FreedeckAppRunner
         var n = new List<Process>();
         foreach (var p in ps)
         {
+            if (p.StartInfo == null) continue;
             if (!p.StartInfo.WorkingDirectory.Contains("freedeck")) continue;
             n.Add(p);
             break;
