@@ -48,8 +48,9 @@ public class FreedeckAppRunner
         {
             otherChecks = true;
         }
-        
-        var hasExitedCheck =  (_node is { HasExited: true } || _electron is { HasExited: true });
+
+        var hasExitedCheck = _node == null ||_electron == null ||
+            (_node is { HasExited: true } || _electron is { HasExited: true });
         return (_appRunning && !hasExitedCheck) || otherChecks;
     }
     
