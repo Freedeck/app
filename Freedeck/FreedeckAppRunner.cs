@@ -64,10 +64,19 @@ public class FreedeckAppRunner
 
     public static void KillAllProcesses()
     {
-        var fdServer = GetFdProcesses(Process.GetProcessesByName("node"));
-        var fdCompanion = GetFdProcesses(Process.GetProcessesByName("electron"));
-        foreach(var p in fdServer) p.Kill();
-        foreach(var p in fdCompanion) p.Kill();
+        try
+        {
+            var fdServer = GetFdProcesses(Process.GetProcessesByName("node"));
+            var fdCompanion = GetFdProcesses(Process.GetProcessesByName("electron"));
+            foreach (var p in fdServer) p.Kill();
+            foreach (var p in fdCompanion) p.Kill();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("KAP: " + e.Message);
+            Console.WriteLine("Exiting anyways, since we're already there.");
+            Process.GetCurrentProcess().Kill();
+        }
     }
 
     public static List<Process> GetFdProcesses(Process[] ps)
