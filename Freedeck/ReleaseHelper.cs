@@ -49,7 +49,7 @@ public class Release
 
 public class ReleaseHelper
 {
-    public static async void CheckOnline()
+    private static async void CheckOnline()
     {
         await Dispatcher.UIThread.InvokeAsync(() => { MainWindow.Instance.OfflineStatus.IsVisible = !IsOnline; });
     }

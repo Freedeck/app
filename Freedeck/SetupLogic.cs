@@ -53,7 +53,6 @@ public class SetupLogic
     public void OnLaunch(MainWindow window)
     {
         window.Title = "Freedeck Installer";
-        window.ILauncherVersion.IsVisible = false;
         window.TabRun.IsVisible = false;
         window.TabSettings.IsVisible = false;
         window.TabInstall.IsVisible = false;

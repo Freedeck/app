@@ -27,74 +27,39 @@ public enum InternalLogType
     Out
 }
 
-public class FreedeckAppRunner
+public static class FreedeckAppRunner
 {
-    private static bool _appRunning = false;
-    private static Process _node = null;
-    private static Process _electron = null;
-    private static AppLaunchType _currentlyRunning;
-
-    public static bool IsAppRunning()
-    {
-        return _appRunning;
-    }
+    private static bool _appRunning;
+    private static Process? _node;
+    private static Process? _electron;
+    private static AppLaunchType? _currentlyRunning;
 
     public static bool ReallyCheckIfAppIsRunning()
     {
-        var otherChecks = false;
-        var pname = Process.GetProcessesByName("node");
-        var pname2 = Process.GetProcessesByName("electron");
-        if (pname.Length > 0 || pname2.Length > 0)
-        {
-            otherChecks = true;
-        }
-
-        var nodeIsNotNull = _node != null;
-        var electronIsNotNull = _electron != null;
-
         var nodeHasExited = _node is { HasExited: true };
         var electronHasExited = _electron is { HasExited: true };
-        var hasExitedCheck = (nodeIsNotNull && nodeHasExited) || (electronIsNotNull && electronHasExited);
-        MainWindow.Log("FAR>ReallyCheckIfAppIsRunning", "hasExitedCheck:\nNode is not null = " + (_node != null) +"\nElectron is not null = " + (_electron != null) +"\nnode exited = " + nodeHasExited +"\nelectron has exited = " + electronHasExited);
-        MainWindow.Log("FAR>ReallyCheckIfAppIsRunning", "_appRunning =" + _appRunning);
-        MainWindow.Log("FAR>ReallyCheckIfAppIsRunning", "otherChecks =" + otherChecks);
-        return (_appRunning && !hasExitedCheck) || otherChecks;
+        var hasExitedCheck = (_node != null && nodeHasExited) || (_electron != null && electronHasExited);
+
+        MainWindow.Log("FAR>ReallyCheckIfAppIsRunning", "Node has exited = " + nodeHasExited);
+        MainWindow.Log("FAR>ReallyCheckIfAppIsRunning", "Electron has exited = " + electronHasExited);
+        MainWindow.Log("FAR>ReallyCheckIfAppIsRunning", "_appRunning = " + _appRunning);
+        
+        return (_appRunning && !hasExitedCheck);
     }
     
     public static bool[] ReallyCheckIfAppIsRunningList()
     {
-        var fdServer = GetFdProcesses(Process.GetProcessesByName("node"))[0];
-        var fdCompanion = GetFdProcesses(Process.GetProcessesByName("electron"))[0];
-        try
-        {
-            _ = fdServer.StartInfo;
-        }
-        catch (Exception ignored)
-        {
-            // its not ours
-            fdServer = null;
-        }
-        try
-        {
-            _ = fdCompanion.StartInfo;
-        }
-        catch (Exception ignored)
-        {
-            // its not ours
-            fdCompanion = null;
-        }
-        
-        return [fdServer != null, fdCompanion != null];
+        return [_node != null, _electron != null];
     }
 
     public static void KillAllProcesses()
     {
         try
         {
-            var fdServer = GetFdProcesses(Process.GetProcessesByName("node"));
-            var fdCompanion = GetFdProcesses(Process.GetProcessesByName("electron"));
-            foreach (var p in fdServer) p.Kill();
-            foreach (var p in fdCompanion) p.Kill();
+            _node?.Kill();
+            _electron?.Kill();
+            _node = null;
+            _electron = null;
         }
         catch (Exception e)
         {
@@ -103,60 +68,18 @@ public class FreedeckAppRunner
             Process.GetCurrentProcess().Kill();
         }
     }
-
-    public static List<Process> GetFdProcesses(Process[] ps)
-    {
-        var n = new List<Process>();
-        foreach (var p in ps)
-        {
-            if (p.StartInfo == null) continue;
-            if (!p.StartInfo.WorkingDirectory.Contains("freedeck")) continue;
-            n.Add(p);
-            break;
-        }
-
-        return n;
-    }
-    
-    public static Task ProbeAndAttachRunningInstancesOfFreedeck()
-    {
-        var fdServer = GetFdProcesses(Process.GetProcessesByName("node"))[0];
-        var fdCompanion = GetFdProcesses(Process.GetProcessesByName("electron"))[0];
-        
-        if (fdServer != null && fdCompanion != null)
-        {
-            _node = fdServer;
-            _electron = fdCompanion;
-            _appRunning = true;
-            _currentlyRunning = AppLaunchType.All;
-        }
-        else if (fdServer != null)
-        {
-            _node = fdServer;
-            _appRunning = true;
-            _currentlyRunning = AppLaunchType.Server;
-        }
-        else if (fdCompanion != null)
-        {
-            _electron = fdCompanion;
-            _appRunning = true;
-            _currentlyRunning = AppLaunchType.Companion;
-        }
-        
-        Console.WriteLine("Probed - Node: " + fdServer + " Electron: " + fdCompanion);
-        return Task.CompletedTask;
-    }
     
     private static void StartInternalProgram(string args, InternalAppType type)
     {
-        bool useElectron = type == InternalAppType.Electron;
-        Process proc = new Process();
+        var useElectron = type == InternalAppType.Electron;
+        
+        var proc = new Process();
         if (useElectron)
             _electron = proc;
         else
             _node = proc;
 
-        bool showingTerminal = LauncherConfig.Configuration.ShowTerminal || useElectron;
+        var showingTerminal = LauncherConfig.Configuration.ShowTerminal || useElectron;
         proc.StartInfo.WindowStyle = showingTerminal ? ProcessWindowStyle.Normal : ProcessWindowStyle.Hidden;
         proc.StartInfo.Arguments = " src\\index.js " + args;
         proc.StartInfo.WorkingDirectory = MainWindow.InstallPath + "\\freedeck";
@@ -178,24 +101,22 @@ public class FreedeckAppRunner
             proc.StartInfo.UseShellExecute = false;
             proc.StartInfo.RedirectStandardOutput = true;
             proc.StartInfo.RedirectStandardError = true;
-            proc.OutputDataReceived += (sender, args) => StdoutLog(type, InternalLogType.Out, args.Data!);
-            proc.ErrorDataReceived += (sender, args) => StdoutLog(type, InternalLogType.Err, args.Data!);
+            proc.OutputDataReceived += (_, dataReceivedEventArgs) => StdoutLog(type, InternalLogType.Out, dataReceivedEventArgs.Data!);
+            proc.ErrorDataReceived += (_, dataReceivedEventArgs) => StdoutLog(type, InternalLogType.Err, dataReceivedEventArgs.Data!);
         }
 
         proc.Start();
-        if (!showingTerminal)
-        {
-            proc.BeginOutputReadLine();
-            proc.BeginErrorReadLine();
-        }
+        
+        if (showingTerminal) return;
+        proc.BeginOutputReadLine();
+        proc.BeginErrorReadLine();
     }
 
     private static void StdoutLog(InternalAppType type, InternalLogType logType, string logMessage)
     {
-        String fmt = $"[{(type == InternalAppType.Node ? "SERVER" : "COMPANION")} {(logType == InternalLogType.Out ? "OUT" : "ERR")}] {logMessage}";
         Dispatcher.UIThread.InvokeAsync(() =>
         {
-            Console.WriteLine(fmt);
+            Console.WriteLine($"[{(type == InternalAppType.Node ? "SERVER" : "COMPANION")} {(logType == InternalLogType.Out ? "OUT" : "ERR")}] {logMessage}");
         });
     }
 
@@ -213,11 +134,15 @@ public class FreedeckAppRunner
                     MainWindow.Instance.TabSettings.IsEnabled = true;
                     MainWindow.Instance.TabRun.IsEnabled = true;
                 });
-                if(_currentlyRunning != AppLaunchType.Server) _electron.Kill();
+                if (_currentlyRunning != AppLaunchType.Server)
+                {
+                    _electron?.Kill();
+                    _electron = null;
+                }
             }
-            catch (Exception errr)
+            catch (Exception error)
             {
-                StdoutLog(InternalAppType.Node, InternalLogType.Err, $"Couldn't kill Electron.\n{errr}");
+                StdoutLog(InternalAppType.Node, InternalLogType.Err, $"Couldn't kill Electron.\n{error}");
             }
 
             BringBack();
@@ -233,7 +158,11 @@ public class FreedeckAppRunner
         try
         {
             Dispatcher.UIThread.InvokeAsync(LauncherPersonalization.Initialize);
-            if(_currentlyRunning != AppLaunchType.Companion) _node.Kill();
+            if (_currentlyRunning != AppLaunchType.Companion)
+            {
+                _node?.Kill();
+                _node = null;
+            }
             _appRunning = false;
         }
         catch (Exception ex)
@@ -244,7 +173,7 @@ public class FreedeckAppRunner
         BringBack();
     }
 
-    public static void BringBack()
+    private static void BringBack()
     {
         _appRunning = false;
         Dispatcher.UIThread.InvokeAsync(() =>
@@ -253,11 +182,11 @@ public class FreedeckAppRunner
             MainWindow.Instance.WindowState = WindowState.Normal;
             MainWindow.Instance.Activate();
             MainWindow.Instance.Focus();
-            MainWindow.Instance.ProgressBarContainer.IsVisible = false;
+            SetProgress("", 0);
         });
     }
 
-    public static void SetProgress(string text, int progress)
+    private static void SetProgress(string text, int progress)
     {
         
         Dispatcher.UIThread.InvokeAsync(() =>
@@ -267,7 +196,7 @@ public class FreedeckAppRunner
         });
     }
 
-    public static async void StartFreedeck(AppLaunchType type)
+    public static void StartFreedeck(AppLaunchType type)
     {
         MainWindow.Log("FreedeckAppRunner", "Starting Freedeck with launch type " + type);
         if (_appRunning)
@@ -275,8 +204,10 @@ public class FreedeckAppRunner
             _appRunning = false;
             MainWindow.Instance.LaunchApp.IsEnabled = false;
             MainWindow.LauncherVersion = "Stopping Freedeck...";
-            if (!_node.HasExited) _node.Kill();
-            if (!_electron.HasExited) _electron.Kill();
+            _node?.Kill();
+            _electron?.Kill();
+            _node = null;
+            _electron = null;
             MainWindow.Instance.LaunchApp.IsEnabled = true;
             MainWindow.GetAndSetVersionData();
             Console.WriteLine("Stopped Freedeck.");

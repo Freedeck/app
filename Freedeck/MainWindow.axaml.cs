@@ -110,8 +110,7 @@ public partial class MainWindow : Window
     {
         Dispatcher.UIThread.InvokeAsync(() =>
         {
-            Instance.ILauncherVersion.IsVisible = true;
-            Instance.InstalledVersion.Text = "Companion v" + AppVersion;
+            Instance.InstalledVersion.Text = "Current Release: v" + AppVersion;
             Instance.ILauncherVersion.Text = "App v" + LauncherVersion;
         });
     }
@@ -190,8 +189,6 @@ public partial class MainWindow : Window
                 LauncherPersonalization.Initialize();
                 Log("TaskOwner>UIT", "Fully updating release catalog");
                 _ = ReleaseHelper.FullyUpdate();
-                Log("TaskOwner>UIT", "Probing for running instances of Freedeck");
-                FreedeckAppRunner.ProbeAndAttachRunningInstancesOfFreedeck();
             });
             
             Log("MainWindow>TaskOwner", "Invoking configuration logic");
