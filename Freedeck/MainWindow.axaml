@@ -291,6 +291,7 @@
                             <Button Click="Wrapper_CloseHandler" Content="Close App"/>
                             <TextBlock/>
                             <TextBlock FontSize="24">Danger</TextBlock>
+                            <Button Click="ButtonThreeFour_OnClick">FakeConfig:CreateDefaultConfig</Button>
                             <TextBlock>You will be asked to confirm these actions.</TextBlock>
                             <TextBlock>These options do NOT affect your Freedeck, only this launcher.</TextBlock>
                             <Button Content="Reset Settings">

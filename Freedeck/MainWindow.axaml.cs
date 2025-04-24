@@ -437,4 +437,9 @@ public partial class MainWindow : Window
     {
         CloseHandler(true);
     }
+
+    private void ButtonThreeFour_OnClick(object? sender, RoutedEventArgs e)
+    {
+        FakeConfig.CreateDefaultConfiguration();
+    }
 }
