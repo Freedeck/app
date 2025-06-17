@@ -36,6 +36,7 @@ public class HandoffHelper
                 MainWindow.Instance.TabClose.IsSelected = true;
                 break;
             case "startup":
+                NativeOpened = true;
                 MainWindow.Instance.Hide();
                 break;
             case "show":
