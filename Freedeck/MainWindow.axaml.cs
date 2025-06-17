@@ -24,8 +24,8 @@ public partial class MainWindow : Window
     private static readonly string Home = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
     public static string InstallPath = Home + "\\Freedeck";
     public static string AppVersion = "1.0.0";
-    public static string LauncherVersion = "1.0.0-rc8";
-    public static string BuildId = "85a073bcb302fa0c538ad4a940cda373e31cf386";
+    public static string LauncherVersion = "1.0.0-rc9";
+    public static string BuildId = "d4c978b4bbf9701ba49ec4f20bcc0b6957eedd4f";
     public static bool AutoUpdaterTestMode = false;
     private bool _isUndergoingModification = false;
     public static MainWindow Instance = null!;
