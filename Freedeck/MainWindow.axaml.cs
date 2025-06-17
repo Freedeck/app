@@ -42,7 +42,7 @@ public partial class MainWindow : Window
             });
             return true;
         };
-        if (FreedeckAppRunner.ReallyCheckIfAppIsRunning() || force)
+        if (FreedeckAppRunner.ReallyCheckIfAppIsRunning() || force || HandoffHelper.NativeOpened)
         {
            Dispatcher.UIThread.InvokeAsync(() =>
            {
@@ -110,7 +110,7 @@ public partial class MainWindow : Window
     {
         Dispatcher.UIThread.InvokeAsync(() =>
         {
-            Instance.InstalledVersion.Text = "Current Release: v" + AppVersion;
+            Instance.InstalledVersion.Text = "Installed Release: v" + AppVersion;
             Instance.ILauncherVersion.Text = "App v" + LauncherVersion;
         });
     }

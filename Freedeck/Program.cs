@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Security.Principal;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace Freedeck;
 
@@ -29,9 +30,11 @@ class Program
     [return: MarshalAs(UnmanagedType.Bool)]
     static extern bool AllocConsole();
 
-    static bool AnotherInstanceRunning() 
+    private static Mutex? _appMutex;
+    static bool AnotherInstanceRunning()
     {
-        return Process.GetProcessesByName(Path.GetFileNameWithoutExtension(System.Reflection.Assembly.GetEntryAssembly().Location)).Count() > 1;
+        _appMutex = new Mutex(true, "fd_app_instance_mutex", out bool createdNew);
+        return !createdNew;
     }
     
     [STAThread]
@@ -48,7 +51,7 @@ class Program
             };
             UriProtocolRegistrar.RegisterUriScheme("freedeck", mainModuleFileName, false);
             
-            Process.GetCurrentProcess().Kill();
+            Environment.Exit(0);
         }
         
         if (AnotherInstanceRunning())
@@ -63,7 +66,7 @@ class Program
                     break;
             }
 
-            Process.GetCurrentProcess().Kill();
+            Environment.Exit(0);
         } else {
             _ = Task.Run(() =>
             {

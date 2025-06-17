@@ -12,6 +12,7 @@ namespace Freedeck;
 public class HandoffHelper
 {
     public static bool ActiveQuery = false;
+    public static bool NativeOpened = false;
     public static void Initialize()
     {
         MainWindow.Instance.TabHandoff.IsVisible = false;
@@ -28,6 +29,7 @@ public class HandoffHelper
         {
             case "native_open":
                 MainWindow.Instance.Show();
+                NativeOpened = true;
                 break;
             case "exit":
                 MainWindow.Instance.TabClose.IsVisible = true;

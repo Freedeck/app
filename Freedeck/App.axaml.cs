@@ -17,6 +17,14 @@ public partial class App : Application
     {
         AvaloniaXamlLoader.Load(this);
     }
+
+    public void CloseApp(object? sender, EventArgs eventArgs)
+    {
+        Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            MainWindow.Instance.Close();
+        });
+    }
     
     private async void StartListening()
     {

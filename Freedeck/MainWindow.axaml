@@ -12,9 +12,6 @@
         Title="Freedeck"
         Closing="OnClosing"
         >
-    <Window.Styles>
-        <StyleInclude Source="/Styles1.axaml" />
-    </Window.Styles>
     <DockPanel>
         <Border Name="LeftSidebar" CornerRadius="15">
             <StackPanel HorizontalAlignment="Center" DockPanel.Dock="Left">
