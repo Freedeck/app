@@ -33,6 +33,7 @@ public static class FreedeckAppRunner
     private static Process? _node;
     private static Process? _electron;
     private static AppLaunchType? _currentlyRunning;
+    public static bool KillMode;
 
     public static bool ReallyCheckIfAppIsRunning()
     {
@@ -129,6 +130,7 @@ public static class FreedeckAppRunner
                 Dispatcher.UIThread.InvokeAsync(LauncherPersonalization.Initialize);
                 Dispatcher.UIThread.InvokeAsync(() =>
                 {
+                    if (KillMode) return;
                     MainWindow.Instance.TabHandoff.IsVisible = false;
                     MainWindow.Instance.TabRun.IsSelected = true;
                     MainWindow.Instance.TabSettings.IsEnabled = true;

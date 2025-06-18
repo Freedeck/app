@@ -140,9 +140,10 @@
                                 <TextBlock Margin="0,0,10,0" FontSize="36" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center">Freedeck</TextBlock>
                                 <Image HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,5,0,0" Source="avares://Freedeck/Assets/FDAP.png" Width="75" />
                             </WrapPanel>
-                            <TextBlock>Are you sure you want to close Freedeck?</TextBlock>
-                            <TextBlock Name="CloseAppForRealsiesText"/>
-                            <TextBlock>You may force the App to close, but you will lose Handoff (plugins) and NativeBridge</TextBlock> 
+                            <TextBlock>Are you sure you want to close the App?</TextBlock>
+                            <TextBlock></TextBlock>
+                            <TextBlock TextWrapping="Wrap" Name="CloseAppForRealsiesText"/>
+                            <TextBlock TextWrapping="Wrap" Name="LosingWarningText">You may force the App to close, but you will lose automatic plugin downloads alongside native controls.</TextBlock> 
                             <WrapPanel HorizontalAlignment="Center">
                                 <Button Click="CloseAppForRealsies">Close</Button>
                             </WrapPanel>
@@ -285,7 +286,7 @@
                                 </Button.Flyout>
                             </Button>
                             <TextBlock/>
-                            <Button Click="Wrapper_CloseHandler" Content="Close App"/>
+                            <Button Click="CloseAppForRealsies" Content="Close App"/>
                             <TextBlock/>
                             <TextBlock FontSize="24">Danger</TextBlock>
                             <Button Click="ButtonThreeFour_OnClick">FakeConfig:CreateDefaultConfig</Button>

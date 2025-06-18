@@ -10,11 +10,11 @@
              <TrayIcon.Icons>
                  <TrayIcons>
                      <TrayIcon Icon="/Assets/FDAP.ico" 
-                               ToolTipText="Avalonia Tray Icon ToolTip">
+                               ToolTipText="Freedeck">
                          <TrayIcon.Menu>
                              <NativeMenu>
-                                 <NativeMenuItem Header="Freedeck"  />
-                                 <NativeMenuItem Header="Exit Freedeck" Click="CloseApp" />
+                                 <NativeMenuItem Header="Freedeck App" IsEnabled="False" />
+                                 <NativeMenuItem Header="Close Freedeck" Click="CloseApp" />
                              </NativeMenu>
                          </TrayIcon.Menu>
                      </TrayIcon>

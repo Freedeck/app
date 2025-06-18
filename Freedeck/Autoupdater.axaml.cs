@@ -29,7 +29,9 @@ namespace Freedeck
     }
     public partial class Autoupdater : Window
     {
-        private static Autoupdater instance;
+        private static Autoupdater? instance;
+        public static bool isInstanceCreated => instance != null;
+        public static void Close() {(((Window)instance!)!).Close();}
         public Autoupdater()
         {
             InitializeComponent();

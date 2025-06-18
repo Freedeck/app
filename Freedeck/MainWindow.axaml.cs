@@ -31,43 +31,40 @@ public partial class MainWindow : Window
     public static MainWindow Instance = null!;
     private const bool DebugLog = true;
     private static readonly SetupLogic SetupLogic = new SetupLogic();
-
-    private static bool CloseHandler(bool force = false)
+    
+    
+    private void OnClosing(object? sender, WindowClosingEventArgs e)
     {
+        bool cancel;
+        
         if (HandoffHelper.ActiveQuery)
         {
             Dispatcher.UIThread.InvokeAsync(() =>
             {
                 Instance.Hide();
             });
-            return true;
-        };
-        if (FreedeckAppRunner.ReallyCheckIfAppIsRunning() || force || HandoffHelper.NativeOpened)
+            cancel = true;
+        } else  if (FreedeckAppRunner.ReallyCheckIfAppIsRunning() || HandoffHelper.NativeOpened)
         {
-           Dispatcher.UIThread.InvokeAsync(() =>
-           {
+            if (Autoupdater.isInstanceCreated) Autoupdater.Close();
+            Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                Instance.Show();
                 Instance.TabClose.IsVisible = true;
                 Instance.TabClose.IsSelected = true;
                 Instance.TabRun.IsVisible = false;
                 Instance.TabSettings.IsVisible = false;
                 bool[] list = FreedeckAppRunner.ReallyCheckIfAppIsRunningList();
-                Instance.CloseAppForRealsiesText.Text = (list[0] ? (list[0]?"Node" + (list[1]?" and Electron are ":" is"):"Electron is") : "No essential processes are" )+ " still running.";
-           });
-            return true;
+                Instance.CloseAppForRealsiesText.Text = (list[0] ? (list[0]?"Node" + (list[1]?" and Electron are":" is"):"Electron is") : "No essential processes are" )+ " still running.";
+            });
+            cancel = true;
         }
         else
         {
-            return false;
+            cancel = false;
         }
-    }
-    
-    private void OnClosing(object? sender, WindowClosingEventArgs e)
-    {
-        var shouldDo = CloseHandler();
-        if (shouldDo)
-        {
-            e.Cancel = true;
-        }
+
+        e.Cancel = cancel;
     }
     
     private void InstallerDoInstall(object? sender, RoutedEventArgs e)
@@ -426,16 +423,16 @@ public partial class MainWindow : Window
 
     private void CloseAppForRealsies(object? sender, RoutedEventArgs e)
     {
+        HandoffHelper.NativeOpened = false;
+        FreedeckAppRunner.KillMode = true;
         FreedeckAppRunner.KillAllProcesses();
-        TabClose.IsVisible = false;
-        TabRun.IsVisible = true;
-        TabSettings.IsVisible = true;
-        Instance.Close(true);
-    }
-
-    private void Wrapper_CloseHandler(object? sender, RoutedEventArgs e)
-    {
-        CloseHandler(true);
+        Instance.TabClose.IsVisible = true;
+        Instance.TabClose.IsSelected = true;
+        Instance.TabRun.IsVisible = false;
+        Instance.TabSettings.IsVisible = false;
+        Instance.CloseAppForRealsiesText.Text = "All essential processes have been closed.";
+        Instance.LosingWarningText.Text = "You may now close the App.";
+        Instance.Close();
     }
 
     private void ButtonThreeFour_OnClick(object? sender, RoutedEventArgs e)
