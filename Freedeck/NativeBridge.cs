@@ -109,7 +109,7 @@ public class NativeBridge
         await Task.Run(async () =>
         {
             InputSimulator sim = new InputSimulator();
-            var server = new NativeBridgeServer("http://localhost:5756/");
+            var server = new NativeBridgeServer(MainWindow.Instance.Slcnbws.Text ?? throw new InvalidOperationException());
             server.ListenForEvent("get_apps", (WebSocket socket, string[] data) =>
             {
                  JsonArray apps = GrabApps();

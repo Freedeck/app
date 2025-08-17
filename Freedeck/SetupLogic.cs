@@ -234,7 +234,7 @@ public class SetupLogic
         if (sender is Button)
         {
             MainWindow.InstallPath = MainWindow.Instance.InstallationDirectory.Text!;
-            MainWindow.Instance.SadDirectory.Text = "Directory: " + MainWindow.Instance.InstallationDirectory.Text;
+            MainWindow.Instance.SadDirectory.Text = "Installing to " + MainWindow.Instance.InstallationDirectory.Text;
         }
     }
 

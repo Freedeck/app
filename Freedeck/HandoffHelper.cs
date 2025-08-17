@@ -114,6 +114,7 @@ public class HandoffHelper
     private static List<String> _officialPrefixes = new List<string>()
     {
         "https://content-dl.freedeck.app/",
+        "https://releases.freedeck.app/",
         "https://freedeck.app/",
         "https://freedeck.github.io/plugins/"
     };

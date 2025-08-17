@@ -2,6 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:freedeck="clr-namespace:Freedeck"
         mc:Ignorable="d" 
         d:DesignWidth="900" d:DesignHeight="450"
         Width="900"
@@ -14,47 +15,72 @@
         >
     <DockPanel>
         <Border Name="LeftSidebar" CornerRadius="15">
-            <StackPanel HorizontalAlignment="Center" DockPanel.Dock="Left">
-                <Border Margin="0,15,0,0" CornerRadius="0,15,15,0" BorderThickness="0" Background="rgba(0,0,0,0.125)">
+            <DockPanel HorizontalAlignment="Center" DockPanel.Dock="Left" LastChildFill="True">
+                <Border DockPanel.Dock="Top" Padding="5,0" Margin="0,5,0,0" CornerRadius="0,15,15,0" BorderThickness="0" Background="rgba(0,0,0,0.125)">
                     <StackPanel>
                        <WrapPanel HorizontalAlignment="Center">
                            <TextBlock Margin="0,0,10,0" FontSize="36" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center">Freedeck</TextBlock>
                            <Image HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,5,0,0" Source="avares://Freedeck/Assets/FDAP.png" Width="75" />
                        </WrapPanel>
-                        <TextBlock HorizontalAlignment="Center" FontSize="16" Name="InstalledVersion">Freedeck is not installed.</TextBlock>
+                        <TextBlock HorizontalAlignment="Center" FontSize="16" Name="InstalledVersion">Welcome to Freedeck!</TextBlock>
                         <TextBlock IsVisible="False" HorizontalAlignment="Center" FontSize="16" Name="ILauncherVersion">Launcher vLoading</TextBlock>
                    </StackPanel>
                 </Border>
-                <Border Margin="0,15,0,0" CornerRadius="0,15,15,0" VerticalAlignment="Stretch" DockPanel.Dock="Left" Background="rgba(0,0,0,0.125)">
-                        <StackPanel>
-                            <TextBlock FontSize="20" HorizontalAlignment="Center" TextAlignment="Center">Releases</TextBlock>
-                            <ScrollViewer>
-                                <StackPanel Width="260" Height="270" Name="ReleaseCatalogs" />
+                <Border Margin="0,10,0,5" CornerRadius="0,15,15,0" VerticalAlignment="Stretch" DockPanel.Dock="Left" Background="rgba(0,0,0,0.125)">
+                        <Grid RowDefinitions="Auto,*">
+                            <TextBlock FontSize="20" 
+                                       HorizontalAlignment="Center" 
+                                       TextAlignment="Center"
+                                       Grid.Row="0">Releases</TextBlock>
+                            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                                <ItemsControl ItemsSource="{Binding Releases, RelativeSource={RelativeSource FindAncestor, AncestorType=freedeck:MainWindow}}" Name="ReleaseList">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate DataType="freedeck:Release">
+                                            <Border Margin="5" Classes.current="{Binding current}" CornerRadius="15">
+                                                <Border.Styles>
+                                                    <Style Selector="Border">
+                                                        <Setter Property="Padding" Value="5" />
+                                                        <Setter Property="Background" Value="rgba(0,0,0,0.125)"/>
+                                                    </Style>
+                                                    <Style Selector="Border.current">
+                                                        <Setter Property="Padding" Value="10" />
+                                                        <Setter Property="Background" Value="rgba(0,100,0,0.125)"/>
+                                                    </Style>
+                                                </Border.Styles>
+                                                <StackPanel>
+                                                    <TextBlock HorizontalAlignment="Center" Text="{Binding version}" FontWeight="Bold" />
+                                                    <TextBlock HorizontalAlignment="Center" Text="{Binding desc}" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
                             </ScrollViewer>
-                        </StackPanel>
+                        </Grid>
                 </Border>
-            </StackPanel>
+            </DockPanel>
         </Border>
         <Border CornerRadius="15" BorderThickness="10" Background="rgba(0,0,0,0.125)">
             <TabControl>
                 <TabItem Header="Install" Name="TabInstall" IsVisible="False">
                     <TabControl Name="InstallerNest">
-                        <TabItem Header="Welcome" Name="ITabInstall" IsSelected="True">
+                        <TabItem Header="Install" Name="ITabInstall" IsSelected="True">
                             <StackPanel>
                                 <TextBlock FontSize="36" Name="ITabInstallTxt">
-                                    Welcome
+                                    Welcome to Freedeck!
                                 </TextBlock>
-                                <TextBlock>Thank you for choosing my project, Freedeck.</TextBlock>
+                                <TextBlock>Thank you for choosing my project.</TextBlock>
                                 <TextBlock Name="ITabInstallDesc">
                                     You're one more click away from the FOSS alternative to the Elgato Stream Deck.
                                 </TextBlock>
                                 <TextBlock FontSize="8"/>
                                 <TextBlock FontSize="16">Before you install, please review:</TextBlock>
+                                <TextBlock FontSize="8"/>
                                 <Border CornerRadius="15" Background="rgba(0,0,0,0.25)" Padding="10">
                                     <StackPanel>
-                                        <TextBlock Name="SadDirectory">Directory... failed to load</TextBlock>
-                                        <TextBlock Name="SadAuthentication">Authentication: No</TextBlock>
+                                        <TextBlock Name="SadDirectory">Installing to... failed to load</TextBlock>
                                         <TextBlock Name="SadRelease">Release Channel: Stable</TextBlock>
+                                        <TextBlock Name="SadAuthentication" IsVisible="False">Authentication: No</TextBlock>
                                         <TextBlock Name="SadWelcome">Show Welcome Tiles: Yes</TextBlock>
                                     </StackPanel>
                                 </Border>
@@ -62,9 +88,9 @@
                                 <Border Name="AppInstallLogContainer" CornerRadius="15" Background="rgba(0,0,0,0.25)" Padding="10">
                                     <StackPanel>
                                         <TextBlock Name="AppInstallLog" />
+                                        <TextBlock FontSize="8"/>
                                     </StackPanel>
                                 </Border>
-                                <TextBlock />
                                 <TextBlock FontSize="16">If these look good to you, click Install.</TextBlock>
                                 <TextBlock Name="InstallState"/>
                                 <ProgressBar Name="InstallProgress" />
@@ -77,12 +103,7 @@
                         <TabItem Header="Settings" Name="ITabSetup">
                             <ScrollViewer>
                                 <StackPanel>
-                                    <TextBlock FontSize="36">
-                                        Settings
-                                    </TextBlock>
-                                    <TextBlock>Configure your installation!</TextBlock>
-                                    <TextBlock FontSize="8"/>
-                                    <TextBlock FontSize="24">Launcher Configuration</TextBlock>
+                                    <TextBlock FontSize="24">App Configuration</TextBlock>
                                     <ToggleSwitch IsChecked="True" Name="SaSDesktop" OffContent="No" OnContent="Yes">Create Desktop Shortcut</ToggleSwitch>
                                     <ToggleSwitch IsChecked="True" Name="SaSStart" OffContent="No" OnContent="Yes">Create Start Menu Shortcut</ToggleSwitch>
                                     <TextBlock>Installation Directory</TextBlock>
@@ -121,11 +142,11 @@
                                         </Button.Flyout>
                                     </Button>
                                     <TextBlock FontSize="8"/>
-                                    <TextBlock FontSize="24">App Configuration</TextBlock>
-                                    <ToggleSwitch IsChecked="False" Name="SaAuthentication" OffContent="No" OnContent="Yes">Use Authentication</ToggleSwitch>
+                                    <TextBlock FontSize="24">Companion Configuration</TextBlock>
+                                    <ToggleSwitch IsVisible="False" IsChecked="False" Name="SaAuthentication" OffContent="No" OnContent="Yes">Use Authentication</ToggleSwitch>
                                     <TextBox IsVisible="False" Name="SaAuthenticationPassword" Watermark="Enter a password (Default: FD123!)" PasswordChar="*"></TextBox>
                                     <ToggleSwitch IsChecked="True" Name="SaRelease" OffContent="Developer Beta" OnContent="Stable">Release Channel</ToggleSwitch>
-                                    <ToggleSwitch IsChecked="True" Name="SaWelcome" OffContent="No" OnContent="Yes">Show welcome Tiles</ToggleSwitch>
+                                    <ToggleSwitch IsChecked="True" Name="SaWelcome" OffContent="No" OnContent="Yes">Show Welcome Tiles</ToggleSwitch>
                                     <TextBlock/>
                                     <Button IsVisible="False" Name="SaNext" FontSize="24" HorizontalAlignment="Stretch">Next</Button>
                                 </StackPanel>
@@ -133,7 +154,7 @@
                         </TabItem>
                     </TabControl>
                 </TabItem>
-                <TabItem Header="Confirm" Name="TabClose" IsVisible="True"> 
+                <TabItem Header="Confirm" Name="TabClose" IsVisible="False"> 
                     <ScrollViewer>
                         <StackPanel>
                             <WrapPanel HorizontalAlignment="Center">
@@ -171,7 +192,7 @@
                        </StackPanel>
                    </ScrollViewer>
                 </TabItem>
-                <TabItem Header="Handoff" Name="TabHandoff" IsVisible="False">
+                <TabItem Header="Download" Name="TabHandoff" IsVisible="False">
                     <StackPanel>
                         <TextBlock FontSize="36" Name="THandoffPrompt" TextWrapping="Wrap">
                             Download Id from Repo?
@@ -193,12 +214,9 @@
                 <TabItem Header="Settings" Name="TabSettings">
                     <ScrollViewer>
                         <StackPanel>
-                            <TextBlock FontSize="36">
-                                Settings
-                            </TextBlock>
+                            <TextBlock FontSize="24">App Settings</TextBlock>
+                            <TextBlock Name="BuildIdUser" TextWrapping="Wrap">Build Identifier: </TextBlock>
                             <TextBlock />
-                            <TextBlock FontSize="24">Launcher</TextBlock>
-                            <TextBlock/>
                             <TextBlock>Version Channel</TextBlock>
                             <DockPanel>
                                 <ComboBox Name="SChannelSelector" />
@@ -209,15 +227,15 @@
                                 <TextBox MinWidth="200" Name="SFreedeckPath"></TextBox>
                                 <Button Click="Button_OnClick">Change</Button>    
                             </DockPanel>
-                            <TextBlock>Companion URL</TextBlock>
+                            <TextBlock>Companion RPC Host</TextBlock>
                             <TextBox IsEnabled="False" MinWidth="200" Name="SlcServer"></TextBox>
-                            <TextBlock>NativeBridge URL</TextBlock>
+                            <TextBlock>FreedeckWS Host</TextBlock>
                             <TextBox IsEnabled="False" MinWidth="200" Name="Slcnbws"></TextBox>
-                            <TextBlock>Release Index Server</TextBlock>
+                            <TextBlock>Release Index</TextBlock>
                             <TextBox IsEnabled="False" MinWidth="200" Name="SlcRelease"></TextBox>
                             <TextBlock>Launcher Configuration Path</TextBlock>
                             <TextBox IsEnabled="False" MinWidth="200" Name="SlcPath"></TextBox>
-                            <TextBlock Name="BuildIdUser" TextWrapping="Wrap">FDApp Build Identifier: </TextBlock>
+                            <TextBlock />
                             <WrapPanel>
                                 <Button Content="Update Launcher">
                                     <Button.Flyout >
@@ -250,11 +268,9 @@
                                     </Button.Flyout>
                                 </Button>
                             </WrapPanel>
-                            
                             <TextBlock/>
                             
-                            
-                            <TextBlock FontSize="24">Companion</TextBlock>
+                            <TextBlock FontSize="24">Companion Settings</TextBlock>
                             <TextBlock/>
                             <ToggleSwitch Name="ShowTerminal" IsCheckedChanged="ToggleShowTerminal">Show Terminal</ToggleSwitch>
                             <TextBlock>Autoupdater Behavior</TextBlock>

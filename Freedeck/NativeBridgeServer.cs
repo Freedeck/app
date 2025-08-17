@@ -39,9 +39,9 @@ public class NativeBridgeServer
 
     public async Task StartAsync()
     {
-        MainWindow.Log("NativeBridgeServer", "NBWS starting..."); 
+        MainWindow.Log("FreedeckWS", "FDWS starting..."); 
         _httpListener.Start();
-        MainWindow.Log("NativeBridgeServer", "NBWS opened on " + uriPrefix); 
+        MainWindow.Log("FreedeckWS", "FDWS opened on " + uriPrefix); 
         
         while (true)
         {

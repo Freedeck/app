@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -24,43 +25,79 @@ public partial class MainWindow : Window
     private static readonly string Home = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
     public static string InstallPath = Home + "\\Freedeck";
     public static string AppVersion = "1.0.0";
-    public static string LauncherVersion = "1.0.0-rc9";
-    public static string BuildId = "d4c978b4bbf9701ba49ec4f20bcc0b6957eedd4f";
+    public static string LauncherVersion = "1.0.0-rc10";
+    public static string BuildId = "9dc28c7c6c6b233c53b0c3d2fae337991f71d56b";
     public static bool AutoUpdaterTestMode = false;
     private bool _isUndergoingModification = false;
     public static MainWindow Instance = null!;
     private const bool DebugLog = true;
     private static readonly SetupLogic SetupLogic = new SetupLogic();
+
+    public ObservableCollection<Release> Releases { get; } = new();
     
     
     private void OnClosing(object? sender, WindowClosingEventArgs e)
     {
-        bool cancel;
+        bool cancel = false;
         
-        if (HandoffHelper.ActiveQuery)
+        try
         {
-            Dispatcher.UIThread.InvokeAsync(() =>
+            if (HandoffHelper.ActiveQuery)
             {
-                Instance.Hide();
-            });
-            cancel = true;
-        } else  if (FreedeckAppRunner.ReallyCheckIfAppIsRunning() || HandoffHelper.NativeOpened)
-        {
-            if (Autoupdater.isInstanceCreated) Autoupdater.Close();
-            Dispatcher.UIThread.InvokeAsync(() =>
+                Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    Instance.Hide();
+                });
+                cancel = true;
+            } 
+            else if (FreedeckAppRunner.ReallyCheckIfAppIsRunning() || HandoffHelper.NativeOpened)
             {
-                Instance.Show();
-                Instance.TabClose.IsVisible = true;
-                Instance.TabClose.IsSelected = true;
-                Instance.TabRun.IsVisible = false;
-                Instance.TabSettings.IsVisible = false;
-                bool[] list = FreedeckAppRunner.ReallyCheckIfAppIsRunningList();
-                Instance.CloseAppForRealsiesText.Text = (list[0] ? (list[0]?"Node" + (list[1]?" and Electron are":" is"):"Electron is") : "No essential processes are" )+ " still running.";
-            });
-            cancel = true;
+                if (Autoupdater.isInstanceCreated) 
+                {
+                    Autoupdater.Close();
+                }
+                
+                Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    Instance.Show();
+                    Instance.TabClose.IsVisible = true;
+                    Instance.TabClose.IsSelected = true;
+                    Instance.TabRun.IsVisible = false;
+                    Instance.TabSettings.IsVisible = false;
+                    
+                    bool[] processList = FreedeckAppRunner.ReallyCheckIfAppIsRunningList();
+                    
+                    string processText;
+                    if (processList[0] && processList[1])
+                    {
+                        processText = "Node and Electron are still running.";
+                    }
+                    else if (processList[0])
+                    {
+                        processText = "Node is still running.";
+                    }
+                    else if (processList[1])
+                    {
+                        processText = "Electron is still running.";
+                    }
+                    else
+                    {
+                        processText = "Essential processes are still running.";
+                    }
+                    
+                    Instance.CloseAppForRealsiesText.Text = processText;
+                });
+                cancel = true;
+            }
+            else
+            {
+                cancel = false;
+            }
         }
-        else
+        catch (Exception ex)
         {
+            // Log error but allow closing to prevent app from being stuck
+            Log("MainWindow", $"Error during close check: {ex.Message}");
             cancel = false;
         }
 
@@ -72,7 +109,6 @@ public partial class MainWindow : Window
         if (InstallationDirectory.Text != null) InstallPath = InstallationDirectory.Text;
         LauncherConfig.Configuration.InstallationDirectory = InstallPath;
         LauncherConfig.Update();
-        FreedeckAppInstaller inst = new FreedeckAppInstaller();
         ITabSetup.IsVisible = false;
         ITabInstall.Header = "Installing...";
         InstallerBtn.IsVisible = false;
@@ -82,25 +118,24 @@ public partial class MainWindow : Window
         ITabInstallDesc.Text =
             "";
 
-        InstallState.Text = "Initializing installer helper...";
+        InstallState.Text = "Starting installer...";
         InstallProgress.Value = 10;
-        inst.InstallIt(InstallerFinishedHelper);
-    }
-
-    private void InstallerFinished()
-    {
-        Dispatcher.UIThread.InvokeAsync(() =>
+        var inst = new FreedeckAppInstaller();
+        _ = inst.InstallAsync(async () =>
         {
-            GetAndSetVersionData();
-            _ = ReleaseHelper.UpdateCatalogAsync();
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                GetAndSetVersionData();
+                _ = ReleaseHelper.UpdateCatalogAsync();
+            });
+            TabInstall.IsVisible = false;
+            TabSettings.IsVisible = true;
+            TabRun.IsVisible = true;
+            TabRun.IsSelected = true;
+            SetInstalledVersions();
+            Instance.Title = "Freedeck";
+            SetupAllConfiguration();
         });
-        TabInstall.IsVisible = false;
-        TabSettings.IsVisible = true;
-        TabRun.IsVisible = true;
-        TabRun.IsSelected = true;
-        SetInstalledVersions();
-        Instance.Title = "Freedeck";
-        SetupAllConfiguration();
     }
 
     public static void SetInstalledVersions()
@@ -110,11 +145,6 @@ public partial class MainWindow : Window
             Instance.InstalledVersion.Text = "Installed Release: v" + AppVersion;
             Instance.ILauncherVersion.Text = "App v" + LauncherVersion;
         });
-    }
-    
-    private void InstallerFinishedHelper()
-    {
-        Dispatcher.UIThread.InvokeAsync(InstallerFinished);
     }
 
     public static void GetAndSetVersionData()
@@ -176,7 +206,7 @@ public partial class MainWindow : Window
             });
 
             Log("MainWindow>TaskOwner", "Invoking UI tasks");
-            Dispatcher.UIThread.InvokeAsync(() =>
+            await Dispatcher.UIThread.InvokeAsync(() =>
             {
                 Log("TaskOwner>UIT", "Handling Handoff argument");
                 if (Application.Current?.ApplicationLifetime is ClassicDesktopStyleApplicationLifetime { Args.Length: > 0 } desktop) HandoffHelper.HandleCommand(desktop.Args[0]);
@@ -189,7 +219,7 @@ public partial class MainWindow : Window
             });
             
             Log("MainWindow>TaskOwner", "Invoking configuration logic");
-            await Task.Run(() =>
+            await Task.Run(async () =>
             {
                 Log("MainWindow>CfgTasks", "Checking if app is installed");
                 if (IsAppInstalled())
@@ -197,12 +227,12 @@ public partial class MainWindow : Window
                     Log("MainWindow>CfgTasks", "Setting version data");
                     GetAndSetVersionData();
                     Log("MainWindow>CfgTasks", "Invoking SetupAllConfiguration");
-                    Dispatcher.UIThread.InvokeAsync(SetupAllConfiguration);
+                    await Dispatcher.UIThread.InvokeAsync(SetupAllConfiguration);
                 }
                 else
                 {
                     Log("MainWindow>CfgTasks", "Moving view to SetupLogic");
-                    Dispatcher.UIThread.InvokeAsync(() => SetupLogic.OnLaunch(this));
+                    await Dispatcher.UIThread.InvokeAsync(() => SetupLogic.OnLaunch(this));
                 }
             });
         });
@@ -215,7 +245,7 @@ public partial class MainWindow : Window
         TabInstall.IsVisible = false;
         TabClose.IsVisible = false;
         TabClose.IsSelected = false;
-        // TabRun.IsSelected = true;
+        ProgressBarContainer.IsVisible = true;
         SFreedeckPath.Text = LauncherConfig.Configuration.InstallationDirectory;
         SlcPath.Text = LauncherConfig.Configuration.ConfigurationPath;
         SlcServer.Text = LauncherConfig.Configuration.ServerUrl;
@@ -251,10 +281,10 @@ public partial class MainWindow : Window
     {
         if(_isUndergoingModification) return;
         if (SFreedeckPath.Text != null) InstallPath = SFreedeckPath.Text;
-        Dispatcher.UIThread.InvokeAsync(() =>
+        Dispatcher.UIThread.InvokeAsync(async () =>
         {
             GetAndSetVersionData();
-            ReleaseHelper.FullyUpdate();
+            await ReleaseHelper.FullyUpdate();
         });
     }
 
@@ -295,7 +325,7 @@ public partial class MainWindow : Window
             Log("MainWindow>Autoupdate", "Setting version data");
             GetAndSetVersionData();
             Log("MainWindow>Autoupdate", "Invoking SetupAllConfiguration");
-            Dispatcher.UIThread.InvokeAsync(SetupAllConfiguration);
+            await Dispatcher.UIThread.InvokeAsync(SetupAllConfiguration);
             
             FreedeckAppRunner.StartFreedeck(launchType);
         });
@@ -423,16 +453,51 @@ public partial class MainWindow : Window
 
     private void CloseAppForRealsies(object? sender, RoutedEventArgs e)
     {
-        HandoffHelper.NativeOpened = false;
-        FreedeckAppRunner.KillMode = true;
-        FreedeckAppRunner.KillAllProcesses();
-        Instance.TabClose.IsVisible = true;
-        Instance.TabClose.IsSelected = true;
-        Instance.TabRun.IsVisible = false;
-        Instance.TabSettings.IsVisible = false;
-        Instance.CloseAppForRealsiesText.Text = "All essential processes have been closed.";
-        Instance.LosingWarningText.Text = "You may now close the App.";
-        Instance.Close();
+        try
+        {
+            HandoffHelper.NativeOpened = false;
+            FreedeckAppRunner.KillMode = true;
+
+            FreedeckAppRunner.KillAllProcesses();
+
+            Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                Instance.TabClose.IsVisible = true;
+                Instance.TabClose.IsSelected = true;
+                Instance.TabRun.IsVisible = false;
+                Instance.TabSettings.IsVisible = false;
+                Instance.CloseAppForRealsiesText.Text = "All essential processes have been closed.";
+                Instance.LosingWarningText.Text = "The app will now close.";
+            });
+
+            _ = Task.Delay(500).ContinueWith(_ =>
+            {
+                Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    try
+                    {
+                        if (Application.Current?.ApplicationLifetime is IControlledApplicationLifetime lifetime)
+                        {
+                            lifetime.Shutdown(0);
+                        }
+                        else
+                        {
+                            Environment.Exit(0);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log("MainWindow", $"Error during forced close: {ex.Message}");
+                        Environment.Exit(0);
+                    }
+                });
+            });
+        }  catch (Exception ex)
+        {
+            Log("MainWindow", $"Error in CloseAppForRealsies: {ex.Message}");
+            // If everything fails, force exit
+            Environment.Exit(0);
+        }
     }
 
     private void ButtonThreeFour_OnClick(object? sender, RoutedEventArgs e)

@@ -37,20 +37,46 @@ public static class FreedeckAppRunner
 
     public static bool ReallyCheckIfAppIsRunning()
     {
-        var nodeHasExited = _node is { HasExited: true };
-        var electronHasExited = _electron is { HasExited: true };
-        var hasExitedCheck = (_node != null && nodeHasExited) || (_electron != null && electronHasExited);
+        try
+        {
+            bool nodeRunning = _node != null && !_node.HasExited;
+            bool electronRunning = _electron != null && !_electron.HasExited;
+            bool anyProcessRunning = nodeRunning || electronRunning;
 
-        MainWindow.Log("FAR>ReallyCheckIfAppIsRunning", "Node has exited = " + nodeHasExited);
-        MainWindow.Log("FAR>ReallyCheckIfAppIsRunning", "Electron has exited = " + electronHasExited);
-        MainWindow.Log("FAR>ReallyCheckIfAppIsRunning", "_appRunning = " + _appRunning);
+            MainWindow.Log("FAR>ReallyCheckIfAppIsRunning", $"Node running = {nodeRunning}");
+            MainWindow.Log("FAR>ReallyCheckIfAppIsRunning", $"Electron running = {electronRunning}");
+            MainWindow.Log("FAR>ReallyCheckIfAppIsRunning", $"_appRunning flag = {_appRunning}");
+            MainWindow.Log("FAR>ReallyCheckIfAppIsRunning", $"Any process running = {anyProcessRunning}");
         
-        return (_appRunning && !hasExitedCheck);
+            if (!anyProcessRunning)
+            {
+                _appRunning = false;
+            }
+        
+            return _appRunning && anyProcessRunning;
+        }
+        catch (Exception ex)
+        {
+            MainWindow.Log("FAR>ReallyCheckIfAppIsRunning", $"Error checking processes: {ex.Message}");
+            _appRunning = false;
+            return false;
+        }
     }
     
     public static bool[] ReallyCheckIfAppIsRunningList()
     {
-        return [_node != null, _electron != null];
+        try
+        {
+            bool nodeRunning = _node != null && !_node.HasExited;
+            bool electronRunning = _electron != null && !_electron.HasExited;
+        
+            return [nodeRunning, electronRunning];
+        }
+        catch (Exception ex)
+        {
+            MainWindow.Log("FAR>ReallyCheckIfAppIsRunningList", $"Error checking process list: {ex.Message}");
+            return [false, false];
+        }
     }
 
     public static void KillAllProcesses()
